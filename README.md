@@ -1,2 +1,3 @@
-# slip-fhir
-A FHIR client plugin for SLIP
+# SLIP-FHIR
+
+A FHIR client plugin for SLIP.
