@@ -1,0 +1,16 @@
+{
+  "primitives": [
+    {
+      "name": "integer32",
+      "description": "A whole number"
+      "pattern": "^[0]|[-+]?[1-9][0-9]*$",
+      "parent": "integer"
+    },
+    {
+      "name": "unsignedint",
+      "description": "An integer with a value that is not negative (e.g. \u003e\u003d 0)",
+      "pattern": "^[0]|([1-9][0-9]*)$",
+      "parent": "integer32"
+    }
+  ]
+}
