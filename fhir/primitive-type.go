@@ -5,8 +5,9 @@ package fhir
 import (
 	"fmt"
 	"math"
+	"regexp"
+	"time"
 
-	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 )
 
@@ -21,6 +22,7 @@ type PrimitiveType struct {
 	description string
 	pattern     string
 	parent      string
+	rx          *regexp.Regexp
 	valid       func(v any) bool // called on bag (simple) elements
 	inherit     slip.Class       // direct super
 	pkg         *slip.Package
@@ -28,7 +30,9 @@ type PrimitiveType struct {
 }
 
 func (pt *PrimitiveType) init() {
-	fmt.Printf("*** init %s\n", pretty.SEN(pt))
+	if pt.valid != nil {
+		return
+	}
 	if pt.name == pt.parent {
 		panic(fmt.Sprintf("primitive type %s specifies a parent of itself", pt.name))
 	}
@@ -59,11 +63,18 @@ func (pt *PrimitiveType) init() {
 			return ok
 		}
 	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "fstring", "uri", "url", "uuid":
-		// TBD use regex
-	case "date":
-		// TBD time or string with regex
-	case "dateTime":
-		// TBD time or string with regex
+		pt.rx = regexp.MustCompile(pt.pattern)
+		pt.valid = func(v any) bool {
+			if s, ok := v.(string); ok && pt.rx.MatchString(s) {
+				return true
+			}
+			return false
+		}
+	case "date", "dateTime", "instant", "time":
+		pt.rx = regexp.MustCompile(pt.pattern)
+		pt.valid = func(v any) bool {
+			return primitiveTime(v, pt.rx)
+		}
 	case "decimal":
 		pt.valid = func(v any) bool {
 			if _, ok := v.(float64); ok {
@@ -71,34 +82,30 @@ func (pt *PrimitiveType) init() {
 			}
 			return false
 		}
-	case "instant":
-		// TBD time or string with regex
 	case "integer32":
 		pt.valid = func(v any) bool {
-			if i, ok := v.(int64); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
+			if i, ok := primitiveInt(v); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
 				return true
 			}
 			return false
 		}
 	case "integer64":
 		pt.valid = func(v any) bool {
-			if _, ok := v.(int64); ok {
+			if _, ok := primitiveInt(v); ok {
 				return true
 			}
 			return false
 		}
 	case "positiveint":
 		pt.valid = func(v any) bool {
-			if i, ok := v.(int64); ok && 0 < i && i <= math.MaxInt32 {
+			if i, ok := primitiveInt(v); ok && 0 < i && i <= math.MaxInt32 {
 				return true
 			}
 			return false
 		}
-	case "time":
-		// TBD time or string with regex
 	case "unsignedint":
 		pt.valid = func(v any) bool {
-			if i, ok := v.(int64); ok && 0 <= i && i <= math.MaxInt32 {
+			if i, ok := primitiveInt(v); ok && 0 <= i && i <= math.MaxInt32 {
 				return true
 			}
 			return false
@@ -113,7 +120,6 @@ func (pt *PrimitiveType) init() {
 			return true
 		}
 	}
-	// TBD switch on type
 }
 
 // String representation of the Object.
@@ -257,4 +263,57 @@ func (pt *PrimitiveType) MakeInstance() slip.Instance {
 // the class is a built in class.
 func (pt *PrimitiveType) LoadForm() slip.Object {
 	return nil
+}
+
+// Validate return without panicing if the value is acceptable for the
+// instance and panics otherwise.
+func (pt *PrimitiveType) Validate(value any) {
+	if !pt.valid(value) {
+		panic(fmt.Sprintf("%s, a %T is not a valid value for a %s.", value, value, pt))
+	}
+}
+
+func primitiveInt(v any) (i int64, ok bool) {
+	ok = true
+	switch tv := v.(type) {
+	case int64:
+		i = tv
+	case int:
+		i = int64(tv)
+	case int8:
+		i = int64(tv)
+	case int16:
+		i = int64(tv)
+	case int32:
+		i = int64(tv)
+	case uint:
+		i = int64(tv)
+	case uint8:
+		i = int64(tv)
+	case uint16:
+		i = int64(tv)
+	case uint32:
+		i = int64(tv)
+	case uint64:
+		i = int64(tv)
+	case float32:
+		i = int64(tv)
+		ok = float32(i) == tv
+	case float64:
+		i = int64(tv)
+		ok = float64(i) == tv
+	default:
+		ok = false
+	}
+	return
+}
+
+func primitiveTime(v any, rx *regexp.Regexp) (ok bool) {
+	switch tv := v.(type) {
+	case time.Time:
+		ok = true
+	case string:
+		ok = rx.MatchString(tv)
+	}
+	return
 }

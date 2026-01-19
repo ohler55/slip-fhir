@@ -6,6 +6,11 @@
         (schema (make-bag "{}")))
     (with-open-file (f input-filename :direction :input)
       (send fhir-schema :read f))
+
+    (send schema :set (car (last (split (send fhir-schema :get "id") "/"))) "version")
+    ;;"id": "http://hl7.org/fhir/json-schema/5.0",
+
+
     (let* ((defs (send fhir-schema :get "definitions" t))
            (res-map (send fhir-schema :get "discriminator.mapping" t))
            primitives)
@@ -18,24 +23,32 @@
                  (let ((pb (make-bag "{}"))
                        (fields (cdr adef))
                        val)
-                   (cond ((string= "string" name) (setq name "fstring"))
-                         ((string= "integer" name) (setq name "integer32")))
-                   (send pb :set name "name")
                    (when (setq val (cdr (assoc "description" fields)))
                      (send pb :set val "description"))
                    (when (setq val (cdr (assoc "pattern" fields)))
                      (send pb :set val "pattern"))
-                   (setq val (cdr (assoc "type" fields)))
-                   (send pb :set
-                         (cond ((equal val "string") "fstring")
-                               ((equal val "boolean") "symbol") ;; TBD what should this be?
-                               ((equal val "number")
-                                (ecase name
-                                  ("unsignedInt" "integer32")
-                                  ("positiveInt" "integer32")
-                                  ("integer32" "integer")
-                                  ("decimal" "double-float"))))
-                         "parent")
+                   (send pb :set name "name")
+                   ;; Since most primitives need some customization a case
+                   ;; statement is used.
+                   (case name
+                     ("string"
+                      (send pb :set "fstring" "name")
+                      (send pb :set "string" "parent"))
+                     ("integer"
+                      (send pb :set "integer32" "name")
+                      (send pb :set "integer" "parent"))
+                     ("unsignedInt" (send pb :set "integer32" "parent"))
+                     ("positiveInt" (send pb :set "integer32" "parent"))
+                     ("integer64" (send pb :set "fixnum" "parent"))
+                     ("decimal" (send pb :set "double-float" "parent"))
+                     ("boolean" (send pb :set "symbol" "parent"))
+                     ("time"
+                      (send pb :set "ftime" "name")
+                      (send pb :set "time" "parent"))
+                     ((or "date" "instant" "dateTime")
+                      (send pb :set "time" "parent"))
+                     (t (send pb :set "fstring" "parent")))
+
                    (setq primitives (add primitives pb))))
 
                 ;; TBD other types
@@ -44,4 +57,4 @@
                  ))))
       (send schema :set primitives "primitives")
       (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
-        (send schema :write f :pretty t :json t)))))
+        (send schema :write f :pretty t :json t :depth 1)))))

@@ -2,6 +2,13 @@
 
 - add option for two args to bag-walk
 - add slip arg passing on startup
+ - -a foo=bar or just -a foo and then $args or $@ and $0, $1, etc
+ - add sort option to bag-write or make sure pretty is sorted
+- M-? cuts off last line(s) - try do-all-symbols
+- test primitives
+ - get class, assert, call Validate
+
+- slap - repo for slip + plugins and embeded lisp code
 
 - convert script
  - fstring parent should be string

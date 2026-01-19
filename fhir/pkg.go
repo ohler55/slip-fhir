@@ -10,6 +10,7 @@ import (
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
+	_ "github.com/ohler55/slip/pkg/clos"
 )
 
 //go:embed "fhir5.json"
@@ -56,6 +57,8 @@ func init() {
 }
 
 func initTypes() {
+	// slip/pkg/clos is needed so make sure it gets inited first with an
+	// import.
 	f5 := sen.MustParse(fhir5JSON)
 	var primitives []*PrimitiveType
 

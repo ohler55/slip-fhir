@@ -1,2 +1,4 @@
 github.com/ohler55/ojg v1.27.0 h1:1JzdkMpDc/X9bzRaN1+8AFLnrSiFy96yDSaeACCGD5U=
 github.com/ohler55/ojg v1.27.0/go.mod h1:/Y5dGWkekv9ocnUixuETqiL58f+5pAsUfg5P8e7Pa2o=
+golang.org/x/text v0.28.0 h1:rhazDwis8INMIwQ4tpjLDzUhx6RlXqZNPEM0huQojng=
+golang.org/x/text v0.28.0/go.mod h1:U8nCwOR8jO/marOQ0QbDiOngZVEBB7MAiitBuMjXiNU=
