@@ -1,5 +1,13 @@
 # slip-fhir notes
 
+- add option for two args to bag-walk
+- add slip arg passing on startup
+
+- convert script
+ - fstring parent should be string
+ - time
+ - xhtml
+
 - schema
  - get list of resources from discriminator.mapping
  - walk definitions

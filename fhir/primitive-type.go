@@ -3,8 +3,10 @@
 package fhir
 
 import (
-	"runtime/debug"
+	"fmt"
+	"math"
 
+	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 )
 
@@ -19,22 +21,25 @@ type PrimitiveType struct {
 	description string
 	pattern     string
 	parent      string
-	valid       func(v any) bool
-	inherit     slip.Class // direct super
+	valid       func(v any) bool // called on bag (simple) elements
+	inherit     slip.Class       // direct super
 	pkg         *slip.Package
 	precedence  []slip.Symbol
 }
 
 func (pt *PrimitiveType) init() {
-	defer func() {
-		if rec := recover(); rec != nil {
-			debug.PrintStack()
-		}
-	}()
-	pt.inherit = slip.FindClass(pt.parent)
+	fmt.Printf("*** init %s\n", pretty.SEN(pt))
+	if pt.name == pt.parent {
+		panic(fmt.Sprintf("primitive type %s specifies a parent of itself", pt.name))
+	}
+
+	pt.inherit = Pkg.FindClass(pt.parent)
 	if pt.inherit == nil {
-		// try fhir package
-		pt.inherit = Pkg.FindClass(pt.parent)
+		// try current package
+		pt.inherit = slip.FindClass(pt.parent)
+	}
+	if pt.inherit == nil {
+		panic(fmt.Sprintf("primitive type %s specifies an undefined parent of %s", pt.name, pt.parent))
 	}
 	if ipt, ok := pt.inherit.(*PrimitiveType); ok && ipt.valid == nil {
 		ipt.init()
@@ -46,9 +51,67 @@ func (pt *PrimitiveType) init() {
 
 	pt.precedence = append(pt.precedence, slip.TrueSymbol)
 
-	// TBD also an indicator of inited
-	pt.valid = func(v any) bool {
-		return true
+	// The valid field is also an indicator of init() having been called.
+	switch pt.name {
+	case "boolean":
+		pt.valid = func(v any) bool {
+			_, ok := v.(bool)
+			return ok
+		}
+	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "fstring", "uri", "url", "uuid":
+		// TBD use regex
+	case "date":
+		// TBD time or string with regex
+	case "dateTime":
+		// TBD time or string with regex
+	case "decimal":
+		pt.valid = func(v any) bool {
+			if _, ok := v.(float64); ok {
+				return true
+			}
+			return false
+		}
+	case "instant":
+		// TBD time or string with regex
+	case "integer32":
+		pt.valid = func(v any) bool {
+			if i, ok := v.(int64); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
+				return true
+			}
+			return false
+		}
+	case "integer64":
+		pt.valid = func(v any) bool {
+			if _, ok := v.(int64); ok {
+				return true
+			}
+			return false
+		}
+	case "positiveint":
+		pt.valid = func(v any) bool {
+			if i, ok := v.(int64); ok && 0 < i && i <= math.MaxInt32 {
+				return true
+			}
+			return false
+		}
+	case "time":
+		// TBD time or string with regex
+	case "unsignedint":
+		pt.valid = func(v any) bool {
+			if i, ok := v.(int64); ok && 0 <= i && i <= math.MaxInt32 {
+				return true
+			}
+			return false
+		}
+	case "xhtml":
+		pt.valid = func(v any) bool {
+			_, ok := v.(string)
+			return ok
+		}
+	default:
+		pt.valid = func(v any) bool {
+			return true
+		}
 	}
 	// TBD switch on type
 }
@@ -71,6 +134,7 @@ func (pt *PrimitiveType) Simplify() any {
 		"name":        pt.name,
 		"description": pt.description,
 		"pattern":     pt.pattern,
+		"parent":      pt.parent,
 		"package":     pt.pkg.Name,
 	}
 	if pt.inherit != nil {
