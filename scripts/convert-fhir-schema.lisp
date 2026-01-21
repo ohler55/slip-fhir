@@ -83,9 +83,7 @@
                                            "PrimitiveType"
                                            "BackboneType"
                                            "Resource"
-                                           "DomainResource"
-                                           "CanonicalResource"
-                                           "MetadataResource"))
+                                           "DomainResource"))
                                (setq hierarchy (add hierarchy (form-hierarchy-node p def))))
 
                               ;; Everything else is a FHIR DataType.
@@ -102,7 +100,7 @@
 ;;; The FHIR heirarchy is defined as:
 ;;; Base
 ;;;   Element
-;;;     BackboneElement
+;;;     BackboneElement - not is schema file, same as BackboneType though
 ;;;     DataType
 ;;;       <-- most datatypes go here (e.g., Coding)
 ;;;       PrimitiveType <-- not really here in non-XML implementations
@@ -110,8 +108,6 @@
 ;;;   Resource - not in the schema file
 ;;;     DomainResource - not in the schema file
 ;;;       <-- most resources go here
-;;;       CanonicalResource - not in the schema file
-;;;         MetadataResource - not in the schema file
 ;;;
 (defun form-hierarchy-node (name def)
   ;; (format t "*** hierarchy: ~A~%" p)

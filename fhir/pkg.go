@@ -47,6 +47,12 @@ func init() {
 			Export: true,
 			Doc:    `The fhir package.`,
 		},
+		"*fhir-version*": {
+			Val:    slip.String("unknown"),
+			Const:  true,
+			Export: true,
+			Doc:    `The FHIR version.`,
+		},
 	})
 
 	initTypes()
@@ -60,8 +66,13 @@ func initTypes() {
 	// slip/pkg/clos is needed so make sure it gets inited first with an
 	// import.
 	f5 := sen.MustParse(fhir5JSON)
-	var primitives []*PrimitiveType
 
+	if version := alt.String(jp.C("version").First(f5)); 0 < len(version) {
+		vv := Pkg.GetVarVal("*fhir-version*")
+		vv.Val = slip.String(version)
+	}
+
+	var primitives []*PrimitiveType
 	for _, pa := range jp.C("primitives").W().Get(f5) {
 		pt := PrimitiveType{
 			name:        alt.String(jp.C("name").First(pa)),

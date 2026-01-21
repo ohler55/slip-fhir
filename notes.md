@@ -1,6 +1,6 @@
 # slip-fhir notes
 
-- M-? cuts off last line(s) - try do-all-symbols
+- allow call to create a fhir package from a file, don't add it to user explicitly
 
 - slap - repo for slip + plugins and embeded lisp code
 
@@ -47,8 +47,8 @@ Base
       BackboneType
   Resource
     DomainResource
-      CanonicalResource
-        MetadataResource
+      CanonicalResource <- interfaces, don't count
+        MetadataResource <- interfaces, don't count
       Account
       Patient
       etc
