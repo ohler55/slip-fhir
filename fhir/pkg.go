@@ -1,9 +1,25 @@
 // Copyright (c) 2026, Peter Ohler, All rights reserved.
 
-package jet
+package fhir
 
 import (
+	_ "embed"
+	"strings"
+
+	"github.com/ohler55/ojg/alt"
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
+	_ "github.com/ohler55/slip/pkg/clos"
+)
+
+//go:embed "fhir5.json"
+var fhir5JSON []byte
+
+const (
+	bold         = "\x1b[1m"
+	colorOff     = "\x1b[m"
+	indentSpaces = "                                                                                "
 )
 
 var (
@@ -31,11 +47,44 @@ func init() {
 			Export: true,
 			Doc:    `The fhir package.`,
 		},
+		"*fhir-version*": {
+			Val:    slip.String("unknown"),
+			Const:  true,
+			Export: true,
+			Doc:    `The FHIR version.`,
+		},
 	})
 
-	// TBD
+	initTypes()
 
-	// TBD Pkg.Initialize(nil, &PubMsg{}) // lock
+	Pkg.Initialize(nil, &PrimitiveType{}) // lock
 	slip.AddPackage(&Pkg)
 	slip.UserPkg.Use(&Pkg)
+}
+
+func initTypes() {
+	// slip/pkg/clos is needed so make sure it gets inited first with an
+	// import.
+	f5 := sen.MustParse(fhir5JSON)
+
+	if version := alt.String(jp.C("version").First(f5)); 0 < len(version) {
+		vv := Pkg.GetVarVal("*fhir-version*")
+		vv.Val = slip.String(version)
+	}
+
+	var primitives []*PrimitiveType
+	for _, pa := range jp.C("primitives").W().Get(f5) {
+		pt := PrimitiveType{
+			name:        alt.String(jp.C("name").First(pa)),
+			description: alt.String(jp.C("description").First(pa)),
+			pattern:     alt.String(jp.C("pattern").First(pa)),
+			parent:      alt.String(jp.C("parent").First(pa)),
+			pkg:         &Pkg,
+		}
+		slip.RegisterClass(strings.ToLower(pt.name), &pt)
+		primitives = append(primitives, &pt)
+	}
+	for _, pt := range primitives {
+		pt.init()
+	}
 }
