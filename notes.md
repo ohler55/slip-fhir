@@ -1,6 +1,5 @@
 # slip-fhir notes
 
-- add option for two args to bag-walk
 - M-? cuts off last line(s) - try do-all-symbols
 
 - test primitives

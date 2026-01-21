@@ -62,7 +62,8 @@ func (pt *PrimitiveType) init() {
 			_, ok := v.(bool)
 			return ok
 		}
-	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "fstring", "uri", "url", "uuid":
+	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "fstring", "uri", "url", "uuid",
+		"ftime", "date":
 		pt.rx = regexp.MustCompile(pt.pattern)
 		pt.valid = func(v any) bool {
 			if s, ok := v.(string); ok && pt.rx.MatchString(s) {
@@ -70,17 +71,18 @@ func (pt *PrimitiveType) init() {
 			}
 			return false
 		}
-	case "date", "dateTime", "instant", "time":
+	case "dateTime", "instant":
 		pt.rx = regexp.MustCompile(pt.pattern)
 		pt.valid = func(v any) bool {
 			return primitiveTime(v, pt.rx)
 		}
 	case "decimal":
-		pt.valid = func(v any) bool {
-			if _, ok := v.(float64); ok {
-				return true
+		pt.valid = func(v any) (ok bool) {
+			switch v.(type) {
+			case int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8, float64, float32:
+				ok = true
 			}
-			return false
+			return
 		}
 	case "integer32":
 		pt.valid = func(v any) bool {
@@ -96,14 +98,14 @@ func (pt *PrimitiveType) init() {
 			}
 			return false
 		}
-	case "positiveint":
+	case "positiveInt":
 		pt.valid = func(v any) bool {
 			if i, ok := primitiveInt(v); ok && 0 < i && i <= math.MaxInt32 {
 				return true
 			}
 			return false
 		}
-	case "unsignedint":
+	case "unsignedInt":
 		pt.valid = func(v any) bool {
 			if i, ok := primitiveInt(v); ok && 0 <= i && i <= math.MaxInt32 {
 				return true
@@ -215,9 +217,11 @@ func (pt *PrimitiveType) Describe(b []byte, indent, right int, ansi bool) []byte
 	b = append(b, indentSpaces[:indent]...)
 	if ansi {
 		b = append(b, bold...)
+		b = append(b, "fhir:"...)
 		b = append(b, pt.name...)
 		b = append(b, colorOff...)
 	} else {
+		b = append(b, "fhir:"...)
 		b = append(b, pt.name...)
 	}
 	b = append(b, " is a FHIR PrimitiveType:\n"...)

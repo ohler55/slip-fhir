@@ -36,7 +36,7 @@
                       (send pb :set "string" "parent"))
                      ("integer"
                       (send pb :set "integer32" "name")
-                      (send pb :set "integer" "parent"))
+                      (send pb :set "fixnum" "parent"))
                      ("unsignedInt" (send pb :set "integer32" "parent"))
                      ("positiveInt" (send pb :set "integer32" "parent"))
                      ("integer64" (send pb :set "fixnum" "parent"))
@@ -44,8 +44,9 @@
                      ("boolean" (send pb :set "symbol" "parent"))
                      ("time"
                       (send pb :set "ftime" "name")
-                      (send pb :set "time" "parent"))
-                     ((or "date" "instant" "dateTime")
+                      (send pb :set "string" "parent"))
+                     ("date" (send pb :set "string" "parent"))
+                     ((or "instant" "dateTime")
                       (send pb :set "time" "parent"))
                      (t (send pb :set "fstring" "parent")))
 
