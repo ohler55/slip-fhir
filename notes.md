@@ -2,9 +2,6 @@
 
 - M-? cuts off last line(s) - try do-all-symbols
 
-- test primitives
- - get class, assert, call Validate
-
 - slap - repo for slip + plugins and embeded lisp code
 
 - convert script
