@@ -54,26 +54,30 @@ func init() {
 			Doc:    `The FHIR version.`,
 		},
 	})
-
-	initTypes()
+	// slip/pkg/clos is needed so make sure it gets inited first with an
+	// import.
+	initTypes(sen.MustParse(fhir5JSON))
 
 	Pkg.Initialize(nil, &PrimitiveType{}) // lock
 	slip.AddPackage(&Pkg)
 	slip.UserPkg.Use(&Pkg)
 }
 
-func initTypes() {
-	// slip/pkg/clos is needed so make sure it gets inited first with an
-	// import.
-	f5 := sen.MustParse(fhir5JSON)
-
-	if version := alt.String(jp.C("version").First(f5)); 0 < len(version) {
+func initTypes(schema any) {
+	if version := alt.String(jp.C("version").First(schema)); 0 < len(version) {
 		vv := Pkg.GetVarVal("*fhir-version*")
 		vv.Val = slip.String(version)
 	}
+	initPrimitives(schema)
+	initHierarchy(schema)
+	initDataTypes(schema)
+	initBackbones(schema)
+	initResources(schema)
+}
 
+func initPrimitives(schema any) {
 	var primitives []*PrimitiveType
-	for _, pa := range jp.C("primitives").W().Get(f5) {
+	for _, pa := range jp.C("primitives").W().Get(schema) {
 		pt := PrimitiveType{
 			name:        alt.String(jp.C("name").First(pa)),
 			description: alt.String(jp.C("description").First(pa)),
@@ -87,4 +91,20 @@ func initTypes() {
 	for _, pt := range primitives {
 		pt.init()
 	}
+}
+
+func initHierarchy(schema any) {
+	// TBD
+}
+
+func initDataTypes(schema any) {
+	// TBD
+}
+
+func initBackbones(schema any) {
+	// TBD
+}
+
+func initResources(schema any) {
+	// TBD
 }

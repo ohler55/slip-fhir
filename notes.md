@@ -1,5 +1,13 @@
 # slip-fhir notes
 
+# slip-fhir notes
+
+- update script to pull in hierarchy
+
+- Element
+ - add id and extension properties
+ - others can skip inherited properties
+
 - allow call to create a fhir package from a file, don't add it to user explicitly
 
 - slap - repo for slip + plugins and embeded lisp code
