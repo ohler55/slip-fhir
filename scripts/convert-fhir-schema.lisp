@@ -56,9 +56,14 @@
                ((suffixp name "Uuid") "uuid")
                (t "fstring")))
         ((equal type "time") "ftime")
+        ((equal type "integer") "integer32")
         ((equal type "number")
-         ;; TBD
-         type)
+         (cond ((suffixp name "PositiveInt") "positiveInt")
+               ((suffixp name "UnsignedInt") "unsignedInt")
+               ((suffixp name "Integer") "integer32")
+               ((suffixp name "Integer64") "integer64")
+               ((suffixp name "Decimal") "decimal")
+               (t type)))
         ((prefixp name "_") "Extension")
         (t type)))
 
@@ -71,9 +76,7 @@
         (ref (bag-get pdef "['$ref']"))
         (enum (bag-get pdef "enum")))
     (cond ((equal type "string")
-           ;; TBD consider name
-           (bag-set prop "string" "type")
-           )
+           (bag-set prop (correct-type name type) "type"))
           ((equal type "array")
            (bag-set prop t "array")
            (let ((ienum (bag-get pdef "items.enum"))
@@ -93,12 +96,11 @@
           (enum
            (bag-set prop "code" "type")
            (bag-set prop enum "enum"))
-
           (t
-           (bag-set prop "foobar" "type")))))
+           (bag-set prop (correct-type name type) "type")))))
 
 (defun form-property (name def)
-  (format t "*** ~A: ~A~%" p (bag-write def :pretty t))
+  ;; (format t "*** ~A: ~A~%" p (bag-write def :pretty t))
   (let ((prop (make-bag "{}"))
         val)
     (bag-set prop name "name")
