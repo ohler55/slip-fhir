@@ -2,6 +2,8 @@
 
 # slip-fhir notes
 
+- add bag-load (filename) => bag
+
 - update script to pull in hierarchy
 
 - Element

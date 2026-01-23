@@ -8,7 +8,10 @@ type Prop struct {
 	description string
 	typeName    string
 	ftype       Type
-	// choices     []any // TBD what is the best type?
+	// enum     []string // also items.enum
+	// pattern string
+	// required bool
+	// array bool
 }
 
 // Simplify the Object into simple go types of nil, bool, int64, float64,
