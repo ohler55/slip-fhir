@@ -26,7 +26,9 @@
     (bag-set hb name "name")
     (when (setq val (bag-get def "description"))
       (send hb :set val "description"))
-    (add-properties hb def)
+    (if (equal "Element" name)
+        (add-properties hb def nil)
+        (add-properties hb def '("id" "extension")))
     (send hb :set (case name
                     ("Base" nil)
                     ("Element" "Base")
@@ -88,8 +90,7 @@
                     (setq type (car (last (split iref "/"))))
                     (bag-set prop (correct-type name type) "type"))
                    (t
-                    ;; TBD
-                    (bag-set prop "foobar2" "type")))))
+                    (bag-set prop "fstring" "type")))))
           (ref
            (setq type (car (last (split ref "/"))))
            (bag-set prop (correct-type name type) "type"))
@@ -99,21 +100,19 @@
           (t
            (bag-set prop (correct-type name type) "type")))))
 
-(defun form-property (name def)
-  ;; (format t "*** ~A: ~A~%" p (bag-write def :pretty t))
+(defun form-property (name def req)
   (let ((prop (make-bag "{}"))
         val)
     (bag-set prop name "name")
     (determine-type name def prop)
     (when (setq val (bag-get def "description"))
       (bag-set prop val "description"))
-    (when (setq val (bag-get def "pattern"))
+    (when (and (setq val (bag-get def "pattern")) (equal (bag-get prop "type") "fstring"))
       (bag-set prop val "pattern"))
+    (when req (bag-set prop t "required"))
+    prop))
 
-  ;; TBD check required
-  prop))
-
-(defun add-properties (rb def)
+(defun add-properties (rb def ignore)
   (let ((reqs (bag-get def "required"))
         props)
     (bag-scan (or (bag-get def "properties" t) (make-bag '()))
@@ -121,7 +120,8 @@
                 (when (< 2 (length p))
                     (setq p (subseq p 2))
                     (unless (or (containsp p ".") (containsp p "[")) ;; only top level nodes
-                      (setq props (add props (form-property p def)))))))
+                      (unless (member p ignore)
+                        (setq props (add props (form-property p def (member p reqs)))))))))
 
     (when props (bag-set rb props "properties"))))
 
@@ -131,8 +131,29 @@
     (bag-set dt name "name")
     (when (setq val (bag-get def "description"))
       (bag-set dt val "description"))
-    (add-properties dt def)
+    (add-properties dt def '("id" "extension"))
     (bag-set dt "DataType" "parent")
+    dt))
+
+(defun form-backbone-node (name def)
+  (let ((dt (make-bag "{}"))
+        val)
+    (bag-set dt name "name")
+    (when (setq val (bag-get def "description"))
+      (bag-set dt val "description"))
+    (add-properties dt def '("id" "extension" "modifierExtension"))
+    (bag-set dt "BackboneType" "parent")
+    dt))
+
+(defun form-resource-node (name def)
+  (let ((dt (make-bag "{}"))
+        val)
+    (bag-set dt name "name")
+    (when (setq val (bag-get def "description"))
+      (bag-set dt val "description"))
+    (add-properties dt def '("id" "meta" "implicitRules" "_implicitRules"
+                             "language" "_language" "text" "_text" "contained" "modifierExtension"))
+    (bag-set dt "DomainResource" "parent")
     dt))
 
 (defun load-sen (filename)
@@ -199,13 +220,11 @@
 
                               ;; Resource definition are in the discriminator.mapping element.
                               ((bag-has res-map p)
-                               ;; (format t "*** resource: ~A~%" p)
-                               )
+                               (setq resources (add resources (form-resource-node p def))))
 
                               ;; Backbone definitions all include an _ character.
                               ((containsp p "_")
-                               ;; (format t "*** backbone: ~A~%" p)
-                               )
+                               (setq backbones (add backbones (form-backbone-node p def))))
 
                               ;; BackboneElement is not used and is the same as BackboneType.
                               ((string= "BackboneElement" p) nil)
@@ -226,7 +245,6 @@
       (send schema :set primitives "primitives")
 
       (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
-      (bag-set domain-resource-schema language-codes "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
       (send schema :set hierarchy "hierarchy")
 

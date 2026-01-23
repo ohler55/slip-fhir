@@ -3,12 +3,13 @@
 # slip-fhir notes
 
 - add bag-load (filename) => bag
+- read-bags (stream function)
+ - reads and calls
+- file-auther and send-signal
+ - pass in scope and no error, panic from inside
 
-- update script to pull in hierarchy
+- handle loading other types in pkg.go
 
-- Element
- - add id and extension properties
- - others can skip inherited properties
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 
