@@ -37,7 +37,7 @@ The default FHIR version is v5.0.0. The _set-fhir-version_ function can be used 
 change the FHIR version which also redefines the fhir classes.`,
 		PreSet: slip.DefaultPreSet,
 	}
-	types []Type
+	types []Validator
 )
 
 func init() {
@@ -59,7 +59,7 @@ func init() {
 	// import.
 	initTypes(sen.MustParse(fhir5JSON))
 
-	Pkg.Initialize(nil, &PrimitiveType{}) // lock
+	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
 	slip.UserPkg.Use(&Pkg)
 }
@@ -78,14 +78,14 @@ func initTypes(schema any) {
 }
 
 func initPrimitives(schema any) {
-	var primitives []*PrimitiveType
+	var primitives []*Type
 	for _, pa := range jp.C("primitives").W().Get(schema) {
-		pt := PrimitiveType{
+		pt := Type{
 			name:        alt.String(jp.C("name").First(pa)),
 			description: alt.String(jp.C("description").First(pa)),
-			pattern:     alt.String(jp.C("pattern").First(pa)),
-			parent:      alt.String(jp.C("parent").First(pa)),
 			pkg:         &Pkg,
+			parent:      alt.String(jp.C("parent").First(pa)),
+			pattern:     alt.String(jp.C("pattern").First(pa)),
 		}
 		slip.RegisterClass(strings.ToLower(pt.name), &pt)
 		primitives = append(primitives, &pt)
@@ -98,11 +98,11 @@ func initPrimitives(schema any) {
 
 func loadTypes(defs []any) {
 	for _, ts := range defs {
-		ft := Base{
-			name:   alt.String(jp.C("name").First(ts)),
-			docs:   alt.String(jp.C("description").First(ts)),
-			parent: alt.String(jp.C("parent").First(ts)),
-			pkg:    &Pkg,
+		ft := Type{
+			name:        alt.String(jp.C("name").First(ts)),
+			description: alt.String(jp.C("description").First(ts)),
+			pkg:         &Pkg,
+			parent:      alt.String(jp.C("parent").First(ts)),
 		}
 		for _, ps := range jp.C("properties").W().Get(ts) {
 			p := Prop{
@@ -124,7 +124,7 @@ func loadTypes(defs []any) {
 
 func initTypeParents() {
 	for _, ft := range types {
-		if base, ok := ft.(*Base); ok {
+		if base, ok := ft.(*Type); ok {
 			base.init()
 		}
 	}

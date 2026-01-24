@@ -2,9 +2,15 @@
 
 # slip-fhir notes
 
+- slip
+ - why are errors not dispayed with stack?
+ - why crash for duplicate class (maybe pre-run loop)
 
 - handle loading other types in pkg.go
 - Ratio and Condition are duplicates
+ - can FindClass be changed and RegisterClass
+  - allow same in different packages
+  - stop flattening in packages that use or maybe set the package options to not expose some vars
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 

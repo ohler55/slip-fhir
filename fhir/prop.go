@@ -7,7 +7,7 @@ type Prop struct {
 	name     string
 	docs     string
 	typeName string
-	ftype    Type
+	ftype    Validator
 	enum     []string
 	required bool
 	array    bool
