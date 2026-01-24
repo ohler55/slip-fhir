@@ -6,10 +6,8 @@
  - why are errors not dispayed with stack?
 
 
-
 - slip-fhir
- - function describe-type (type &key full stripe-color)
-  - color contants bg-red, bg-bright-red, etc
+ - how to group properties liek value[x]
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 

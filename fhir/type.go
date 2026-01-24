@@ -223,7 +223,7 @@ func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string)
 		b = append(b, '\n')
 	}
 	if 0 < len(t.props) {
-		b = t.describeProps(b, indent, right, ansi, false, "")
+		b = t.describeProps(b, indent, right, ansi, full, bg)
 	}
 	return b
 }
