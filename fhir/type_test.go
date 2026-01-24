@@ -14,8 +14,8 @@ import (
 	"github.com/ohler55/slip-fhir/fhir"
 )
 
-func TestTypeInteger32(t *testing.T) {
-	pt, ok := slip.FindClass("integer32").(*fhir.Type)
+func TestTypeInteger(t *testing.T) {
+	pt, ok := slip.FindClass("fhir:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0)
@@ -126,7 +126,7 @@ func TestTypeBoolean(t *testing.T) {
 }
 
 func TestTypeTime(t *testing.T) {
-	pt, ok := slip.FindClass("ftime").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir:time").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("20:22:23")
@@ -226,7 +226,7 @@ func TestTypeEqual(t *testing.T) {
 	tt.Equal(t, true, ok)
 	tt.Equal(t, true, pt.Equal(pt))
 	var pt2 *fhir.Type
-	pt2, ok = slip.FindClass("integer32").(*fhir.Type)
+	pt2, ok = slip.FindClass("fhir:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, false, pt.Equal(pt2))
 }
@@ -234,7 +234,15 @@ func TestTypeEqual(t *testing.T) {
 func TestTypeHierachy(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
-	tt.Equal(t, "[integer64 fixnum integer rational real number t]", pretty.SEN(pt.Hierarchy()))
+	tt.Equal(t, `[
+  "fhir:integer64"
+  "common-lisp:fixnum"
+  "common-lisp:integer"
+  "common-lisp:rational"
+  "common-lisp:real"
+  "common-lisp:number"
+  t
+]`, pretty.SEN(pt.Hierarchy()))
 }
 
 func TestTypeMetaclass(t *testing.T) {

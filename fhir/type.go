@@ -23,7 +23,7 @@ type Type struct {
 	pkg         *slip.Package
 	parent      string
 	inherit     slip.Class // direct super
-	precedence  []slip.Symbol
+	supers      []slip.Class
 	valid       func(v any) bool // called on bag (simple) elements
 	initInst    func(v any)      // TBD change to an instance type
 	// primitive types may have a pattern and regexp
@@ -110,17 +110,21 @@ func (t *Type) Equal(other slip.Object) (eq bool) {
 
 // Hierarchy returns the class hierarchy as symbols for the instance.
 func (t *Type) Hierarchy() []slip.Symbol {
-	return t.precedence
+	names := make([]slip.Symbol, len(t.supers)+2)
+	names[0] = slip.Symbol("fhir:" + t.name)
+	for i, sc := range t.supers {
+		names[i+1] = slip.Symbol(fmt.Sprintf("%s:%s", sc.Pkg().Name, sc.Name()))
+	}
+	names[len(names)-1] = slip.TrueSymbol
+
+	return names
 }
 
 // Inherits returns true if this Class inherits from a specified Class.
 func (t *Type) Inherits(sc slip.Class) bool {
-	name := slip.Symbol(sc.Name())
-	if 0 < len(t.precedence) {
-		for _, sym := range t.precedence[1:] {
-			if name == sym {
-				return true
-			}
+	for _, s := range t.supers {
+		if sc == s {
+			return true
 		}
 	}
 	return false
@@ -192,12 +196,15 @@ func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
 	}
 
 	b = append(b, indentSpaces[:i2]...)
-	b = append(b, "Class precedence list:"...)
-	for _, sym := range t.precedence {
+	b = append(b, "Class precedence list: fhir:"...)
+	b = append(b, t.name...)
+	for _, sc := range t.supers {
 		b = append(b, ' ')
-		b = append(b, sym...)
+		b = append(b, sc.Pkg().Name...)
+		b = append(b, ':')
+		b = append(b, sc.Name()...)
 	}
-	b = append(b, '\n')
+	b = append(b, " t\n"...)
 
 	return b
 }
@@ -224,17 +231,13 @@ func (t *Type) init() {
 			}
 		}
 	}
-	t.precedence = []slip.Symbol{slip.Symbol(t.name)}
 	if t.inherit != nil {
 		if it, ok := t.inherit.(*Type); ok && it.valid == nil {
 			it.init()
 		}
-		t.precedence = append(t.precedence, slip.Symbol(t.inherit.Name()))
-		for _, ic := range t.inherit.InheritsList() {
-			t.precedence = append(t.precedence, slip.Symbol(ic.Name()))
-		}
+		t.supers = append(t.supers, t.inherit)
+		t.supers = append(t.supers, t.inherit.InheritsList()...)
 	}
-	t.precedence = append(t.precedence, slip.TrueSymbol)
 
 	for _, p := range t.props {
 		pt := Pkg.FindClass(p.typeName)
@@ -255,8 +258,8 @@ func (t *Type) init() {
 			_, ok := v.(bool)
 			return ok
 		}
-	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "fstring", "uri", "url", "uuid",
-		"ftime", "date":
+	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "string", "uri", "url", "uuid",
+		"time", "date":
 		t.rx = regexp.MustCompile(t.pattern)
 		t.valid = func(v any) bool {
 			if s, ok := v.(string); ok && t.rx.MatchString(s) {
@@ -277,7 +280,7 @@ func (t *Type) init() {
 			}
 			return
 		}
-	case "integer32":
+	case "integer":
 		t.valid = func(v any) bool {
 			if i, ok := primitiveInt(v); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
 				return true

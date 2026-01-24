@@ -28,7 +28,7 @@ resources and datatypes used in the plugin.
 ### Primitive Types
 
 - largely hand coded to fit into a lisp or slip class hierarchy
-- some renames to avoid collisions (fstring, integer32, ftime)
+- string, time, integer, Condition, and Rotio are shadowed so use fhir:string for example
 
 ### Models and Inheritance
 

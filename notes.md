@@ -4,6 +4,8 @@
 
 - slip
  - why are errors not dispayed with stack?
+ - allow ::
+ add package to precedenc in describe
 
 - slip-fhir
  - use fhir:string instead of fstring and allow showing
