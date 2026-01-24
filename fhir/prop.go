@@ -4,14 +4,13 @@ package fhir
 
 // Prop contains information about the properties of a type.
 type Prop struct {
-	name        string
-	description string
-	typeName    string
-	ftype       Type
-	// enum     []string // also items.enum
-	// pattern string
-	// required bool
-	// array bool
+	name     string
+	docs     string
+	typeName string
+	ftype    Type
+	enum     []string
+	required bool
+	array    bool
 }
 
 // Simplify the Object into simple go types of nil, bool, int64, float64,
@@ -19,9 +18,11 @@ type Prop struct {
 func (p *Prop) Simplify() any {
 	simple := map[string]any{
 		"name":        p.name,
-		"description": p.description,
+		"description": p.docs,
 		"type":        p.typeName,
+		"required":    p.required,
+		"array":       p.array,
+		"enum":        p.enum,
 	}
-	// TBD add choices
 	return simple
 }

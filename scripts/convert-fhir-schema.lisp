@@ -71,10 +71,11 @@
 
 (defun determine-type (name pdef prop)
   "Determine the type of a property from a FHIR schema definition. The type can
-   appear is 'type', '$ref', 'items.$ref', or 'items.enum'. It each case some
-   additional guesses need to be made depending on the property name since the
-   FHIR schema file does not match the published schema on the web site."
-  (let ((type (bag-get pdef "type"))
+   appear is 'type', '$ref', 'items.$ref', 'items.enum', or 'const'. It each
+   case some additional guesses need to be made depending on the property name
+   since the FHIR schema file does not match the published schema on the web
+   site."
+  (let ((type (or (bag-get pdef "type") (bag-get pdef "const")))
         (ref (bag-get pdef "['$ref']"))
         (enum (bag-get pdef "enum")))
     (cond ((equal type "string")
@@ -156,18 +157,12 @@
     (bag-set dt "DomainResource" "parent")
     dt))
 
-(defun load-sen (filename)
-  (let ((bag (make-bag nil)))
-    (with-open-file (f filename :direction :input)
-      (send bag :read f))
-    bag))
-
 (defun convert-fhir-schema (input-filename output-filename)
   "Convert a fhir.schema.json file to a schema file suitable for loading by this
    package."
-  (let ((fhir-schema (load-sen input-filename))
-        (resource-schema (load-sen "spec/resource-schema.sen"))
-        (domain-resource-schema (load-sen "spec/domainresource-schema.sen"))
+  (let ((fhir-schema (load-bag input-filename))
+        (resource-schema (load-bag "spec/resource-schema.sen"))
+        (domain-resource-schema (load-bag "spec/domainresource-schema.sen"))
         (schema (make-bag "{}")))
 
     (send schema :set (car (last (split (send fhir-schema :get "id") "/"))) "version")

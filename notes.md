@@ -2,23 +2,14 @@
 
 # slip-fhir notes
 
-- add bag-load (filename) => bag
-- read-bags (stream function)
- - reads and calls
-- file-auther and send-signal
- - pass in scope and no error, panic from inside
 
 - handle loading other types in pkg.go
-
+- Ratio and Condition are duplicates
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 
 - slap - repo for slip + plugins and embeded lisp code
-
-- convert script
- - fstring parent should be string
- - time
- - xhtml
+ - make public
 
 - schema
  - get list of resources from discriminator.mapping

@@ -23,13 +23,22 @@ type Base struct {
 }
 
 func (base *Base) init() {
-	if base.inherit, _ = Pkg.FindClass(base.parent).(Type); base.inherit == nil {
-		panic(fmt.Sprintf("FHIR type %s specifies an undefined parent of %s", base.name, base.parent))
+	if 0 < len(base.parent) {
+		if base.inherit, _ = Pkg.FindClass(base.parent).(Type); base.inherit == nil {
+			panic(fmt.Sprintf("FHIR type %s specifies an undefined parent of %s", base.name, base.parent))
+		}
 	}
 	for _, p := range base.props {
-		p.ftype = Pkg.FindClass(p.typeName).(Type)
+		pt := Pkg.FindClass(p.typeName)
+		if pt == nil {
+			fmt.Printf("FHIR type %s property %s specifies an undefined parent of %s\n",
+				base.name, p.name, p.typeName)
+			continue
+			// panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
+			// 	base.name, p.name, p.typeName))
+		}
+		p.ftype = pt.(Type)
 	}
-	// TBD
 }
 
 // String representation of the Object.

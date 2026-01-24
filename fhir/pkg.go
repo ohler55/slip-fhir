@@ -37,6 +37,7 @@ The default FHIR version is v5.0.0. The _set-fhir-version_ function can be used 
 change the FHIR version which also redefines the fhir classes.`,
 		PreSet: slip.DefaultPreSet,
 	}
+	types []Type
 )
 
 func init() {
@@ -69,10 +70,11 @@ func initTypes(schema any) {
 		vv.Val = slip.String(version)
 	}
 	initPrimitives(schema)
-	initHierarchy(schema)
-	initDataTypes(schema)
-	initBackbones(schema)
-	initResources(schema)
+	loadTypes(jp.C("hierarchy").W().Get(schema))
+	loadTypes(jp.C("datatypes").W().Get(schema))
+	loadTypes(jp.C("backbones").W().Get(schema))
+	loadTypes(jp.C("resources").W().Get(schema))
+	initTypeParents()
 }
 
 func initPrimitives(schema any) {
@@ -87,24 +89,43 @@ func initPrimitives(schema any) {
 		}
 		slip.RegisterClass(strings.ToLower(pt.name), &pt)
 		primitives = append(primitives, &pt)
+		types = append(types, &pt)
 	}
 	for _, pt := range primitives {
 		pt.init()
 	}
 }
 
-func initHierarchy(schema any) {
-	// TBD
+func loadTypes(defs []any) {
+	for _, ts := range defs {
+		ft := Base{
+			name:   alt.String(jp.C("name").First(ts)),
+			docs:   alt.String(jp.C("description").First(ts)),
+			parent: alt.String(jp.C("parent").First(ts)),
+			pkg:    &Pkg,
+		}
+		for _, ps := range jp.C("properties").W().Get(ts) {
+			p := Prop{
+				name:     alt.String(jp.C("name").First(ps)),
+				docs:     alt.String(jp.C("description").First(ps)),
+				typeName: alt.String(jp.C("type").First(ps)),
+				required: alt.Bool(jp.C("required").First(ps)),
+				array:    alt.Bool(jp.C("array").First(ps)),
+			}
+			for _, e := range jp.C("enum").W().Get(ps) {
+				p.enum = append(p.enum, alt.String(e))
+			}
+			ft.props = append(ft.props, &p)
+		}
+		slip.RegisterClass(strings.ToLower(ft.name), &ft)
+		types = append(types, &ft)
+	}
 }
 
-func initDataTypes(schema any) {
-	// TBD
-}
-
-func initBackbones(schema any) {
-	// TBD
-}
-
-func initResources(schema any) {
-	// TBD
+func initTypeParents() {
+	for _, ft := range types {
+		if base, ok := ft.(*Base); ok {
+			base.init()
+		}
+	}
 }
