@@ -1,13 +1,18 @@
 # slip-fhir notes
 
+# slip-fhir notes
+
+- slip
+ - why are errors not dispayed with stack?
+
+
+- slip-fhir
+ - how to group properties like value[x]
+
 - allow call to create a fhir package from a file, don't add it to user explicitly
 
 - slap - repo for slip + plugins and embeded lisp code
-
-- convert script
- - fstring parent should be string
- - time
- - xhtml
+ - make public
 
 - schema
  - get list of resources from discriminator.mapping

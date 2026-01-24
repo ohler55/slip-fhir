@@ -14,8 +14,8 @@ import (
 	"github.com/ohler55/slip-fhir/fhir"
 )
 
-func TestPrimitiveTypeInteger32(t *testing.T) {
-	pt, ok := slip.FindClass("integer32").(*fhir.PrimitiveType)
+func TestTypeInteger(t *testing.T) {
+	pt, ok := slip.FindClass("fhir:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0)
@@ -45,8 +45,8 @@ func TestPrimitiveTypeInteger32(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(float32(2.5)) })
 }
 
-func TestPrimitiveTypeInteger64(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeInteger64(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0)
@@ -73,8 +73,8 @@ func TestPrimitiveTypeInteger64(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(2.5) })
 }
 
-func TestPrimitiveTypeUnsignedInt(t *testing.T) {
-	pt, ok := slip.FindClass("unsignedInt").(*fhir.PrimitiveType)
+func TestTypeUnsignedInt(t *testing.T) {
+	pt, ok := slip.FindClass("unsignedInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0)
@@ -88,8 +88,8 @@ func TestPrimitiveTypeUnsignedInt(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(-1) })
 }
 
-func TestPrimitiveTypePositiveInt(t *testing.T) {
-	pt, ok := slip.FindClass("positiveInt").(*fhir.PrimitiveType)
+func TestTypePositiveInt(t *testing.T) {
+	pt, ok := slip.FindClass("positiveInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(7)
@@ -103,8 +103,8 @@ func TestPrimitiveTypePositiveInt(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0) })
 }
 
-func TestPrimitiveTypePositiveDecimal(t *testing.T) {
-	pt, ok := slip.FindClass("decimal").(*fhir.PrimitiveType)
+func TestTypePositiveDecimal(t *testing.T) {
+	pt, ok := slip.FindClass("decimal").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(7)
@@ -113,8 +113,8 @@ func TestPrimitiveTypePositiveDecimal(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate("string") })
 }
 
-func TestPrimitiveTypeBoolean(t *testing.T) {
-	pt, ok := slip.FindClass("boolean").(*fhir.PrimitiveType)
+func TestTypeBoolean(t *testing.T) {
+	pt, ok := slip.FindClass("boolean").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(true)
@@ -125,8 +125,8 @@ func TestPrimitiveTypeBoolean(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0) })
 }
 
-func TestPrimitiveTypeTime(t *testing.T) {
-	pt, ok := slip.FindClass("ftime").(*fhir.PrimitiveType)
+func TestTypeTime(t *testing.T) {
+	pt, ok := slip.FindClass("fhir:time").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("20:22:23")
@@ -136,8 +136,8 @@ func TestPrimitiveTypeTime(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(time.Now()) })
 }
 
-func TestPrimitiveTypeDate(t *testing.T) {
-	pt, ok := slip.FindClass("date").(*fhir.PrimitiveType)
+func TestTypeDate(t *testing.T) {
+	pt, ok := slip.FindClass("date").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20")
@@ -147,8 +147,8 @@ func TestPrimitiveTypeDate(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(time.Now()) })
 }
 
-func TestPrimitiveTypeInstant(t *testing.T) {
-	pt, ok := slip.FindClass("instant").(*fhir.PrimitiveType)
+func TestTypeInstant(t *testing.T) {
+	pt, ok := slip.FindClass("instant").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20T20:21:22.123Z")
@@ -158,8 +158,8 @@ func TestPrimitiveTypeInstant(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0) })
 }
 
-func TestPrimitiveTypeDateTime(t *testing.T) {
-	pt, ok := slip.FindClass("dateTime").(*fhir.PrimitiveType)
+func TestTypeDateTime(t *testing.T) {
+	pt, ok := slip.FindClass("dateTime").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20T20:21:22.123Z")
@@ -169,8 +169,8 @@ func TestPrimitiveTypeDateTime(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0) })
 }
 
-func TestPrimitiveTypeXHTML(t *testing.T) {
-	pt, ok := slip.FindClass("xhtml").(*fhir.PrimitiveType)
+func TestTypeXHTML(t *testing.T) {
+	pt, ok := slip.FindClass("xhtml").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("<x>y</x>")
@@ -178,8 +178,8 @@ func TestPrimitiveTypeXHTML(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0) })
 }
 
-func TestPrimitiveTypeSimplify(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeSimplify(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `{
   description: "A very large whole number"
@@ -191,67 +191,75 @@ func TestPrimitiveTypeSimplify(t *testing.T) {
 }`, pretty.SEN(pt.Simplify()))
 }
 
-func TestPrimitiveTypeDescribe(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeDescribe(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc := string(pt.Describe(nil, 0, 60, false))
-	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR PrimitiveType"))
+	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR Type"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 
 	desc = string(pt.Describe(nil, 0, 60, true))
-	tt.Equal(t, true, strings.Contains(desc, "is a FHIR PrimitiveType"))
+	tt.Equal(t, true, strings.Contains(desc, "is a FHIR Type"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 }
 
-func TestPrimitiveTypeLoadForm(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeLoadForm(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Nil(t, pt.LoadForm())
 }
 
-func TestPrimitiveTypeVarNames(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeVarNames(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, 0, len(pt.VarNames()))
 }
 
-func TestPrimitiveTypeEval(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeEval(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, pt, pt.Eval(nil, 0))
 }
 
-func TestPrimitiveTypeEqual(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeEqual(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, true, pt.Equal(pt))
-	var pt2 *fhir.PrimitiveType
-	pt2, ok = slip.FindClass("integer32").(*fhir.PrimitiveType)
+	var pt2 *fhir.Type
+	pt2, ok = slip.FindClass("fhir:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, false, pt.Equal(pt2))
 }
 
-func TestPrimitiveTypeHierachy(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeHierachy(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
-	tt.Equal(t, "[integer64 fixnum integer rational real number t]", pretty.SEN(pt.Hierarchy()))
+	tt.Equal(t, `[
+  "fhir:integer64"
+  "common-lisp:fixnum"
+  "common-lisp:integer"
+  "common-lisp:rational"
+  "common-lisp:real"
+  "common-lisp:number"
+  t
+]`, pretty.SEN(pt.Hierarchy()))
 }
 
-func TestPrimitiveTypeMetaclass(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeMetaclass(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
-	tt.Equal(t, slip.Symbol("primitive-type"), pt.Metaclass())
+	tt.Equal(t, slip.Symbol("fhir-type"), pt.Metaclass())
 }
 
-func TestPrimitiveTypeInherits(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeInherits(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, true, pt.Inherits(slip.FindClass("real")))
 	tt.Equal(t, false, pt.Inherits(slip.FindClass("float")))
 }
 
-func TestPrimitiveTypeDocumentation(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeDocumentation(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	orig := pt.Documentation()
 	defer pt.SetDocumentation(orig)
@@ -260,14 +268,14 @@ func TestPrimitiveTypeDocumentation(t *testing.T) {
 	tt.Equal(t, newDoc, pt.Documentation())
 }
 
-func TestPrimitiveTypeMakeInstance(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeMakeInstance(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Panic(t, func() { _ = pt.MakeInstance() })
 }
 
-func TestPrimitiveTypeBadInit(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.PrimitiveType)
+func TestTypeBadInit(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Panic(t, func() { _ = pt.MakeInstance() })
 }

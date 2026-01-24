@@ -5,17 +5,163 @@
 ;;;;
 ;;;; To generate a fhir5.json file in the fhir directory run the following.
 ;;;;
-;;;; slip -e '(convert-fhir-schema "spec/fhir.schema.json" "fhir/fhir5.json")' scripts/convert-fhir-schema.lisp
+;;;; slip -e '(convert-fhir-schema "spec/fhir.schema.json" "fhir/fhir5.json")' scripts/*.lisp
 ;;;;
+
+;;; The FHIR heirarchy is defined as:
+;;; Base
+;;;   Element
+;;;     BackboneElement - not is schema file, same as BackboneType though
+;;;     DataType
+;;;       <-- most datatypes go here (e.g., Coding)
+;;;       PrimitiveType <-- not really here in non-XML implementations
+;;;       BackboneType
+;;;   Resource - not in the schema file
+;;;     DomainResource - not in the schema file
+;;;       <-- most resources go here
+;;;
+(defun form-hierarchy-node (name def)
+  (let ((hb (make-bag "{}"))
+        val)
+    (bag-set hb name "name")
+    (when (setq val (bag-get def "description"))
+      (send hb :set (replace-all val "\r" "\n") "description"))
+    (if (equal "Element" name)
+        (add-properties hb def nil)
+        (add-properties hb def '("id" "extension")))
+    (send hb :set (case name
+                    ("Base" nil)
+                    ("Element" "Base")
+                    ("DataType" "Element")
+                    ("BackboneType" "DataType")) "parent")
+    hb))
+
+(defun correct-type (name type)
+  (cond ((equal type "string")
+         (cond ((suffixp name "Instant") "instant")
+               ((suffixp name "DateTime") "dateTime")
+               ((suffixp name "Time") "time")
+               ((suffixp name "Integer") "integer")
+               ((suffixp name "Integer64") "integer64")
+               ((suffixp name "Decimal") "decimal")
+               ((suffixp name "Base64Binary") "base64Binary")
+               ((suffixp name "Canonical") "canonical")
+               ((suffixp name "Code") "code")
+               ((suffixp name "Date") "date")
+               ((suffixp name "Id") "id")
+               ((suffixp name "Markdown") "markdown")
+               ((suffixp name "Oid") "oid")
+               ((suffixp name "PositiveInt") "positiveInt")
+               ((suffixp name "UnsignedInt") "unsignedInt")
+               ((suffixp name "Uri") "uri")
+               ((suffixp name "Url") "url")
+               ((suffixp name "Uuid") "uuid")
+               (t "string")))
+        ((equal type "number")
+         (cond ((suffixp name "PositiveInt") "positiveInt")
+               ((suffixp name "UnsignedInt") "unsignedInt")
+               ((suffixp name "Integer") "integer")
+               ((suffixp name "Integer64") "integer64")
+               ((suffixp name "Decimal") "decimal")
+               (t type)))
+        ((prefixp name "_") "Extension")
+        (t type)))
+
+(defun determine-type (name pdef prop)
+  "Determine the type of a property from a FHIR schema definition. The type can
+   appear is 'type', '$ref', 'items.$ref', 'items.enum', or 'const'. It each
+   case some additional guesses need to be made depending on the property name
+   since the FHIR schema file does not match the published schema on the web
+   site."
+  (let ((type (or (bag-get pdef "type") (bag-get pdef "const")))
+        (ref (bag-get pdef "['$ref']"))
+        (enum (bag-get pdef "enum")))
+    (cond ((equal type "string")
+           (bag-set prop (correct-type name type) "type"))
+          ((equal type "array")
+           (bag-set prop t "array")
+           (let ((ienum (bag-get pdef "items.enum"))
+                 (iref (bag-get pdef "['items']['$ref']")))
+             (cond (ienum
+                    (bag-set prop "code" "type")
+                    (bag-set prop ienum "enum"))
+                   (iref
+                    (setq type (car (last (split iref "/"))))
+                    (bag-set prop (correct-type name type) "type"))
+                   (t
+                    (bag-set prop "string" "type")))))
+          (ref
+           (setq type (car (last (split ref "/"))))
+           (bag-set prop (correct-type name type) "type"))
+          (enum
+           (bag-set prop "code" "type")
+           (bag-set prop enum "enum"))
+          (t
+           (bag-set prop (correct-type name type) "type")))))
+
+(defun form-property (name def req)
+  (let ((prop (make-bag "{}"))
+        val)
+    (bag-set prop name "name")
+    (determine-type name def prop)
+    (when (setq val (bag-get def "description"))
+      (bag-set prop (replace-all val "\r" "\n") "description"))
+    (when (and (setq val (bag-get def "pattern")) (equal (bag-get prop "type") "string"))
+      (bag-set prop val "pattern"))
+    (when req (bag-set prop t "required"))
+    prop))
+
+(defun add-properties (rb def ignore)
+  (let ((reqs (bag-get def "required"))
+        props)
+    (bag-scan (or (bag-get def "properties" t) (make-bag '()))
+              (lambda (p def)
+                (when (< 2 (length p))
+                    (setq p (subseq p 2))
+                    (unless (or (containsp p ".") (containsp p "[")) ;; only top level nodes
+                      (unless (member p ignore)
+                        (setq props (add props (form-property p def (member p reqs)))))))))
+
+    (when props (bag-set rb props "properties"))))
+
+(defun form-datatype-node (name def)
+  (let ((dt (make-bag "{}"))
+        val)
+    (bag-set dt name "name")
+    (when (setq val (bag-get def "description"))
+      (bag-set dt (replace-all val "\r" "\n") "description"))
+    (add-properties dt def '("id" "extension"))
+    (bag-set dt "Element" "parent") ;; The web pages show Element for individual view yet DataType in the model.
+    dt))
+
+(defun form-backbone-node (name def)
+  (let ((dt (make-bag "{}"))
+        val)
+    (bag-set dt name "name")
+    (when (setq val (bag-get def "description"))
+      (bag-set dt (replace-all val "\r" "\n") "description"))
+    (add-properties dt def '("id" "extension" "modifierExtension"))
+    (bag-set dt "BackboneType" "parent")
+    dt))
+
+(defun form-resource-node (name def)
+  (let ((dt (make-bag "{}"))
+        val)
+    (bag-set dt name "name")
+    (when (setq val (bag-get def "description"))
+      (bag-set dt (replace-all val "\r" "\n") "description"))
+    (add-properties dt def '("id" "meta" "implicitRules" "_implicitRules"
+                             "language" "_language" "text" "_text" "contained" "modifierExtension"))
+    (bag-set dt "DomainResource" "parent")
+    dt))
 
 (defun convert-fhir-schema (input-filename output-filename)
   "Convert a fhir.schema.json file to a schema file suitable for loading by this
    package."
-  (let ((fhir-schema (make-bag nil))
+  (let ((fhir-schema (load-bag input-filename))
+        (resource-schema (load-bag "spec/resource-schema.sen"))
+        (domain-resource-schema (load-bag "spec/domainresource-schema.sen"))
         (schema (make-bag "{}")))
-    ;; Load the FHIR schema file into a bag (json in memory).
-    (with-open-file (f input-filename :direction :input)
-      (send fhir-schema :read f))
 
     (send schema :set (car (last (split (send fhir-schema :get "id") "/"))) "version")
 
@@ -37,7 +183,7 @@
                                (let ((pb (make-bag "{}"))
                                      val)
                                  (when (setq val (bag-get def "description"))
-                                   (send pb :set val "description"))
+                                   (send pb :set (replace-all val "\r" "\n") "description"))
                                  (when (setq val (bag-get def "pattern"))
                                    (send pb :set val "pattern"))
                                  (send pb :set p "name")
@@ -45,72 +191,61 @@
                                  ;; customization a case statement is used.
                                  (case p
                                    ("string"
-                                    (send pb :set "fstring" "name")
-                                    (send pb :set "string" "parent"))
+                                    (send pb :set "string" "name")
+                                    (send pb :set "cl:string" "parent"))
                                    ("integer"
-                                    (send pb :set "integer32" "name")
+                                    (send pb :set "integer" "name")
                                     (send pb :set "fixnum" "parent"))
-                                   ("unsignedInt" (send pb :set "integer32" "parent"))
-                                   ("positiveInt" (send pb :set "integer32" "parent"))
+                                   ("unsignedInt" (send pb :set "integer" "parent"))
+                                   ("positiveInt" (send pb :set "integer" "parent"))
                                    ("integer64" (send pb :set "fixnum" "parent"))
                                    ("decimal" (send pb :set "double-float" "parent"))
                                    ("boolean" (send pb :set "symbol" "parent"))
                                    ("time"
-                                    (send pb :set "ftime" "name")
+                                    (send pb :set "time" "name")
                                     (send pb :set "string" "parent"))
                                    ("date" (send pb :set "string" "parent"))
                                    ((or "instant" "dateTime")
                                     (send pb :set "time" "parent"))
-                                   (t (send pb :set "fstring" "parent")))
+                                   (t (send pb :set "string" "parent")))
 
                                  (setq primitives (add primitives pb))))
 
                               ;; Resource definition are in the discriminator.mapping element.
                               ((bag-has res-map p)
-                               ;; (format t "*** resource: ~A~%" p)
-                               )
+                               (setq resources (add resources (form-resource-node p def))))
 
                               ;; Backbone definitions all include an _ character.
                               ((containsp p "_")
-                               ;; (format t "*** backbone: ~A~%" p)
-                               )
+                               (setq backbones (add backbones (form-backbone-node p def))))
+
+                              ;; BackboneElement is not used and is the same as BackboneType.
+                              ((string= "BackboneElement" p) nil)
+                              ;; PrimitiveType is handled independent of the definitions.
+                              ((string= "PrimitiveType" p) nil)
 
                               ;; Hierarchy types are handled individually.
                               ((member p '("Base"
                                            "Element"
-                                           "BackboneElement"
                                            "DataType"
-                                           "PrimitiveType"
-                                           "BackboneType"
-                                           "Resource"
-                                           "DomainResource"))
+                                           "BackboneType"))
                                (setq hierarchy (add hierarchy (form-hierarchy-node p def))))
 
                               ;; Everything else is a FHIR DataType.
                               (t
-                               ;; (format t "*** datatype: ~A~%" p)
-                               ;; special case
-                               )))))))
+                               (setq datatypes (add datatypes (form-datatype-node p def))))
+                              ))))))
       (send schema :set primitives "primitives")
-      ;; TBD add missing hierarchy types
-      ;; TBD add datatypes, hierarchy, backbones, and resources
+
+      (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
+      (send schema :set hierarchy "hierarchy")
+
+      (send schema :set datatypes "datatypes")
+
+      (send schema :set backbones "backbones")
+
+      (send schema :set resources "resources")
+
       (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
         (send schema :write f :pretty t :json t :depth 1)))))
-
-;;; The FHIR heirarchy is defined as:
-;;; Base
-;;;   Element
-;;;     BackboneElement - not is schema file, same as BackboneType though
-;;;     DataType
-;;;       <-- most datatypes go here (e.g., Coding)
-;;;       PrimitiveType <-- not really here in non-XML implementations
-;;;       BackboneType
-;;;   Resource - not in the schema file
-;;;     DomainResource - not in the schema file
-;;;       <-- most resources go here
-;;;
-(defun form-hierarchy-node (name def)
-  ;; (format t "*** hierarchy: ~A~%" p)
-  (let ((hb (make-bag "{}")))
-    (bag-set hb name "name")
-    hb))
