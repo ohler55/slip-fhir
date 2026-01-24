@@ -7,7 +7,7 @@
 
 
 - slip-fhir
- - how to group properties liek value[x]
+ - how to group properties like value[x]
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 
