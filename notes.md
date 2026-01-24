@@ -4,12 +4,12 @@
 
 - slip
  - why are errors not dispayed with stack?
- - allow ::
- add package to precedenc in describe
+
+
 
 - slip-fhir
- - use fhir:string instead of fstring and allow showing
- - same for time
+ - function describe-type (type &key full stripe-color)
+  - color contants bg-red, bg-bright-red, etc
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
 

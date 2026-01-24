@@ -131,7 +131,7 @@
     (when (setq val (bag-get def "description"))
       (bag-set dt val "description"))
     (add-properties dt def '("id" "extension"))
-    (bag-set dt "DataType" "parent")
+    (bag-set dt "Element" "parent") ;; The web pages show Element for individual view yet DataType in the model.
     dt))
 
 (defun form-backbone-node (name def)

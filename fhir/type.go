@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/ohler55/slip"
@@ -162,6 +164,10 @@ func (t *Type) VarNames() (names []string) {
 
 // Describe the class in detail.
 func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
+	return t.describe(b, indent, right, ansi, false, "")
+}
+
+func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string) []byte {
 	b = append(b, indentSpaces[:indent]...)
 	if ansi {
 		b = append(b, bold...)
@@ -172,19 +178,24 @@ func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
 		b = append(b, "fhir:"...)
 		b = append(b, t.name...)
 	}
-	b = append(b, " is a FHIR Type:\n"...)
+	b = append(b, " is a FHIR "...)
+	switch {
+	case 'a' <= t.name[0] && t.name[0] <= 'z':
+		b = append(b, "PrimitiveType"...)
+	case strings.ContainsRune(t.name, '_'):
+		b = append(b, "BackboneType"...)
+	case t.inherit != nil && t.inherit.Name() == "Element":
+		b = append(b, "DataType"...)
+	default:
+		b = append(b, "Resource"...)
+	}
+	b = append(b, ":\n"...)
 	i2 := indent + 2
 	i3 := indent + 4
 	if 0 < len(t.description) {
 		b = append(b, indentSpaces[:i2]...)
 		b = append(b, "Documentation:\n"...)
 		b = slip.AppendDoc(b, t.description, i3, right, ansi)
-		b = append(b, '\n')
-	}
-	if 0 < len(t.pattern) {
-		b = append(b, indentSpaces[:i2]...)
-		b = append(b, "Pattern: "...)
-		b = append(b, t.pattern...)
 		b = append(b, '\n')
 	}
 	b = append(b, indentSpaces[:i2]...)
@@ -205,8 +216,111 @@ func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
 		b = append(b, sc.Name()...)
 	}
 	b = append(b, " t\n"...)
-
+	if 0 < len(t.pattern) {
+		b = append(b, indentSpaces[:i2]...)
+		b = append(b, "Pattern: "...)
+		b = append(b, t.pattern...)
+		b = append(b, '\n')
+	}
+	if 0 < len(t.props) {
+		b = t.describeProps(b, indent, right, ansi, false, "")
+	}
 	return b
+}
+
+func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg string) []byte {
+	i2 := indent + 2
+	pspace := indentSpaces[:indent+4]
+	var (
+		nameWidth int
+		typeWidth int
+		props     []*Prop
+	)
+	for _, p := range t.props {
+		if full || p.name[0] != '_' {
+			props = append(props, p)
+		}
+	}
+	if full {
+		it, _ := t.inherit.(*Type)
+		for it != nil {
+			for _, ip := range it.props {
+				if ip.name != "resourceType" {
+					props = append(props, ip)
+				}
+			}
+			it, _ = it.inherit.(*Type)
+		}
+	}
+	sortProps(props)
+	for _, p := range props {
+		w := len(p.name)
+		if nameWidth < w {
+			nameWidth = w
+		}
+		w = len(p.typeName)
+		if typeWidth < w {
+			typeWidth = w
+		}
+	}
+	docEdge := indent + nameWidth + typeWidth + 14
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Properties:\n"...)
+	if ansi {
+		b = append(b, bold...)
+	}
+	b = fmt.Appendf(b, "%s%-*s  Card. %-*s  Description\n", pspace, nameWidth, "Name", typeWidth, "Type")
+	if ansi {
+		b = append(b, colorOff...)
+	}
+	for i, p := range props {
+		if i%2 == 0 && ansi {
+			b = append(b, bg...)
+		}
+		b = fmt.Appendf(b, "%s%-*s  ", pspace, nameWidth, p.name)
+		if p.required {
+			b = append(b, '1')
+		} else {
+			b = append(b, '0')
+		}
+		b = append(b, '.', '.')
+		if p.array {
+			b = append(b, '*')
+		} else {
+			b = append(b, '1')
+		}
+		b = append(b, ' ', ' ')
+		b = fmt.Appendf(b, "%-*s  ", typeWidth, p.typeName)
+		b = slip.AppendDoc(b, p.docs, docEdge, right, ansi, 0)
+		if i%2 == 0 && ansi && 0 < len(bg) {
+			b = append(b, colorOff...)
+		}
+		b = append(b, '\n')
+	}
+	return b
+}
+
+func sortProps(props []*Prop) {
+	sort.Slice(props, func(i, j int) bool {
+		ni := props[i].name
+		if ni == "resourceType" {
+			return true
+		}
+		if ni[0] == '_' {
+			ni = ni[1:]
+		}
+		nj := props[j].name
+		if nj == "resourceType" {
+			return false
+		}
+		if nj[0] == '_' {
+			nj = nj[1:]
+		}
+		if ni == nj { // one is an _
+			return props[j].name < props[i].name
+		}
+		return ni < nj
+	})
 }
 
 // MakeInstance creates a new instance but does not call the :init method.
@@ -242,11 +356,8 @@ func (t *Type) init() {
 	for _, p := range t.props {
 		pt := Pkg.FindClass(p.typeName)
 		if pt == nil {
-			fmt.Printf("FHIR type %s property %s specifies an undefined parent of %s\n",
-				t.name, p.name, p.typeName)
-			continue
-			// panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
-			// 	base.name, p.name, p.typeName))
+			panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
+				t.name, p.name, p.typeName))
 		}
 		p.ftype = pt.(Validator)
 	}

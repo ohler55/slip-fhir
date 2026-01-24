@@ -17,7 +17,10 @@ import (
 var fhir5JSON []byte
 
 const (
-	bold         = "\x1b[1m"
+	bold    = "\x1b[1m"
+	bgGray  = "\x1b[0;47m"
+	bgWhite = "\x1b[0;107m"
+	// TBD add others
 	colorOff     = "\x1b[m"
 	indentSpaces = "                                                                                "
 )
