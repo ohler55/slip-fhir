@@ -2,90 +2,95 @@
 
 # slip-fhir notes
 
-- slip
- - why are errors not dispayed with stack?
-
-
 - slip-fhir
  - how to group properties like value[x]
+  - describe-type
+   - maybe shift over 2 or 4 places with cardinality
+    - with vertical lines?
+  - Prop.group
+   - handle in script
+   - search based on primitive and datatype names as suffix
+    - build map of prefix for matching with a count of matches as the value
+    - include _xxx as well
+  - candidates
+   - scan schema and show types that match any of the current candidates (as a check)
+
+  - current candidates
+   - abatement[x]
+   - actor[x]
+   - additive[x]
+   - age[x]
+   - allowed[x]
+   - amount[x]
+   - answer[x]
+   - artifact[x]
+   - asNeeded[x]
+   - born[x]
+   - chargeItem[x]
+   - citeAs[x]
+   - collected[x]
+   - concentration[x]
+   - content[x]
+   - cost[x]
+   - coverage[x]
+   - date[x]
+   - deceased[x]
+   - definition[x]
+   - detail[x]
+   - diagnosis[x]
+   - due[x]
+   - duration[x]
+   - effective[x]
+   - endpoint[x]
+   - entity[x]
+   - event[x]
+   - fastingStatus[x]
+   - generatedBy[x]
+   - identified[x]
+   - instance[x]
+   - instantiates[x]
+   - instruction[x]
+   - item[x]
+   - legallyBinding[x]
+   - link[x]
+   - location[x]
+   - measureScore[x]
+   - minimumVolume
+   - module[x]
+   - multipleBirth[x]
+   - network[x]
+   - occurred[x]
+   - occurrence[x]
+   - onset[x]
+   - performed[x]
+   - period[x]
+   - presentation[x]
+   - probability[x]
+   - procedure[x]
+   - product[x]
+   - quantity[x]
+   - rate[x]
+   - reported[x]
+   - sequence[x]
+   - serviced[x]
+   - sourceScope[x]
+   - source[x]
+   - start[x]
+   - strength[x]
+   - structureProfile[x]
+   - subject[x]
+   - substabceDefinition[x]
+   - substance[x]
+   - targetItem[x]
+   - targetScope[x]
+   - time[x]
+   - timing[x]
+   - topic[x]
+   - used[x]
+   - value[x]
+   - versionAlgorithm[x]
+   - when[x]
+
+
 
 - allow call to create a fhir package from a file, don't add it to user explicitly
-
-- slap - repo for slip + plugins and embeded lisp code
- - make public
-
-- schema
- - get list of resources from discriminator.mapping
- - walk definitions
-  - ignore ResourceList
-  - types with lower case, form primitives map
-   - name
-   - description
-   - type (number, string, ??)
-   - pattern (regex)
-  - Capitalized
-   - in resource list
-    - class
-   - with _ then a backbone element
-    - class with different precedence
-   - no _
-    - datatype class
-  - special cases for
-
-
- - simplify spec version with script
- - Coding
-  - description
-  - elements or properties or props []
-   - system
-    - description
-    - optional bool
-    - array bool
-    - type (primitive or class name)
-    - choices
-
-Base
-  Element
-    BackboneElement
-    DataType
-      PrimitiveType
-      BackboneType
-  Resource
-    DomainResource
-      CanonicalResource <- interfaces, don't count
-        MetadataResource <- interfaces, don't count
-      Account
-      Patient
-      etc
-
-----------
-- define classes
- - primitives
-  - can not create instances of or maybe need a coerce or maybe just for validation
- - datatypes
-  - class with precedence of (Datatype Element Base)
- - hard code Datatype, Element, and Base
-
-- deviate from spec with primitive precedence
- - describe inheritance tree somewhere
-
-- primitives inherit from slip primitives conceptually
-
-
--------
-- primitives are just go structs that support ValidateFhir(v any) error
- - or should ValidateFhir just panic
- - or just named Validate(v any)
-- define classes
- - metaclass fhir-datatype[-class] and fhir-resource[-class]
- - fhir:Base class empty but with some common methods
-  - slip.class with instance slip.Object
-  - fhir classes use the names, instances are fhir.Instance (a slip.Instance)
- - fhir:Element
- - fhir:DataType
- - fhir:Coding
- - make-datatype
- - make-resource
-
- - define Base as base for all precedence (t)
- - define DataType (print capitalized but search lowercase)
