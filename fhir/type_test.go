@@ -195,11 +195,11 @@ func TestTypeDescribe(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc := string(pt.Describe(nil, 0, 60, false))
-	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR Type"))
+	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 
 	desc = string(pt.Describe(nil, 0, 60, true))
-	tt.Equal(t, true, strings.Contains(desc, "is a FHIR Type"))
+	tt.Equal(t, true, strings.Contains(desc, "is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 }
 

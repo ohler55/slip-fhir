@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -296,31 +295,29 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 			b = append(b, colorOff...)
 		}
 		b = append(b, '\n')
+
+		if 0 < len(p.group) {
+			var group []*Prop
+			for _, gp := range p.group {
+				if full || gp.name[0] != '_' {
+					group = append(group, gp)
+				}
+			}
+			left := '┣'
+			for i, gp := range group {
+				if i == len(p.group)-1 {
+					left = '┗'
+				}
+				b = fmt.Appendf(b, "%s%c %-*s      %-*s", pspace, left, nameWidth, gp.name, typeWidth, gp.typeName)
+				if 0 < len(gp.docs) {
+					b = append(b, ' ', ' ')
+					b = slip.AppendDoc(b, gp.docs, docEdge, right, ansi, 0)
+				}
+				b = append(b, '\n')
+			}
+		}
 	}
 	return b
-}
-
-func sortProps(props []*Prop) {
-	sort.Slice(props, func(i, j int) bool {
-		ni := props[i].name
-		if ni == "resourceType" {
-			return true
-		}
-		if ni[0] == '_' {
-			ni = ni[1:]
-		}
-		nj := props[j].name
-		if nj == "resourceType" {
-			return false
-		}
-		if nj[0] == '_' {
-			nj = nj[1:]
-		}
-		if ni == nj { // one is an _
-			return props[j].name < props[i].name
-		}
-		return ni < nj
-	})
 }
 
 // MakeInstance creates a new instance but does not call the :init method.
@@ -354,12 +351,7 @@ func (t *Type) init() {
 	}
 
 	for _, p := range t.props {
-		pt := Pkg.FindClass(p.typeName)
-		if pt == nil {
-			panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
-				t.name, p.name, p.typeName))
-		}
-		p.ftype = pt.(Validator)
+		p.init(t)
 	}
 
 	// The valid field is also an indicator of init() having been called.
