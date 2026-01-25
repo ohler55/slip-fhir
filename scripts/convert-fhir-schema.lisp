@@ -21,6 +21,7 @@
 ;;;       <-- most resources go here
 ;;;
 (defun form-hierarchy-node (name def)
+  "Build a base oe hierarchy node from the provided schema definition."
   (let ((hb (make-bag "{}"))
         val)
     (bag-set hb name "name")
@@ -37,6 +38,10 @@
     hb))
 
 (defun correct-type (name type)
+  "The FHIR schema file defines pimitives but then ignores those definitions in
+   property definitions and resorts to regexp patterns instead. This function
+   corrects that and sets the property type according to what should have been
+   in the schema file."
   (cond ((equal type "string")
          (cond ((suffixp name "Instant") "instant")
                ((suffixp name "DateTime") "dateTime")
@@ -64,7 +69,7 @@
                ((suffixp name "Integer64") "integer64")
                ((suffixp name "Decimal") "decimal")
                (t type)))
-        ((prefixp name "_") "Extension")
+        ((prefixp name "_") "Extension") ;; Element in the file when it should be Extension
         (t type)))
 
 (defun determine-type (name pdef prop)
@@ -100,11 +105,16 @@
            (bag-set prop (correct-type name type) "type")))))
 
 (defun form-property (name def req)
+  "Forms a property node from the provided definition. Since the indicator that
+   the property is a required property is outside the property definition it
+   is determined outside this function and the indicator pass in as an
+   argument."
   (let ((prop (make-bag "{}"))
         val)
     (bag-set prop name "name")
     (determine-type name def prop)
     (when (setq val (bag-get def "description"))
+      ;; To stay consistent returns are replaced with newlines.
       (bag-set prop (replace-all val "\r" "\n") "description"))
     (when (and (setq val (bag-get def "pattern")) (equal (bag-get prop "type") "string"))
       (bag-set prop val "pattern"))
@@ -112,6 +122,9 @@
     prop))
 
 (defun add-properties (rb def ignore)
+  "Scans a type definition for properties and adds the nodes from those
+   properties to a list which is added to the resource bag at the end of the
+   function."
   (let ((reqs (bag-get def "required"))
         props)
     (bag-scan (or (bag-get def "properties" t) (make-bag '()))
@@ -125,35 +138,134 @@
     (when props (bag-set rb props "properties"))))
 
 (defun form-datatype-node (name def)
+  "Forms a DataType node from the provided definition."
   (let ((dt (make-bag "{}"))
         val)
     (bag-set dt name "name")
     (when (setq val (bag-get def "description"))
+      ;; To stay consistent returns are replaced with newlines.
       (bag-set dt (replace-all val "\r" "\n") "description"))
     (add-properties dt def '("id" "extension"))
     (bag-set dt "Element" "parent") ;; The web pages show Element for individual view yet DataType in the model.
     dt))
 
 (defun form-backbone-node (name def)
+  "Forms a BackboneType node from a schema definition."
   (let ((dt (make-bag "{}"))
         val)
     (bag-set dt name "name")
     (when (setq val (bag-get def "description"))
+      ;; To stay consistent returns are replaced with newlines.
       (bag-set dt (replace-all val "\r" "\n") "description"))
     (add-properties dt def '("id" "extension" "modifierExtension"))
     (bag-set dt "BackboneType" "parent")
     dt))
 
 (defun form-resource-node (name def)
+  "Forms a resource node from a schema definition."
   (let ((dt (make-bag "{}"))
         val)
     (bag-set dt name "name")
     (when (setq val (bag-get def "description"))
+      ;; To stay consistent returns are replaced with newlines.
       (bag-set dt (replace-all val "\r" "\n") "description"))
     (add-properties dt def '("id" "meta" "implicitRules" "_implicitRules"
                              "language" "_language" "text" "_text" "contained" "modifierExtension"))
     (bag-set dt "DomainResource" "parent")
     dt))
+
+(defun prop-in-groups-p (prop groups)
+  (let ((pname (bag-get prop "name")))
+    (dolist (group groups)
+      (when (dolist (gp (cdr group))
+              (when (equal pname (bag-get gp "name"))
+                (return t)))
+        (return t)))))
+
+(defun get-group-prop (group)
+  (dolist (p (cdr group))
+    (unless (prefixp (bag-get p "name") "_")
+      (return p))))
+
+(defun discover-groups-in-type (type-node patterns)
+  "In the model definitions on the FHIR web site some properties are listed as
+   groups with a notation such as 'value[x]' followed by the acceptable
+   sub-type such as 'valueString' or 'valueInteger'. The schema file does not
+   include that information. This function looks for property names that match
+   the pattern of a prefix followed by a type suffix. All must have the same
+   cardinality. When found those are grouped together."
+  (let (matches ;; property list
+        groups) ;; assoc list
+    (bag-walk type-node (lambda (p)
+                          ;;(format t "*** prop: ~A ~A ~A~%" (bag-get p "name") (bag-get p "required") (bag-get p "array")))
+                          (let ((name (bag-get p "name")))
+                            (dolist (rx patterns)
+                              (when (regex-match rx name)
+                                (let* ((suffix (subseq name 0 (+ (- (length name) (length rx)) 3)))
+                                       (lst (getf matches suffix)))
+                                  ;; add but keep going to match paterns like DateTime and Time
+                                  (setf (getf matches suffix) (add lst p)))))))
+              "properties[*]" t)
+    (dotimes (i (* 2 (length matches)))
+      (let ((prefix (nth (* 2 i) matches))
+            (group (nth (1+ (* 2 i)) matches)))
+        (when (and (< 1 (length group)) (not (prefixp prefix "_")))
+          ;; TBD verify all group member have the same cardinality
+          (setq groups (add groups (cons prefix (append (getf matches (join "" "_" prefix)) group)))))))
+    (when (< 0 (length groups))
+      (let (props)
+        (bag-walk type-node (lambda (p)
+                              (unless (prop-in-groups-p p groups)
+                                (setq props (add props p))))
+                  "properties[*]" t)
+        (dolist (group groups)
+          (let ((gp (make-bag "{}"))
+                (np (get-group-prop group)))
+            (bag-set gp (join "" (car group) "[x]") "name")
+            (bag-set gp (cdr group) "group")
+            (bag-set gp (bag-get np "description") "description")
+            (when (bag-get np "array")  (bag-set gp t "array"))
+            (when (bag-get np "required")  (bag-set gp t "required"))
+            (dolist (p (cdr group))
+              (unless (prefixp (bag-get p "name") "_")
+                (bag-remove p "description")))
+            (setq props (add props gp))))
+        (bag-set type-node props "properties")))))
+
+(defun discover-groups (schema)
+  "Groups such as value[x] can be found in resources, backbones, and
+   datatype. Search each type, discover groups, and then replace sets of
+   properties with a group."
+
+  ;; Groups only have primitve or datatype suffixes.
+  (let (patterns)
+    ;; Build a set of regex patterns to use when checking candidates for
+    ;; grouping.
+    (bag-walk schema (lambda (name)
+                       (setq patterns
+                             (add patterns
+                                  (format nil ".+~A$" (string-upcase name :start 0 :end 1)))))
+              "primitives[*].name")
+    (bag-walk schema (lambda (name)
+                       (setq patterns (add patterns (format nil ".+~A$" name))))
+              "datatypes[*].name")
+
+    ;; Armed with a set of patterns check each non-primitive type for groups
+    ;; and modify.
+    ;; (bag-walk schema
+    ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
+    ;;           "resources[?@.name == 'AdverseEvent']" t)
+    ;; (bag-walk schema
+    ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
+    ;;           "resources[*]" t)
+    ;; (bag-walk schema
+    ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
+    ;;           "backbones[*]" t)
+    ;; (bag-walk schema
+    ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
+    ;;           "datatypes[*]" t)
+    ;; TBD uncomment
+    ))
 
 (defun convert-fhir-schema (input-filename output-filename)
   "Convert a fhir.schema.json file to a schema file suitable for loading by this
@@ -237,15 +349,19 @@
                               ))))))
       (send schema :set primitives "primitives")
 
+      ;; The language enum are not listed in the schema file so they are added here.
       (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
+
+      ;; Add each type list to the new schema being constructed.
       (send schema :set hierarchy "hierarchy")
-
       (send schema :set datatypes "datatypes")
-
       (send schema :set backbones "backbones")
-
       (send schema :set resources "resources")
+
+      ;; There are no indicators for groups in the schema file so discover
+      ;; them and update the new schema.
+      (discover-groups schema)
 
       (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
         (send schema :write f :pretty t :json t :depth 1)))))
