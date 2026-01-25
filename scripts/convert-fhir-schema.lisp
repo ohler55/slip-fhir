@@ -250,11 +250,12 @@
                        (setq patterns (add patterns (format nil ".+~A$" name))))
               "datatypes[*].name")
 
+    (bag-walk schema
+              (lambda (type-node) (discover-groups-in-type type-node patterns))
+              "resources[?@.name == 'AdverseEvent']" t)
+
     ;; Armed with a set of patterns check each non-primitive type for groups
     ;; and modify.
-    ;; (bag-walk schema
-    ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
-    ;;           "resources[?@.name == 'AdverseEvent']" t)
     ;; (bag-walk schema
     ;;           (lambda (type-node) (discover-groups-in-type type-node patterns))
     ;;           "resources[*]" t)

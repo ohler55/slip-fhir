@@ -3,7 +3,6 @@
 package fhir
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/ohler55/slip"
@@ -89,8 +88,6 @@ func (f *DescribeType) Call(s *slip.Scope, args slip.List, depth int) slip.Objec
 	}
 	ansi := s.Get("*print-ansi*") != nil
 	right := int(s.Get("*print-right-margin*").(slip.Fixnum))
-
-	fmt.Printf("*** arg0: %T\n", obj)
 top:
 	switch to := obj.(type) {
 	case *Type:

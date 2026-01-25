@@ -220,17 +220,7 @@ func loadTypes(defs []any) {
 			parent:      alt.String(jp.C("parent").First(ts)),
 		}
 		for _, ps := range jp.C("properties").W().Get(ts) {
-			p := Prop{
-				name:     alt.String(jp.C("name").First(ps)),
-				docs:     alt.String(jp.C("description").First(ps)),
-				typeName: alt.String(jp.C("type").First(ps)),
-				required: alt.Bool(jp.C("required").First(ps)),
-				array:    alt.Bool(jp.C("array").First(ps)),
-			}
-			for _, e := range jp.C("enum").W().Get(ps) {
-				p.enum = append(p.enum, alt.String(e))
-			}
-			ft.props = append(ft.props, &p)
+			ft.props = append(ft.props, NewProp(ps))
 		}
 		slip.RegisterClass(strings.ToLower(ft.name), &ft)
 		types = append(types, &ft)
