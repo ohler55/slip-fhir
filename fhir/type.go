@@ -305,7 +305,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 			}
 			left := '┣'
 			for i, gp := range group {
-				if i == len(p.group)-1 {
+				if i == len(group)-1 {
 					left = '┗'
 				}
 				b = fmt.Appendf(b, "%s%c %-*s      %-*s", pspace, left, nameWidth, gp.name, typeWidth, gp.typeName)
