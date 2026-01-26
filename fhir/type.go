@@ -26,7 +26,6 @@ type Type struct {
 	inherit     slip.Class // direct super
 	supers      []slip.Class
 	valid       func(v any) bool // called on bag (simple) elements
-	initInst    func(v any)      // TBD change to an instance type
 	// primitive types may have a pattern and regexp
 	pattern string
 	rx      *regexp.Regexp
@@ -322,9 +321,10 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 
 // MakeInstance creates a new instance but does not call the :init method.
 func (t *Type) MakeInstance() slip.Instance {
-	// TBD create instance then call initInst
-	t.initInst(nil)
-	panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", t))
+	if 0 < len(t.pattern) { // primitive type
+		panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", t))
+	}
+	return &Instance{class: t, data: map[string]any{}}
 }
 
 func (t *Type) init() {
@@ -420,9 +420,6 @@ func (t *Type) init() {
 		// TBD set correct for other types
 		t.valid = func(v any) bool {
 			return true
-		}
-		t.initInst = func(v any) {
-			// TBD
 		}
 	}
 

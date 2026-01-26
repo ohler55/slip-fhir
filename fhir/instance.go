@@ -1,0 +1,235 @@
+// Copyright (c) 2026, Peter Ohler, All rights reserved.
+
+package fhir
+
+import (
+	"strconv"
+	"strings"
+	"sync"
+	"unsafe"
+
+	"github.com/ohler55/ojg/alt"
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/slip"
+)
+
+// Instance is an instance of a FHIR type.
+type Instance struct {
+	class  *Type
+	data   map[string]any
+	locker slip.Locker
+}
+
+// String representation of the Object.
+func (inst *Instance) String() string {
+	return string(inst.Append([]byte{}))
+}
+
+// Append a buffer with a representation of the Object.
+func (inst *Instance) Append(b []byte) []byte {
+	b = append(b, "#<"...)
+	b = append(b, inst.class.pkg.Name...)
+	b = append(b, ':')
+	b = append(b, inst.class.name...)
+	b = append(b, ' ')
+	b = strconv.AppendUint(b, inst.ID(), 16)
+	return append(b, '>')
+}
+
+// ID returns unique ID for the instance.
+func (inst *Instance) ID() uint64 {
+	return uint64(uintptr(unsafe.Pointer(inst)))
+}
+
+// Simplify by returning the string representation of the flavor.
+func (inst *Instance) Simplify() interface{} {
+	return inst.data
+}
+
+// Hierarchy returns the class hierarchy as symbols for the instance.
+func (inst *Instance) Hierarchy() []slip.Symbol {
+	return inst.class.Hierarchy()
+}
+
+// IsA return true if the instance is of a type that inherits from the
+// provided flavor.
+func (inst *Instance) IsA(class string) bool {
+	for _, sym := range inst.class.Hierarchy() {
+		if class == string(sym) {
+			return true
+		}
+	}
+	return false
+}
+
+// SlotNames returns a list of the slots names for the instance.
+func (inst *Instance) SlotNames() (names []string) {
+	return inst.class.VarNames()
+}
+
+// SlotValue return the value of an instance variable.
+func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
+	var v any
+	if v, has = jp.C(string(sym)).FirstFound(inst.data); has {
+		value = slip.SimpleObject(v)
+	}
+	return
+}
+
+// SetSlotValue sets the value of an instance variable.
+func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool) {
+	// TBD verify allowed and valid value
+	// need a getProp in type
+	return
+}
+
+// Init the instance slots from the provided args list. If the scope is not
+// nil then send :init is called.
+func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
+	if inst.class.parent == "DomainResource" {
+		inst.data["resourceType"] = inst.class.name
+	}
+	// TBD if bag input, validate and replace, resourceType must be nil or correct
+	// if list then try creating bag with data
+	// key is :data
+}
+
+// HasMethod returns true if the instance handles the named method.
+func (inst *Instance) HasMethod(method string) (has bool) {
+	// TBD
+	return
+}
+
+// GetMethod returns the method if it exists.
+func (inst *Instance) GetMethod(name string) *slip.Method {
+	// TBD create slip.Method
+	return nil
+}
+
+// MethodNames returns a sorted list of the methods of the instance.
+func (inst *Instance) MethodNames() slip.List {
+	// :set (property value)
+	// :get (path as-bag)
+	// :replace (bag)
+	// :validate (&key return-error)
+	// :type ()
+	// :class ()
+	// :describe (&optional output-stream)
+	// :print-self (&optional output-stream)
+	// :equal (other)
+	// :id ()
+	// :inspect () - return data as a bag
+	// :operation-handled-p (method)
+	// :which-operations ()
+
+	return nil
+}
+
+// Receive a method invocation from the send function. Not intended to be
+// called by any code other than the send function but is public to allow it
+// to be over-ridden.
+func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+	// TBD
+	// :set (property value)
+	// :get (path as-bag)
+	// :replace (bag)
+	// :validate (&key return-error)
+	// :type ()
+	// :class ()
+	// :describe (&optional output-stream)
+	// :print-self (&optional output-stream)
+	// :equal (other)
+	// :id ()
+	// :inspect () - return data as a bag
+	// :operation-handled-p (method)
+	// :which-operations ()
+
+	return
+}
+
+// Equal returns true if this Object and the other are equal in value.
+func (inst *Instance) Equal(other slip.Object) bool {
+	if inst == other {
+		return true
+	}
+	// TBD same type and fields the same
+	return false
+}
+
+// Eval returns self.
+func (inst *Instance) Eval(s *slip.Scope, depth int) slip.Object {
+	return inst
+}
+
+// Describe the instance in detail.
+func (inst *Instance) Describe(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = inst.Append(b)
+		b = append(b, colorOff...)
+	} else {
+		b = inst.Append(b)
+	}
+	b = append(b, ", an instance of "...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, inst.class.pkg.Name...)
+		b = append(b, ':')
+		b = append(b, inst.class.name...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, inst.class.pkg.Name...)
+		b = append(b, ':')
+		b = append(b, inst.class.name...)
+	}
+	b = append(b, ",\n  "...)
+	data := strings.ReplaceAll(pretty.SEN(inst.data), "\n", "  \n")
+	b = append(b, data...)
+
+	return append(b, '\n')
+}
+
+// Class returns the flavor of the instance.
+func (inst *Instance) Class() slip.Class {
+	return inst.class
+}
+
+// Dup returns a duplicate of the instance.
+func (inst *Instance) Dup() slip.Instance {
+	return &Instance{
+		class: inst.class,
+		data:  alt.Dup(inst.data).(map[string]any),
+	}
+}
+
+// LoadForm returns a form that can be evaluated to create the object.
+func (inst *Instance) LoadForm() slip.Object {
+	return slip.InstanceLoadForm(inst)
+}
+
+// SetSynchronized set the synchronized mode of the instance.
+func (inst *Instance) SetSynchronized(on bool) {
+	if on {
+		inst.locker = &sync.Mutex{}
+	} else {
+		inst.locker = slip.NoOpLocker{}
+	}
+}
+
+// Synchronized returns true if the instance is in synchronized mode.
+func (inst *Instance) Synchronized() bool {
+	_, ok := inst.locker.(*sync.Mutex)
+	return ok
+}
+
+// Lock the instance to synchronize changes.
+func (inst *Instance) Lock() {
+	inst.locker.Lock()
+}
+
+// Unlock the instance to synchronize changes.
+func (inst *Instance) Unlock() {
+	inst.locker.Unlock()
+}
