@@ -13,4 +13,10 @@
  - what does describe-method need?
  - maybe create slip.Method map and use that in Receive and other method related functions
 
+- methods
+ - global callers and method objects
+ - map[string]*slip.Method
+
+- describe-flavor should work
+
 - allow call to create a fhir package from a file, don't add it to user explicitly

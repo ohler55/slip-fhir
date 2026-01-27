@@ -97,55 +97,29 @@ func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
 
 // HasMethod returns true if the instance handles the named method.
 func (inst *Instance) HasMethod(method string) (has bool) {
-	// TBD
-	return
+	return typeMethods[strings.ToLower(method)] != nil
 }
 
 // GetMethod returns the method if it exists.
 func (inst *Instance) GetMethod(name string) *slip.Method {
-	// TBD create slip.Method
-	return nil
+	return typeMethods[strings.ToLower(name)]
 }
 
 // MethodNames returns a sorted list of the methods of the instance.
 func (inst *Instance) MethodNames() slip.List {
-	// :set (property value)
-	// :get (path as-bag)
-	// :replace (bag)
-	// :validate (&key return-error)
-	// :type ()
-	// :class ()
-	// :describe (&optional output-stream)
-	// :print-self (&optional output-stream)
-	// :equal (other)
-	// :id ()
-	// :inspect () - return data as a bag
-	// :operation-handled-p (method)
-	// :which-operations ()
-
-	return nil
+	return typeMethodNames()
 }
 
 // Receive a method invocation from the send function. Not intended to be
 // called by any code other than the send function but is public to allow it
 // to be over-ridden.
 func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
-	// TBD
-	// :set (property value)
-	// :get (path as-bag)
-	// :replace (bag)
-	// :validate (&key return-error)
-	// :type ()
-	// :class ()
-	// :describe (&optional output-stream)
-	// :print-self (&optional output-stream)
-	// :equal (other)
-	// :id ()
-	// :inspect () - return data as a bag
-	// :operation-handled-p (method)
-	// :which-operations ()
-
-	return
+	method := typeMethods[strings.ToLower(message)]
+	if method == nil {
+		slip.InvalidMethodPanic(s, depth,
+			inst, nil, slip.Symbol(message), "%s does not include the %s method.", inst.class.Name(), message)
+	}
+	return method.Combinations[0].Primary.Call(s, append(slip.List{inst}, args...), depth)
 }
 
 // Equal returns true if this Object and the other are equal in value.

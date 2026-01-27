@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,6 +17,25 @@ const (
 	// TypeSymbol is the symbol with a value of "fhir-type".
 	TypeSymbol = slip.Symbol("fhir-type")
 )
+
+var typeMethods = map[string]*slip.Method{
+	instanceIDMethod.Name:                &instanceIDMethod,
+	instanceTypeMethod.Name:              &instanceTypeMethod,
+	instanceClassMethod.Name:             &instanceClassMethod,
+	instanceDescribeMethod.Name:          &instanceDescribeMethod,
+	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
+	instanceDataMethod.Name:              &instanceDataMethod,
+	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
+	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instanceEqualMethod.Name:             &instanceEqualMethod,
+
+	// TBD
+	// :set (property value) - instance-set
+	// :get (path as-bag) - instance-get
+	// :replace (bag) - instance-replace
+	// :validate (&optional on-error) - instance-validate
+	//   on-error is called on error. It should return :continue, :reject, :raise
+}
 
 // Type is the meta class for FHIR types.
 type Type struct {
@@ -160,9 +180,48 @@ func (t *Type) VarNames() (names []string) {
 	return names
 }
 
+// GetMethod returns the method if it exists.
+func (t *Type) GetMethod(name string) *slip.Method {
+	return typeMethods[strings.ToLower(name)]
+}
+
+// Methods returns a map of the methods.
+func (t *Type) Methods() map[string]*slip.Method {
+	return typeMethods
+}
+
 // Describe the class in detail.
 func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
+	if t.name == "Type" {
+		return t.describeSelf(b, indent, right, ansi)
+	}
 	return t.describe(b, indent, right, ansi, false, "")
+}
+
+func (t *Type) describeSelf(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Type"...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Type"...)
+	}
+	b = append(b, " is the FHIR meta-class\n"...)
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, t.description, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Methods:\n"...)
+	for _, name := range typeMethodNames() {
+		b = append(b, indentSpaces[:i3]...)
+		b = append(b, string(name.(slip.Symbol))...)
+		b = append(b, '\n')
+	}
+	return b
 }
 
 func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string) []byte {
@@ -468,4 +527,17 @@ func primitiveTime(v any, rx *regexp.Regexp) (ok bool) {
 		ok = rx.MatchString(tv)
 	}
 	return
+}
+
+func typeMethodNames() slip.List {
+	names := make([]string, 0, len(typeMethods))
+	for k := range typeMethods {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	methods := make(slip.List, len(names))
+	for i, name := range names {
+		methods[i] = slip.Symbol(name)
+	}
+	return methods
 }
