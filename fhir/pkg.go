@@ -179,6 +179,10 @@ func init() {
 	initDescribeType()
 	initInstanceID()
 	initInstanceData()
+	initInstanceGet()
+	initInstanceSet()
+	initInstanceReplace()
+	initInstanceValidate()
 
 	blankType.pkg = &Pkg
 	Pkg.Initialize(nil, &Type{}) // lock

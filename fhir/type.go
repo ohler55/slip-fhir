@@ -28,13 +28,10 @@ var typeMethods = map[string]*slip.Method{
 	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
 	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
 	instanceEqualMethod.Name:             &instanceEqualMethod,
-
-	// TBD
-	// :set (property value) - instance-set
-	// :get (path as-bag) - instance-get
-	// :replace (bag) - instance-replace
-	// :validate (&optional on-error) - instance-validate
-	//   on-error is called on error. It should return :continue, :reject, :raise
+	instanceGetMethod.Name:               &instanceGetMethod,
+	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceReplaceMethod.Name:           &instanceReplaceMethod,
+	instanceValidateMethod.Name:          &instanceValidateMethod,
 }
 
 // Type is the meta class for FHIR types.
@@ -46,6 +43,7 @@ type Type struct {
 	inherit     slip.Class // direct super
 	supers      []slip.Class
 	valid       func(v any) bool // called on bag (simple) elements
+	// valid       func(v any, onErr func(path jp.Expr, value any) slip.Symbol) bool // called on bag (simple) elements
 	// primitive types may have a pattern and regexp
 	pattern string
 	rx      *regexp.Regexp
@@ -91,12 +89,19 @@ func (t *Type) LoadForm() slip.Object {
 	return nil
 }
 
-// Validate return without panicing if the value is acceptable for the
-// instance and panics otherwise.
-func (t *Type) Validate(value any) {
+// Validate the provided data and call the onErr function on a validation
+// error. If all validation rules succeed then true is returned else false is
+// returned. The result of the onErr call should be one of:
+// :continue - indicates validation should continue and the error ignored.
+// :reject - indicates validation should continue but validation should fail after completion.
+// :raise - indicates validation should stop and an error raised.
+// func (t *Type) Validate(value any, onErr func(path jp.Expr, value any) slip.Symbol) bool {
+func (t *Type) Validate(value any) bool {
+
 	if !t.valid(value) {
 		panic(fmt.Sprintf("%s, a %T is not a valid value for a %s.", value, value, t))
 	}
+	return true
 }
 
 // Simplify by returning the string representation of the class.
