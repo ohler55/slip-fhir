@@ -3,8 +3,15 @@
 package fhir
 
 import (
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
 )
+
+// OnErrorFunc is the function type used for validation notification. A return
+// of true indicates validation should halt. A return of false indicates
+// validation should continue. The path is the normalized path to the property
+// while the value is the value that failed validation.
+type OnErrorFunc func(path jp.Expr, value any, message string) bool
 
 // Validator is an interface for validating values for an specific type.
 type Validator interface {
@@ -12,13 +19,5 @@ type Validator interface {
 
 	// Validate should return without panicing if the value is acceptable for
 	// the instance and panics otherwise.
-	Validate(value any) bool
-
-	// Validate the provided data and call the onErr function on a validation
-	// error. If all validation rules succeed then true is returned else false is
-	// returned. The result of the onErr call should be one of:
-	// :continue - indicates validation should continue and the error ignored.
-	// :reject - indicates validation should continue but validation should fail after completion.
-	// :raise - indicates validation should stop and an error raised.
-	// Validate(value any, onErr func(path jp.Expr, value any) slip.Symbol) bool
+	Validate(value any, onErr OnErrorFunc) bool
 }

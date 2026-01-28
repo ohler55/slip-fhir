@@ -80,14 +80,17 @@ type instanceValidate struct {
 
 // Call the the function with the arguments provvalidateed.
 func (f *instanceValidate) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 2, 2)
+	slip.CheckArgCount(s, depth, f, args, 1, 2)
 	inst, ok := args[0].(*Instance)
 	if !ok {
 		slip.TypePanic(s, depth, "instance", args[0], "fhir:instance")
 	}
-	onError := cl.ResolveToCaller(s, args[1], depth)
+	var onErr slip.Caller
+	if 1 < len(args) {
+		onErr = cl.ResolveToCaller(s, args[1], depth)
+	}
 
-	fmt.Printf("*** %v %s\n", onError, inst)
+	fmt.Printf("*** %v %s\n", onErr, inst)
 
 	// TBD run valdation on data
 

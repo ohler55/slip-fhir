@@ -57,6 +57,7 @@ change the FHIR version which also redefines the fhir classes.`,
 	types     []Validator
 	blankType = Type{
 		name:        "Type",
+		pkg:         &Pkg,
 		description: "The meta-class for all FHIR types. All FHIR instance methods are defined by this class.",
 	}
 )
@@ -184,7 +185,6 @@ func init() {
 	initInstanceReplace()
 	initInstanceValidate()
 
-	blankType.pkg = &Pkg
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
 	slip.UserPkg.Use(&Pkg)

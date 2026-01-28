@@ -3,6 +3,7 @@
 package fhir
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -12,6 +13,9 @@ import (
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/bag"
+	"github.com/ohler55/slip/pkg/cl"
+	"github.com/ohler55/slip/pkg/flavors"
 )
 
 // Instance is an instance of a FHIR type.
@@ -79,20 +83,59 @@ func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
 
 // SetSlotValue sets the value of an instance variable.
 func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool) {
-	// TBD verify allowed and valid value
-	// need a getProp in type
-	return
+	var data any
+	switch ta := value.(type) {
+	case *flavors.Instance:
+		if bag.Flavor() != ta.Type {
+			slip.TypePanic(slip.NewScope(), 0, "value", ta,
+				"fhir:instance", "bag", "string", "fixnum", "float", "boolean", "nil")
+		}
+		data = ta.Any
+	case *Instance:
+		data = ta.data
+	default:
+		data = slip.Simplify(ta)
+	}
+
+	// TBD validate data, get property from inst.class, verify type if supplied is correct, then call validate on type
+
+	_ = jp.C(string(sym)).Set(inst.data, data)
+
+	return true
 }
 
-// Init the instance slots from the provided args list. If the scope is not
-// nil then send :init is called.
+// Init the instance slots from the provided args list.
 func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
-	if inst.class.parent == "DomainResource" {
-		inst.data["resourceType"] = inst.class.name
+	var (
+		data  map[string]any
+		onErr slip.Caller
+		skip  bool
+	)
+	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":data")); has {
+		if bg, ok := value.(*flavors.Instance); ok && bag.Flavor() == bg.Type {
+			data, _ = bg.Any.(map[string]any)
+		}
+		if data == nil {
+			slip.TypePanic(scope, depth, ":data", args[1], "bag")
+		}
 	}
-	// TBD if bag input, validate and replace, resourceType must be nil or correct
-	// if list then try creating bag with data
-	// key is :data
+	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":on-error")); has {
+		onErr = cl.ResolveToCaller(scope, value, depth)
+	}
+	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":no-validation")); has && value != nil {
+		skip = true
+	}
+	if data != nil && !skip {
+		// TBD validate
+		fmt.Printf("*** onErr: %T\n", onErr)
+	}
+	if data == nil {
+		data = map[string]any{}
+		if inst.class.parent == "DomainResource" {
+			data["resourceType"] = inst.class.name
+		}
+	}
+	inst.data = data
 }
 
 // HasMethod returns true if the instance handles the named method.
@@ -118,6 +161,10 @@ func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, dep
 	if method == nil {
 		slip.InvalidMethodPanic(s, depth,
 			inst, nil, slip.Symbol(message), "%s does not include the %s method.", inst.class.Name(), message)
+	}
+	if method.Combinations[0].Primary == nil {
+		slip.InvalidMethodPanic(s, depth,
+			inst, nil, slip.Symbol(message), "Can not evaluate the %s %s method.", inst.class.Name(), message)
 	}
 	return method.Combinations[0].Primary.Call(s, append(slip.List{inst}, args...), depth)
 }

@@ -3,10 +3,7 @@
 package fhir
 
 import (
-	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
-	"github.com/ohler55/slip/pkg/bag"
-	"github.com/ohler55/slip/pkg/flavors"
 )
 
 var (
@@ -76,19 +73,8 @@ func (f *instanceSet) Call(s *slip.Scope, args slip.List, depth int) slip.Object
 		slip.TypePanic(s, depth, "instance", args[0], "fhir:instance")
 	}
 	pname := slip.MustBeString(args[1], "property")
-	var (
-		data any
-		bg   *flavors.Instance
-	)
-	if bg, ok = args[2].(*flavors.Instance); !ok || bag.Flavor() != bg.Type {
-		data = bg.Any
-	} else {
-		data = slip.Simplify(args[2])
-	}
 
-	// TBD validate data
-
-	_ = jp.C(pname).Set(inst.data, data)
+	inst.SetSlotValue(slip.Symbol(pname), args[2])
 
 	return nil
 }

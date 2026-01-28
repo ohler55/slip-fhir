@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
 )
 
@@ -19,6 +20,7 @@ const (
 )
 
 var typeMethods = map[string]*slip.Method{
+	instanceInitMethod.Name:              &instanceInitMethod,
 	instanceIDMethod.Name:                &instanceIDMethod,
 	instanceTypeMethod.Name:              &instanceTypeMethod,
 	instanceClassMethod.Name:             &instanceClassMethod,
@@ -42,13 +44,14 @@ type Type struct {
 	parent      string
 	inherit     slip.Class // direct super
 	supers      []slip.Class
-	valid       func(v any) bool // called on bag (simple) elements
-	// valid       func(v any, onErr func(path jp.Expr, value any) slip.Symbol) bool // called on bag (simple) elements
+	validate    func(path jp.Expr, value any, onErr OnErrorFunc) bool
 	// primitive types may have a pattern and regexp
 	pattern string
 	rx      *regexp.Regexp
 	// complex types have properties
 	props []*Prop
+
+	inited bool
 }
 
 // String representation of the Object.
@@ -91,17 +94,10 @@ func (t *Type) LoadForm() slip.Object {
 
 // Validate the provided data and call the onErr function on a validation
 // error. If all validation rules succeed then true is returned else false is
-// returned. The result of the onErr call should be one of:
-// :continue - indicates validation should continue and the error ignored.
-// :reject - indicates validation should continue but validation should fail after completion.
-// :raise - indicates validation should stop and an error raised.
-// func (t *Type) Validate(value any, onErr func(path jp.Expr, value any) slip.Symbol) bool {
-func (t *Type) Validate(value any) bool {
-
-	if !t.valid(value) {
-		panic(fmt.Sprintf("%s, a %T is not a valid value for a %s.", value, value, t))
-	}
-	return true
+// returned. The result of the onErr call should be true to true to abort
+// validation or false to continue.
+func (t *Type) Validate(value any, onErr OnErrorFunc) bool {
+	return t.validate(jp.R(), value, onErr)
 }
 
 // Simplify by returning the string representation of the class.
@@ -392,7 +388,7 @@ func (t *Type) MakeInstance() slip.Instance {
 }
 
 func (t *Type) init() {
-	if t.valid != nil {
+	if t.inited {
 		return
 	}
 	if t.name == t.parent {
@@ -407,7 +403,7 @@ func (t *Type) init() {
 		}
 	}
 	if t.inherit != nil {
-		if it, ok := t.inherit.(*Type); ok && it.valid == nil {
+		if it, ok := t.inherit.(*Type); ok && !it.inited {
 			it.init()
 		}
 		t.supers = append(t.supers, t.inherit)
@@ -418,75 +414,122 @@ func (t *Type) init() {
 		p.init(t)
 	}
 
-	// The valid field is also an indicator of init() having been called.
 	switch t.name {
 	case "boolean":
-		t.valid = func(v any) bool {
-			_, ok := v.(bool)
-			return ok
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := v.(bool); !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			return false
 		}
 	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "string", "uri", "url", "uuid",
 		"time", "date":
 		t.rx = regexp.MustCompile(t.pattern)
-		t.valid = func(v any) bool {
-			if s, ok := v.(string); ok && t.rx.MatchString(s) {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			s, ok := v.(string)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if !t.rx.MatchString(s) && onErr(p, v,
+				fmt.Sprintf("%q does match the regexp pattern of %s for a %s", s, t.pattern, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "dateTime", "instant":
 		t.rx = regexp.MustCompile(t.pattern)
-		t.valid = func(v any) bool {
-			return primitiveTime(v, t.rx)
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if !primitiveTime(v, t.rx) && onErr(p, v, t.typeErrorMsg(v)) {
+				return true
+			}
+			return false
 		}
 	case "decimal":
-		t.valid = func(v any) (ok bool) {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
 			switch v.(type) {
 			case int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8, float64, float32:
-				ok = true
+				// ok
+			default:
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
 			}
-			return
+			return false
 		}
 	case "integer":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i < math.MinInt32 || math.MaxInt32 < i) &&
+				onErr(p, v,
+					fmt.Sprintf("%d is out of range (%d to %d) for a %s", i, math.MinInt32, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "integer64":
-		t.valid = func(v any) bool {
-			if _, ok := primitiveInt(v); ok {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := primitiveInt(v); !ok && onErr(p, v, t.typeErrorMsg(v)) {
 				return true
 			}
 			return false
 		}
 	case "positiveInt":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && 0 < i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i <= 0 || math.MaxInt32 < i) &&
+				onErr(p, v, fmt.Sprintf("%d is out of range (1 to %d) for a %s", i, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "unsignedInt":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && 0 <= i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i < 0 || math.MaxInt32 < i) &&
+				onErr(p, v, fmt.Sprintf("%d is out of range (0 to %d) for a %s", i, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "xhtml":
-		t.valid = func(v any) bool {
-			_, ok := v.(string)
-			return ok
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := v.(string); !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			return false
 		}
 	default:
-		// TBD set correct for other types
-		t.valid = func(v any) bool {
-			return true
+		// TBD set correct for complex types
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			return onErr(p, v, fmt.Sprintf("%s is not a recognized type", t.name))
 		}
 	}
+	t.inited = true
+}
 
+func (t *Type) typeErrorMsg(v any) string {
+	return fmt.Sprintf("a %T is not a valid type for a %s", v, t.name)
 }
 
 func primitiveInt(v any) (i int64, ok bool) {
