@@ -54,7 +54,12 @@ The default FHIR version is v5.0.0. The _set-fhir-version_ function can be used 
 change the FHIR version which also redefines the fhir classes.`,
 		PreSet: slip.DefaultPreSet,
 	}
-	types []Validator
+	types     []Validator
+	blankType = Type{
+		name:        "Type",
+		pkg:         &Pkg,
+		description: "The meta-class for all FHIR types. All FHIR instance methods are defined by this class.",
+	}
 )
 
 func init() {
@@ -173,6 +178,12 @@ func init() {
 	initTypes(sen.MustParse(fhir5JSON))
 
 	initDescribeType()
+	initInstanceID()
+	initInstanceData()
+	initInstanceGet()
+	initInstanceSet()
+	initInstanceReplace()
+	initInstanceValidate()
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
@@ -184,6 +195,8 @@ func initTypes(schema any) {
 		vv := Pkg.GetVarVal("*fhir-version*")
 		vv.Val = slip.String(version)
 	}
+	slip.RegisterClass("type", &blankType)
+
 	initPrimitives(schema)
 	loadTypes(jp.C("hierarchy").W().Get(schema))
 	loadTypes(jp.C("datatypes").W().Get(schema))

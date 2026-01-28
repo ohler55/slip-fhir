@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
 )
 
@@ -16,6 +18,23 @@ const (
 	// TypeSymbol is the symbol with a value of "fhir-type".
 	TypeSymbol = slip.Symbol("fhir-type")
 )
+
+var typeMethods = map[string]*slip.Method{
+	instanceInitMethod.Name:              &instanceInitMethod,
+	instanceIDMethod.Name:                &instanceIDMethod,
+	instanceTypeMethod.Name:              &instanceTypeMethod,
+	instanceClassMethod.Name:             &instanceClassMethod,
+	instanceDescribeMethod.Name:          &instanceDescribeMethod,
+	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
+	instanceDataMethod.Name:              &instanceDataMethod,
+	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
+	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instanceEqualMethod.Name:             &instanceEqualMethod,
+	instanceGetMethod.Name:               &instanceGetMethod,
+	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceReplaceMethod.Name:           &instanceReplaceMethod,
+	instanceValidateMethod.Name:          &instanceValidateMethod,
+}
 
 // Type is the meta class for FHIR types.
 type Type struct {
@@ -25,13 +44,14 @@ type Type struct {
 	parent      string
 	inherit     slip.Class // direct super
 	supers      []slip.Class
-	valid       func(v any) bool // called on bag (simple) elements
-	initInst    func(v any)      // TBD change to an instance type
+	validate    func(path jp.Expr, value any, onErr OnErrorFunc) bool
 	// primitive types may have a pattern and regexp
 	pattern string
 	rx      *regexp.Regexp
 	// complex types have properties
 	props []*Prop
+
+	inited bool
 }
 
 // String representation of the Object.
@@ -72,12 +92,12 @@ func (t *Type) LoadForm() slip.Object {
 	return nil
 }
 
-// Validate return without panicing if the value is acceptable for the
-// instance and panics otherwise.
-func (t *Type) Validate(value any) {
-	if !t.valid(value) {
-		panic(fmt.Sprintf("%s, a %T is not a valid value for a %s.", value, value, t))
-	}
+// Validate the provided data and call the onErr function on a validation
+// error. If all validation rules succeed then true is returned else false is
+// returned. The result of the onErr call should be true to true to abort
+// validation or false to continue.
+func (t *Type) Validate(value any, onErr OnErrorFunc) bool {
+	return t.validate(jp.R(), value, onErr)
 }
 
 // Simplify by returning the string representation of the class.
@@ -161,9 +181,48 @@ func (t *Type) VarNames() (names []string) {
 	return names
 }
 
+// GetMethod returns the method if it exists.
+func (t *Type) GetMethod(name string) *slip.Method {
+	return typeMethods[strings.ToLower(name)]
+}
+
+// Methods returns a map of the methods.
+func (t *Type) Methods() map[string]*slip.Method {
+	return typeMethods
+}
+
 // Describe the class in detail.
 func (t *Type) Describe(b []byte, indent, right int, ansi bool) []byte {
+	if t.name == "Type" {
+		return t.describeSelf(b, indent, right, ansi)
+	}
 	return t.describe(b, indent, right, ansi, false, "")
+}
+
+func (t *Type) describeSelf(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Type"...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Type"...)
+	}
+	b = append(b, " is the FHIR meta-class\n"...)
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, t.description, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Methods:\n"...)
+	for _, name := range typeMethodNames() {
+		b = append(b, indentSpaces[:i3]...)
+		b = append(b, string(name.(slip.Symbol))...)
+		b = append(b, '\n')
+	}
+	return b
 }
 
 func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string) []byte {
@@ -322,13 +381,14 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 
 // MakeInstance creates a new instance but does not call the :init method.
 func (t *Type) MakeInstance() slip.Instance {
-	// TBD create instance then call initInst
-	t.initInst(nil)
-	panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", t))
+	if 0 < len(t.pattern) { // primitive type
+		panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", t))
+	}
+	return &Instance{class: t, data: map[string]any{}}
 }
 
 func (t *Type) init() {
-	if t.valid != nil {
+	if t.inited {
 		return
 	}
 	if t.name == t.parent {
@@ -343,7 +403,7 @@ func (t *Type) init() {
 		}
 	}
 	if t.inherit != nil {
-		if it, ok := t.inherit.(*Type); ok && it.valid == nil {
+		if it, ok := t.inherit.(*Type); ok && !it.inited {
 			it.init()
 		}
 		t.supers = append(t.supers, t.inherit)
@@ -354,78 +414,122 @@ func (t *Type) init() {
 		p.init(t)
 	}
 
-	// The valid field is also an indicator of init() having been called.
 	switch t.name {
 	case "boolean":
-		t.valid = func(v any) bool {
-			_, ok := v.(bool)
-			return ok
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := v.(bool); !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			return false
 		}
 	case "base64Binary", "canonical", "code", "id", "markdown", "oid", "string", "uri", "url", "uuid",
 		"time", "date":
 		t.rx = regexp.MustCompile(t.pattern)
-		t.valid = func(v any) bool {
-			if s, ok := v.(string); ok && t.rx.MatchString(s) {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			s, ok := v.(string)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if !t.rx.MatchString(s) && onErr(p, v,
+				fmt.Sprintf("%q does match the regexp pattern of %s for a %s", s, t.pattern, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "dateTime", "instant":
 		t.rx = regexp.MustCompile(t.pattern)
-		t.valid = func(v any) bool {
-			return primitiveTime(v, t.rx)
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if !primitiveTime(v, t.rx) && onErr(p, v, t.typeErrorMsg(v)) {
+				return true
+			}
+			return false
 		}
 	case "decimal":
-		t.valid = func(v any) (ok bool) {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
 			switch v.(type) {
 			case int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8, float64, float32:
-				ok = true
+				// ok
+			default:
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
 			}
-			return
+			return false
 		}
 	case "integer":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && math.MinInt32 <= i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i < math.MinInt32 || math.MaxInt32 < i) &&
+				onErr(p, v,
+					fmt.Sprintf("%d is out of range (%d to %d) for a %s", i, math.MinInt32, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "integer64":
-		t.valid = func(v any) bool {
-			if _, ok := primitiveInt(v); ok {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := primitiveInt(v); !ok && onErr(p, v, t.typeErrorMsg(v)) {
 				return true
 			}
 			return false
 		}
 	case "positiveInt":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && 0 < i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i <= 0 || math.MaxInt32 < i) &&
+				onErr(p, v, fmt.Sprintf("%d is out of range (1 to %d) for a %s", i, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "unsignedInt":
-		t.valid = func(v any) bool {
-			if i, ok := primitiveInt(v); ok && 0 <= i && i <= math.MaxInt32 {
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			i, ok := primitiveInt(v)
+			if !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			if (i < 0 || math.MaxInt32 < i) &&
+				onErr(p, v, fmt.Sprintf("%d is out of range (0 to %d) for a %s", i, math.MaxInt32, t.name)) {
 				return true
 			}
 			return false
 		}
 	case "xhtml":
-		t.valid = func(v any) bool {
-			_, ok := v.(string)
-			return ok
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			if _, ok := v.(string); !ok {
+				if onErr(p, v, t.typeErrorMsg(v)) {
+					return true
+				}
+			}
+			return false
 		}
 	default:
-		// TBD set correct for other types
-		t.valid = func(v any) bool {
-			return true
-		}
-		t.initInst = func(v any) {
-			// TBD
+		// TBD set correct for complex types
+		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+			return onErr(p, v, fmt.Sprintf("%s is not a recognized type", t.name))
 		}
 	}
+	t.inited = true
+}
 
+func (t *Type) typeErrorMsg(v any) string {
+	return fmt.Sprintf("a %T is not a valid type for a %s", v, t.name)
 }
 
 func primitiveInt(v any) (i int64, ok bool) {
@@ -471,4 +575,17 @@ func primitiveTime(v any, rx *regexp.Regexp) (ok bool) {
 		ok = rx.MatchString(tv)
 	}
 	return
+}
+
+func typeMethodNames() slip.List {
+	names := make([]string, 0, len(typeMethods))
+	for k := range typeMethods {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	methods := make(slip.List, len(names))
+	for i, name := range names {
+		methods[i] = slip.Symbol(name)
+	}
+	return methods
 }
