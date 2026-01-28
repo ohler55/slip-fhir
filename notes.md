@@ -3,13 +3,21 @@
 # slip-fhir notes
 
 - plan
- - instance building and access (no validation)
-  - update design doc
  - validation
+  - update instance-validate
+   - rename to ?? validp
+   - on-error docs
+  - validp (value &key type on-error)
+
+  - complex validation
+   - resource
+   - datatype
+  -
  - property class
+ - unit tests
  - client
   - read, etc
-
+ - design.md update
 
 - validate function
  - return indicates continue or stop, let fun determine later if it was a pass or fail
