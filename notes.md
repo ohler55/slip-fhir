@@ -4,15 +4,10 @@
 
 - plan
  - validation
-  - update instance-validate
-   - rename to ?? validp
-   - on-error docs
-  - valid-p (value &key type on-error)
-
   - complex validation
    - resource
    - datatype
-  -
+
  - property class
  - unit tests
  - client

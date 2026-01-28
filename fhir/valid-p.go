@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
@@ -95,14 +96,11 @@ func (f *validP) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	var onErrFn OnErrorFunc
 	if onErr == nil {
 		onErrFn = func(p jp.Expr, v any, message string) bool {
-			panic(fmt.Sprintf("Value at %s, %s: %s.", p, v, message))
+			panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
 		}
 	} else {
-		fmt.Printf("*** %v\n", onErr)
 		onErrFn = func(p jp.Expr, v any, message string) bool {
-
-			// TBD
-			panic(fmt.Sprintf("Value at %s, %s: %s.", p, v, message))
+			return onErr.Call(s, slip.List{bag.Path(p), objectify(v), slip.String(message)}, depth) == slip.True
 		}
 	}
 	if typ.Validate(data, onErrFn) {

@@ -3,7 +3,12 @@
 package fhir
 
 import (
+	"fmt"
+
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/bag"
 )
 
 var (
@@ -35,10 +40,23 @@ If validation is successful then __nil__ is returned otherwise __t__ is returned
 type instanceValidateCaller struct{}
 
 func (caller instanceValidateCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, &instanceValidateMethod, args, 1, 1)
-	inst := args[0].(slip.Instance)
-
-	return inst.Class()
+	slip.CheckArgCount(s, depth, &instanceValidateMethod, args, 1, 2)
+	inst := args[0].(*Instance)
+	var onErrFn OnErrorFunc
+	if 1 < len(args) {
+		onErr := resolveToOnError(s, args[1], depth)
+		onErrFn = func(p jp.Expr, v any, message string) bool {
+			return onErr.Call(s, slip.List{bag.Path(p), objectify(v), slip.String(message)}, depth) == slip.True
+		}
+	} else {
+		onErrFn = func(p jp.Expr, v any, message string) bool {
+			panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
+		}
+	}
+	if inst.class.Validate(inst.data, onErrFn) {
+		return slip.True
+	}
+	return nil
 }
 
 func (caller instanceValidateCaller) FuncDocs() *slip.FuncDoc {

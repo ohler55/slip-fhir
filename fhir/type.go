@@ -49,7 +49,8 @@ type Type struct {
 	pattern string
 	rx      *regexp.Regexp
 	// complex types have properties
-	props []*Prop
+	props   []*Prop
+	propMap map[string]*Prop
 
 	inited bool
 }
@@ -384,7 +385,7 @@ func (t *Type) MakeInstance() slip.Instance {
 	if 0 < len(t.pattern) { // primitive type
 		panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", t))
 	}
-	return &Instance{class: t, data: map[string]any{}}
+	return &Instance{class: t, data: map[string]any{}, locker: slip.NoOpLocker{}}
 }
 
 func (t *Type) init() {
@@ -410,8 +411,26 @@ func (t *Type) init() {
 		t.supers = append(t.supers, t.inherit.InheritsList()...)
 	}
 
+	t.propMap = map[string]*Prop{}
 	for _, p := range t.props {
 		p.init(t)
+		if 0 < len(p.group) {
+			for _, gp := range p.group {
+				t.propMap[strings.ToLower(gp.name)] = gp
+			}
+		} else {
+			t.propMap[strings.ToLower(p.name)] = p
+		}
+	}
+	if t.inherit != nil {
+		if it, ok := t.inherit.(*Type); ok {
+			if !it.inited {
+				it.init()
+			}
+			for k, ip := range it.propMap {
+				t.propMap[k] = ip
+			}
+		}
 	}
 
 	switch t.name {
@@ -529,7 +548,7 @@ func (t *Type) init() {
 }
 
 func (t *Type) typeErrorMsg(v any) string {
-	return fmt.Sprintf("a %T is not a valid type for a %s", v, t.name)
+	return fmt.Sprintf("a %s is not a valid type for a %s", primitiveName(v), t.name)
 }
 
 func primitiveInt(v any) (i int64, ok bool) {
