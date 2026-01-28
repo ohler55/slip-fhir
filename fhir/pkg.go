@@ -183,7 +183,7 @@ func init() {
 	initInstanceGet()
 	initInstanceSet()
 	initInstanceReplace()
-	initInstanceValidate()
+	initValidP()
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)

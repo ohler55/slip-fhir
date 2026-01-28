@@ -14,7 +14,6 @@ import (
 	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
-	"github.com/ohler55/slip/pkg/cl"
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
@@ -120,7 +119,7 @@ func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
 		}
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":on-error")); has {
-		onErr = cl.ResolveToCaller(scope, value, depth)
+		onErr = resolveToOnError(scope, value, depth)
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":no-validation")); has && value != nil {
 		skip = true

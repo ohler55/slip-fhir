@@ -7,7 +7,7 @@
   - update instance-validate
    - rename to ?? validp
    - on-error docs
-  - validp (value &key type on-error)
+  - valid-p (value &key type on-error)
 
   - complex validation
    - resource
