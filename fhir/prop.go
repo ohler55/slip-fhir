@@ -8,6 +8,7 @@ import (
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
 )
 
 // Prop contains information about the properties of a type.
@@ -95,8 +96,24 @@ func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bo
 	}
 	if p.array {
 		// TBD
-	} else if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
-		return true
+	} else {
+		fmt.Printf("*** checking %s %s\n", ppath, p.enum)
+		if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
+			return true
+		}
+		if 0 < len(p.enum) {
+			var found bool
+			for _, ev := range p.enum {
+				if ev == value {
+					found = true
+					break
+				}
+			}
+			if !found && onErr(ppath, value,
+				fmt.Sprintf("%s is not a valid enum value for %s", pretty.SEN(value), ppath)) {
+				return true
+			}
+		}
 	}
 	// TBD if group then check for each, only 1 should match if any
 	//  if note found check required

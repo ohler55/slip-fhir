@@ -3,6 +3,13 @@
 # slip-fhir notes
 
 - plan
+ - some enums are missing
+  - read valuesets.json file
+   - for lists of enum values with first being name or id or maybe a list of resource and property name
+   - try matching based on name, may not work
+  - 2 steps, build enum maps then load that in convert
+  https://www.hl7.org/fhir//downloads.html
+
  - script
   - check cardinality for matching
    - Appointment_RecurrenceTemplate occurrence[x]

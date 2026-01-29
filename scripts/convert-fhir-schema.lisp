@@ -104,7 +104,21 @@
           (t
            (bag-set prop (correct-type name type) "type")))))
 
-(defun form-property (name def req)
+(defun add-property-enum (prop container name)
+  (unless (< 0 (length (bag-get prop "enum")))
+    (let (found)
+      (dolist (enum *enum-map*)
+        (when (regex-match name (car enum))
+          (setq found (add found enum))))
+      (when found
+        (when (< 1 (length found))
+          ;; TBD find best based on match of container or container properties?
+          (format t "*** prop ~A in ~A has multiple enums ~A~%" name container found)
+          )
+        (bag-set prop (cdar found) "enum"))
+    )))
+
+(defun form-property (container name def req)
   "Forms a property node from the provided definition. Since the indicator that
    the property is a required property is outside the property definition it
    is determined outside this function and the indicator pass in as an
@@ -122,7 +136,9 @@
            (bag-set prop val "pattern"))
           ((equal name "resourceType")
            (bag-set prop (list type) "enum")
-           (bag-set prop "code" "type")))
+           (bag-set prop "code" "type"))
+          ((equal type "code")
+           (add-property-enum prop container name)))
     (when req (bag-set prop t "required"))
     prop))
 
@@ -138,7 +154,7 @@
                     (setq p (subseq p 2))
                     (unless (or (containsp p ".") (containsp p "[")) ;; only top level nodes
                       (unless (member p ignore)
-                        (setq props (add props (form-property p def (member p reqs)))))))))
+                        (setq props (add props (form-property (bag-get rb "name") p def (member p reqs)))))))))
 
     (when props (bag-set rb props "properties"))))
 
@@ -266,7 +282,6 @@
     (bag-walk schema
               (lambda (type-node) (discover-groups-in-type type-node patterns))
               "datatypes[*]" t)
-    ;; TBD uncomment
     ))
 
 (defun convert-fhir-schema (input-filename output-filename)
@@ -352,7 +367,8 @@
       (send schema :set primitives "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.
-      (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      ;;(bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
 
       ;; Add each type list to the new schema being constructed.
