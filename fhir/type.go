@@ -539,9 +539,12 @@ func (t *Type) init() {
 			return false
 		}
 	default:
-		// TBD set correct for complex types
-		t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
-			return onErr(p, v, fmt.Sprintf("%s is not a recognized type", t.name))
+		if 0 < len(t.props) {
+			t.validate = t.validateComplex
+		} else {
+			t.validate = func(p jp.Expr, v any, onErr OnErrorFunc) bool {
+				return false
+			}
 		}
 	}
 	t.inited = true
@@ -549,6 +552,32 @@ func (t *Type) init() {
 
 func (t *Type) typeErrorMsg(v any) string {
 	return fmt.Sprintf("a %s is not a valid type for a %s", primitiveName(v), t.name)
+}
+
+func (t *Type) validateComplex(p jp.Expr, v any, onErr OnErrorFunc) bool {
+	mv, ok := v.(map[string]any)
+	if !ok {
+		onErr(p, v, fmt.Sprintf("%s data must be a map, not a %T", t.name, v))
+		return true
+	}
+	for _, prop := range t.props {
+		if prop.validate(p, mv, onErr) {
+			return true
+		}
+	}
+	for k := range mv {
+		if prop := t.propMap[strings.ToLower(k)]; prop == nil {
+			if onErr(append(p, jp.Child(k)), nil, fmt.Sprintf("%s is not a property of %s", k, t.name)) {
+				return true
+			}
+		} else if prop.name != k {
+			if onErr(append(p, jp.Child(k)), nil,
+				fmt.Sprintf("%s is not a property of %s but %s is", k, t.name, prop.name)) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func primitiveInt(v any) (i int64, ok bool) {

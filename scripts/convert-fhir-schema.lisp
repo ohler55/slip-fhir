@@ -110,14 +110,19 @@
    is determined outside this function and the indicator pass in as an
    argument."
   (let ((prop (make-bag "{}"))
+        type
         val)
     (bag-set prop name "name")
     (determine-type name def prop)
+    (setq type (bag-get prop "type"))
     (when (setq val (bag-get def "description"))
       ;; To stay consistent returns are replaced with newlines.
       (bag-set prop (replace-all val "\r" "\n") "description"))
-    (when (and (setq val (bag-get def "pattern")) (equal (bag-get prop "type") "string"))
-      (bag-set prop val "pattern"))
+    (cond ((and (setq val (bag-get def "pattern")) (equal type "string"))
+           (bag-set prop val "pattern"))
+          ((equal name "resourceType")
+           (bag-set prop (list type) "enum")
+           (bag-set prop "code" "type")))
     (when req (bag-set prop t "required"))
     prop))
 

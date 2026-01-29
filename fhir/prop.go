@@ -77,6 +77,44 @@ func (p *Prop) init(t *Type) {
 	p.ftype = pt.(Validator)
 }
 
+// data is the map the property is or may be contained in.
+func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+	if 0 < len(p.group) {
+		return p.validateGroup(path, data, onErr)
+	}
+	value := data[p.name]
+	fmt.Printf("*** checking %s %s %v\n", p.name, p.ftype, value)
+	ppath := append(path, jp.Child(p.name))
+	if value == nil {
+		if p.required {
+			if onErr(ppath, nil, fmt.Sprintf("%s is required yet missing", ppath)) {
+				return true
+			}
+		}
+		return false
+	}
+	if p.array {
+		// TBD
+	} else if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
+		return true
+	}
+	// TBD if group then check for each, only 1 should match if any
+	//  if note found check required
+	// if found then check array
+	// validate based on ftype
+	return false
+}
+
+func (p *Prop) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+	fmt.Printf("*** checking group %s\n", p.name)
+
+	// TBD if group then check for each, only 1 should match if any
+	//  if note found check required
+	// if found then check array
+	// validate based on ftype
+	return false
+}
+
 func sortProps(props []*Prop) {
 	sort.Slice(props, func(i, j int) bool {
 		ni := props[i].name
