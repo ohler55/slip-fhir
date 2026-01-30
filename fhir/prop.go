@@ -5,10 +5,13 @@ package fhir
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"unsafe"
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/slip"
 )
 
 // Prop contains information about the properties of a type.
@@ -21,6 +24,43 @@ type Prop struct {
 	group    []*Prop
 	required bool
 	array    bool
+}
+
+// NewProp creates a new Prop from a simple map (JSON).
+func NewProp(simple any) *Prop {
+	p := Prop{
+		name:     alt.String(jp.C("name").First(simple)),
+		docs:     alt.String(jp.C("description").First(simple)),
+		typeName: alt.String(jp.C("type").First(simple)),
+		required: alt.Bool(jp.C("required").First(simple)),
+		array:    alt.Bool(jp.C("array").First(simple)),
+	}
+	for _, e := range jp.C("enum").W().Get(simple) {
+		p.enum = append(p.enum, alt.String(e))
+	}
+	for _, gp := range jp.C("group").W().Get(simple) {
+		p.group = append(p.group, NewProp(gp))
+	}
+	return &p
+}
+
+// String representation of the Object.
+func (p *Prop) String() string {
+	return string(p.Append([]byte{}))
+}
+
+// Append a buffer with a representation of the Object.
+func (p *Prop) Append(b []byte) []byte {
+	b = append(b, "#<fhir:property "...)
+	b = append(b, p.name...)
+	b = append(b, ' ')
+	b = strconv.AppendUint(b, p.ID(), 16)
+	return append(b, '>')
+}
+
+// ID returns unique ID for the instance.
+func (p *Prop) ID() uint64 {
+	return uint64(uintptr(unsafe.Pointer(p)))
 }
 
 // Simplify the Object into simple go types of nil, bool, int64, float64,
@@ -44,22 +84,19 @@ func (p *Prop) Simplify() any {
 	return simple
 }
 
-// NewProp creates a new Prop from a simple map (JSON).
-func NewProp(simple any) *Prop {
-	p := Prop{
-		name:     alt.String(jp.C("name").First(simple)),
-		docs:     alt.String(jp.C("description").First(simple)),
-		typeName: alt.String(jp.C("type").First(simple)),
-		required: alt.Bool(jp.C("required").First(simple)),
-		array:    alt.Bool(jp.C("array").First(simple)),
-	}
-	for _, e := range jp.C("enum").W().Get(simple) {
-		p.enum = append(p.enum, alt.String(e))
-	}
-	for _, gp := range jp.C("group").W().Get(simple) {
-		p.group = append(p.group, NewProp(gp))
-	}
-	return &p
+// Equal returns true if this Object and the other are equal in value.
+func (p *Prop) Equal(other slip.Object) bool {
+	return p == other
+}
+
+// Hierarchy returns the class hierarchy as symbols for the instance.
+func (p *Prop) Hierarchy() []slip.Symbol {
+	return []slip.Symbol{slip.Symbol("property"), slip.TrueSymbol}
+}
+
+// Eval returns self.
+func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
+	return p
 }
 
 func (p *Prop) init(t *Type) {

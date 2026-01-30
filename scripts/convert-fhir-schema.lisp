@@ -106,18 +106,25 @@
 
 (defun add-property-enum (prop container name)
   (unless (< 0 (length (bag-get prop "enum")))
-    (let (found)
+    (let ((crx (join "" "(?i)^" container "-"))
+          (nrx (join "" "-" name "$"))
+          (frx (join "" "(?i)^" container "-" name "$"))
+          found)
+      ;; explain
       (dolist (enum *enum-map*)
-        (when (regex-match name (car enum))
+        (when (regex-match nrx (car enum))
           (setq found (add found enum))))
-      (when found
-        (when (< 1 (length found))
-          ;; TBD find best based on match of container or container properties?
-          ;; (format t "*** prop ~A in ~A has multiple enums ~A~%" name container found)
-          )
-        (unless (< 1 (length found))
-          (bag-set prop (cdar found) "enum")))
-    )))
+      (cond ((null found) nil)
+            ((= 1 (length found)) (bag-set prop (cdar found) "enum"))
+            ;; more than one candidate enum found
+            ((dolist (fe found)
+               (when (regex-match frx (car fe))
+                 (bag-set prop (cdr fe) "enum")
+                 (return t))) nil)
+            (t ;; TBD manually set up links between enums and elements
+             ;; (format t "*** too many for enum matches for ~A.~A: ~A~%" container name (mapcar #'car found))
+             nil
+             )))))
 
 (defun form-property (container name def req)
   "Forms a property node from the provided definition. Since the indicator that
@@ -220,19 +227,23 @@
         groups) ;; assoc list
     (bag-walk type-node (lambda (p)
                           ;;(format t "*** prop: ~A ~A ~A~%" (bag-get p "name") (bag-get p "required") (bag-get p "array")))
-                          (let ((name (bag-get p "name")))
+                          (let* ((name (bag-get p "name"))
+                                 (req (bag-get p "required"))
+                                 (ary (bag-get p "array")))
+
                             (dolist (rx patterns)
                               (when (regex-match rx name)
-                                (let* ((suffix (subseq name 0 (+ (- (length name) (length rx)) 3)))
-                                       (lst (getf matches suffix)))
+                                (let* ((prefix (subseq name 0 (+ (- (length name) (length rx)) 3)))
+                                       (key (join "" prefix (if req "1" "0") (if ary "x" "1")))
+                                       (lst (getf matches key)))
                                   ;; add but keep going to match paterns like DateTime and Time
-                                  (setf (getf matches suffix) (add lst p)))))))
+                                  (setf (getf matches key) (add lst p)))))))
               "properties[*]" t)
-    (dotimes (i (* 2 (length matches)))
-      (let ((prefix (nth (* 2 i) matches))
-            (group (nth (1+ (* 2 i)) matches)))
+    (dotimes (i (/ (length matches) 2))
+      (let* ((key (nth (* 2 i) matches))
+             (prefix (subseq key 0  (- (length key) 2)))
+             (group (nth (1+ (* 2 i)) matches)))
         (when (and (< 1 (length group)) (not (prefixp prefix "_")))
-          ;; TBD verify all group member have the same cardinality
           (setq groups (add groups (cons prefix (append (getf matches (join "" "_" prefix)) group)))))))
     (when (< 0 (length groups))
       (let (props)

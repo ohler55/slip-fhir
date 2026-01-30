@@ -2,34 +2,31 @@
 
 # slip-fhir notes
 
+- get specs from https://www.hl7.org/fhir//downloads.html
+
 - plan
- - some enums are missing
-  - read valuesets.json file
-   - for lists of enum values with first being name or id or maybe a list of resource and property name
-   - try matching based on name, may not work
-  - 2 steps, build enum maps then load that in convert
-  https://www.hl7.org/fhir//downloads.html
-
- - script
-  - check cardinality for matching
-   - Appointment_RecurrenceTemplate occurrence[x]
-
- - validation
  - property class
  - unit tests
  - client
   - read, etc
  - design.md update
 
-- validate function
- - return indicates continue or stop, let fun determine later if it was a pass or fail
-  - if panic then let onErr panic
+- enum
+ - manually link when needed
+
 
 - type property access in lisp
  - fhir::property - similar to instance but no way to create
   - methods and functions to get data
-  -
- - type-properties => returns list of propery objects
+  - property-name
+  - property-type => Type
+  - property-group => list of properties
+  - property-cardinality => min (0 or 1), max (1 or nil)
+  - property-description
+  - property-enum
+  - property-validate (path value &optional on-error)
+  - type-properties => list of properties
+  - type-property (name) => property
 
 - navigating type definitions
  - options
