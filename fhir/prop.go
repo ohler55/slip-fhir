@@ -84,7 +84,6 @@ func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bo
 		return p.validateGroup(path, data, onErr)
 	}
 	value := data[p.name]
-	fmt.Printf("*** checking %s %s %v\n", p.name, p.ftype, value)
 	ppath := append(path, jp.Child(p.name))
 	if value == nil {
 		if p.required {
@@ -95,9 +94,17 @@ func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bo
 		return false
 	}
 	if p.array {
-		// TBD
+		ft := p.ftype.(*Type)
+		if array, ok := value.([]any); ok {
+			for i, av := range array {
+				if ft.validate(append(ppath, jp.Nth(i)), av, onErr) {
+					return true
+				}
+			}
+		} else {
+			return onErr(ppath, nil, fmt.Sprintf("%s must be an array", ppath))
+		}
 	} else {
-		fmt.Printf("*** checking %s %s\n", ppath, p.enum)
 		if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
 			return true
 		}
@@ -115,21 +122,58 @@ func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bo
 			}
 		}
 	}
-	// TBD if group then check for each, only 1 should match if any
-	//  if note found check required
-	// if found then check array
-	// validate based on ftype
 	return false
 }
 
 func (p *Prop) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
-	fmt.Printf("*** checking group %s\n", p.name)
-
-	// TBD if group then check for each, only 1 should match if any
-	//  if note found check required
-	// if found then check array
-	// validate based on ftype
+	var (
+		foundData any
+		foundProp *Prop
+	)
+	ppath := append(path, jp.Child(p.name))
+	gpath := append(ppath, jp.Child(""))
+	for _, gp := range p.group {
+		if gp.name[0] == '_' {
+			continue
+		}
+		gpath[len(gpath)-1] = jp.Child(gp.name)
+		if dv, has := data[gp.name]; has {
+			if foundProp != nil && onErr(gpath, foundProp,
+				fmt.Sprintf("Only one %s property allowed. Both %s and %s present", p.name, foundProp.name, gp.name)) {
+				return true
+			}
+			foundProp = gp
+			foundData = dv
+		}
+	}
+	if foundProp != nil {
+		gpath[len(gpath)-1] = jp.Child(foundProp.name)
+		if ft, ok := foundProp.ftype.(*Type); ok && ft.validate(gpath, foundData, onErr) {
+			return true
+		}
+		xname := "_" + foundProp.name
+		if dv, has := data[xname]; has {
+			// If no group property found the error will be caught in the
+			// check for invalid properties.
+			if xprop := p.groupFind(xname); xprop != nil {
+				gpath[len(gpath)-1] = jp.Child(xname)
+				if ft, ok := xprop.ftype.(*Type); ok && ft.validate(gpath, dv, onErr) {
+					return true
+				}
+			}
+		}
+	}
 	return false
+}
+
+func (p *Prop) groupFind(name string) (gprop *Prop) {
+	for _, gp := range p.group {
+		if gp.name == name {
+			gprop = gp
+			break
+		}
+	}
+	return
 }
 
 func sortProps(props []*Prop) {
