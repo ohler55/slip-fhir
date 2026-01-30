@@ -113,9 +113,10 @@
       (when found
         (when (< 1 (length found))
           ;; TBD find best based on match of container or container properties?
-          (format t "*** prop ~A in ~A has multiple enums ~A~%" name container found)
+          ;; (format t "*** prop ~A in ~A has multiple enums ~A~%" name container found)
           )
-        (bag-set prop (cdar found) "enum"))
+        (unless (< 1 (length found))
+          (bag-set prop (cdar found) "enum")))
     )))
 
 (defun form-property (container name def req)

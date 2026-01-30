@@ -15,19 +15,6 @@
    - Appointment_RecurrenceTemplate occurrence[x]
 
  - validation
-  - complex validation
-   - resource
-   - datatype
-  - type
-   - use propMap to determine if all tree elements are ok
-   - walk props
-    - lookup propert
-    - ask property to validate
-     - consider cardinality
-     - validate with type
-     - consider group
-     - consider enum
-
  - property class
  - unit tests
  - client
