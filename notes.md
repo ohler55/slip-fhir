@@ -2,24 +2,31 @@
 
 # slip-fhir notes
 
+- get specs from https://www.hl7.org/fhir//downloads.html
+
 - plan
- - instance building and access (no validation)
-  - update design doc
- - validation
  - property class
+ - unit tests
  - client
   - read, etc
+ - design.md update
 
+- enum
+ - manually link when needed
 
-- validate function
- - return indicates continue or stop, let fun determine later if it was a pass or fail
-  - if panic then let onErr panic
 
 - type property access in lisp
  - fhir::property - similar to instance but no way to create
   - methods and functions to get data
-  -
- - type-properties => returns list of propery objects
+  - property-name
+  - property-type => Type
+  - property-group => list of properties
+  - property-cardinality => min (0 or 1), max (1 or nil)
+  - property-description
+  - property-enum
+  - property-validate (path value &optional on-error)
+  - type-properties => list of properties
+  - type-property (name) => property
 
 - navigating type definitions
  - options

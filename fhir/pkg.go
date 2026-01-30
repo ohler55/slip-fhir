@@ -4,13 +4,17 @@ package fhir
 
 import (
 	_ "embed"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/bag"
 	_ "github.com/ohler55/slip/pkg/clos"
+	"github.com/ohler55/slip/pkg/flavors"
 )
 
 //go:embed "fhir5.json"
@@ -183,7 +187,7 @@ func init() {
 	initInstanceGet()
 	initInstanceSet()
 	initInstanceReplace()
-	initInstanceValidate()
+	initValidP()
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
@@ -246,4 +250,32 @@ func initTypeParents() {
 			base.init()
 		}
 	}
+}
+
+func objectify(v any) (obj slip.Object) {
+	switch v.(type) {
+	case map[string]any, []any:
+		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+		bg.Any = v
+		obj = bg
+	default:
+		obj = slip.SimpleObject(v)
+	}
+	return
+}
+
+func primitiveName(v any) (name string) {
+	switch v.(type) {
+	case string:
+		name = "string"
+	case int64:
+		name = "integer"
+	case float64, float32:
+		name = "decimal"
+	case time.Time:
+		name = "dateTime"
+	default:
+		name = fmt.Sprintf("%T", v)
+	}
+	return
 }

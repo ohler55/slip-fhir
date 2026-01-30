@@ -3,6 +3,7 @@
 package fhir
 
 import (
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
@@ -76,8 +77,9 @@ func (f *instanceReplace) Call(s *slip.Scope, args slip.List, depth int) slip.Ob
 		slip.TypePanic(s, depth, "data", bg, "complex type")
 	}
 
-	// TBD run valdation on data
-
+	inst.class.Validate(data, func(p jp.Expr, v any, message string) bool {
+		panic(message)
+	})
 	inst.data = data
 
 	return nil

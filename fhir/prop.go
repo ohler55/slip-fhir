@@ -5,9 +5,13 @@ package fhir
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"unsafe"
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/slip"
 )
 
 // Prop contains information about the properties of a type.
@@ -20,6 +24,43 @@ type Prop struct {
 	group    []*Prop
 	required bool
 	array    bool
+}
+
+// NewProp creates a new Prop from a simple map (JSON).
+func NewProp(simple any) *Prop {
+	p := Prop{
+		name:     alt.String(jp.C("name").First(simple)),
+		docs:     alt.String(jp.C("description").First(simple)),
+		typeName: alt.String(jp.C("type").First(simple)),
+		required: alt.Bool(jp.C("required").First(simple)),
+		array:    alt.Bool(jp.C("array").First(simple)),
+	}
+	for _, e := range jp.C("enum").W().Get(simple) {
+		p.enum = append(p.enum, alt.String(e))
+	}
+	for _, gp := range jp.C("group").W().Get(simple) {
+		p.group = append(p.group, NewProp(gp))
+	}
+	return &p
+}
+
+// String representation of the Object.
+func (p *Prop) String() string {
+	return string(p.Append([]byte{}))
+}
+
+// Append a buffer with a representation of the Object.
+func (p *Prop) Append(b []byte) []byte {
+	b = append(b, "#<fhir:property "...)
+	b = append(b, p.name...)
+	b = append(b, ' ')
+	b = strconv.AppendUint(b, p.ID(), 16)
+	return append(b, '>')
+}
+
+// ID returns unique ID for the instance.
+func (p *Prop) ID() uint64 {
+	return uint64(uintptr(unsafe.Pointer(p)))
 }
 
 // Simplify the Object into simple go types of nil, bool, int64, float64,
@@ -43,22 +84,19 @@ func (p *Prop) Simplify() any {
 	return simple
 }
 
-// NewProp creates a new Prop from a simple map (JSON).
-func NewProp(simple any) *Prop {
-	p := Prop{
-		name:     alt.String(jp.C("name").First(simple)),
-		docs:     alt.String(jp.C("description").First(simple)),
-		typeName: alt.String(jp.C("type").First(simple)),
-		required: alt.Bool(jp.C("required").First(simple)),
-		array:    alt.Bool(jp.C("array").First(simple)),
-	}
-	for _, e := range jp.C("enum").W().Get(simple) {
-		p.enum = append(p.enum, alt.String(e))
-	}
-	for _, gp := range jp.C("group").W().Get(simple) {
-		p.group = append(p.group, NewProp(gp))
-	}
-	return &p
+// Equal returns true if this Object and the other are equal in value.
+func (p *Prop) Equal(other slip.Object) bool {
+	return p == other
+}
+
+// Hierarchy returns the class hierarchy as symbols for the instance.
+func (p *Prop) Hierarchy() []slip.Symbol {
+	return []slip.Symbol{slip.Symbol("property"), slip.TrueSymbol}
+}
+
+// Eval returns self.
+func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
+	return p
 }
 
 func (p *Prop) init(t *Type) {
@@ -75,6 +113,104 @@ func (p *Prop) init(t *Type) {
 			t.name, p.name, p.typeName))
 	}
 	p.ftype = pt.(Validator)
+}
+
+// data is the map the property is or may be contained in.
+func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+	if 0 < len(p.group) {
+		return p.validateGroup(path, data, onErr)
+	}
+	value := data[p.name]
+	ppath := append(path, jp.Child(p.name))
+	if value == nil {
+		if p.required {
+			if onErr(ppath, nil, fmt.Sprintf("%s is required yet missing", ppath)) {
+				return true
+			}
+		}
+		return false
+	}
+	if p.array {
+		ft := p.ftype.(*Type)
+		if array, ok := value.([]any); ok {
+			for i, av := range array {
+				if ft.validate(append(ppath, jp.Nth(i)), av, onErr) {
+					return true
+				}
+			}
+		} else {
+			return onErr(ppath, nil, fmt.Sprintf("%s must be an array", ppath))
+		}
+	} else {
+		if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
+			return true
+		}
+		if 0 < len(p.enum) {
+			var found bool
+			for _, ev := range p.enum {
+				if ev == value {
+					found = true
+					break
+				}
+			}
+			if !found && onErr(ppath, value,
+				fmt.Sprintf("%s is not a valid enum value for %s", pretty.SEN(value), ppath)) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (p *Prop) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+	var (
+		foundData any
+		foundProp *Prop
+	)
+	ppath := append(path, jp.Child(p.name))
+	gpath := append(ppath, jp.Child(""))
+	for _, gp := range p.group {
+		if gp.name[0] == '_' {
+			continue
+		}
+		gpath[len(gpath)-1] = jp.Child(gp.name)
+		if dv, has := data[gp.name]; has {
+			if foundProp != nil && onErr(gpath, foundProp,
+				fmt.Sprintf("Only one %s property allowed. Both %s and %s present", p.name, foundProp.name, gp.name)) {
+				return true
+			}
+			foundProp = gp
+			foundData = dv
+		}
+	}
+	if foundProp != nil {
+		gpath[len(gpath)-1] = jp.Child(foundProp.name)
+		if ft, ok := foundProp.ftype.(*Type); ok && ft.validate(gpath, foundData, onErr) {
+			return true
+		}
+		xname := "_" + foundProp.name
+		if dv, has := data[xname]; has {
+			// If no group property found the error will be caught in the
+			// check for invalid properties.
+			if xprop := p.groupFind(xname); xprop != nil {
+				gpath[len(gpath)-1] = jp.Child(xname)
+				if ft, ok := xprop.ftype.(*Type); ok && ft.validate(gpath, dv, onErr) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (p *Prop) groupFind(name string) (gprop *Prop) {
+	for _, gp := range p.group {
+		if gp.name == name {
+			gprop = gp
+			break
+		}
+	}
+	return
 }
 
 func sortProps(props []*Prop) {

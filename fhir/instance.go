@@ -14,7 +14,6 @@ import (
 	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
-	"github.com/ohler55/slip/pkg/cl"
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
@@ -96,10 +95,17 @@ func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool
 	default:
 		data = slip.Simplify(ta)
 	}
+	prop := inst.class.propMap[strings.ToLower(string(sym))]
+	if prop == nil {
+		panic(fmt.Sprintf("%s does nat have a %s property.", inst, sym))
+	}
+	prop.ftype.Validate(data, func(p jp.Expr, v any, message string) bool {
+		panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
+	})
 
-	// TBD validate data, get property from inst.class, verify type if supplied is correct, then call validate on type
-
+	inst.Lock()
 	_ = jp.C(string(sym)).Set(inst.data, data)
+	inst.Unlock()
 
 	return true
 }
@@ -120,14 +126,26 @@ func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
 		}
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":on-error")); has {
-		onErr = cl.ResolveToCaller(scope, value, depth)
+		onErr = resolveToOnError(scope, value, depth)
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":no-validation")); has && value != nil {
 		skip = true
 	}
 	if data != nil && !skip {
-		// TBD validate
-		fmt.Printf("*** onErr: %T\n", onErr)
+		var onErrFn OnErrorFunc
+		if onErr == nil {
+			onErrFn = func(p jp.Expr, v any, message string) bool {
+				panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
+			}
+		} else {
+			onErrFn = func(p jp.Expr, v any, message string) bool {
+				cargs := slip.List{bag.Path(p), objectify(v), slip.String(message)}
+				return onErr.Call(scope, cargs, depth) == slip.True
+			}
+		}
+		if inst.class.Validate(data, onErrFn) {
+			data = nil
+		}
 	}
 	if data == nil {
 		data = map[string]any{}
@@ -174,7 +192,9 @@ func (inst *Instance) Equal(other slip.Object) bool {
 	if inst == other {
 		return true
 	}
-	// TBD same type and fields the same
+	if oi, ok := other.(*Instance); ok && inst.class == oi.class {
+		return alt.Compare(inst.data, oi.data) == nil
+	}
 	return false
 }
 
@@ -219,10 +239,16 @@ func (inst *Instance) Class() slip.Class {
 
 // Dup returns a duplicate of the instance.
 func (inst *Instance) Dup() slip.Instance {
-	return &Instance{
+	dup := Instance{
 		class: inst.class,
 		data:  alt.Dup(inst.data).(map[string]any),
 	}
+	if _, ok := inst.locker.(*sync.Mutex); ok {
+		dup.locker = &sync.Mutex{}
+	} else {
+		dup.locker = slip.NoOpLocker{}
+	}
+	return &dup
 }
 
 // LoadForm returns a form that can be evaluated to create the object.

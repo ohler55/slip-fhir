@@ -104,20 +104,49 @@
           (t
            (bag-set prop (correct-type name type) "type")))))
 
-(defun form-property (name def req)
+(defun add-property-enum (prop container name)
+  (unless (< 0 (length (bag-get prop "enum")))
+    (let ((crx (join "" "(?i)^" container "-"))
+          (nrx (join "" "-" name "$"))
+          (frx (join "" "(?i)^" container "-" name "$"))
+          found)
+      ;; explain
+      (dolist (enum *enum-map*)
+        (when (regex-match nrx (car enum))
+          (setq found (add found enum))))
+      (cond ((null found) nil)
+            ((= 1 (length found)) (bag-set prop (cdar found) "enum"))
+            ;; more than one candidate enum found
+            ((dolist (fe found)
+               (when (regex-match frx (car fe))
+                 (bag-set prop (cdr fe) "enum")
+                 (return t))) nil)
+            (t ;; TBD manually set up links between enums and elements
+             ;; (format t "*** too many for enum matches for ~A.~A: ~A~%" container name (mapcar #'car found))
+             nil
+             )))))
+
+(defun form-property (container name def req)
   "Forms a property node from the provided definition. Since the indicator that
    the property is a required property is outside the property definition it
    is determined outside this function and the indicator pass in as an
    argument."
   (let ((prop (make-bag "{}"))
+        type
         val)
     (bag-set prop name "name")
     (determine-type name def prop)
+    (setq type (bag-get prop "type"))
     (when (setq val (bag-get def "description"))
       ;; To stay consistent returns are replaced with newlines.
       (bag-set prop (replace-all val "\r" "\n") "description"))
-    (when (and (setq val (bag-get def "pattern")) (equal (bag-get prop "type") "string"))
-      (bag-set prop val "pattern"))
+    (cond ((and (setq val (bag-get def "pattern")) (equal type "string"))
+           (bag-set prop val "pattern"))
+          ((equal name "resourceType")
+           (bag-set prop (list type) "enum")
+           (bag-set prop "code" "type"))
+          ((equal type "code")
+           (add-property-enum prop container name)))
     (when req (bag-set prop t "required"))
     prop))
 
@@ -133,7 +162,7 @@
                     (setq p (subseq p 2))
                     (unless (or (containsp p ".") (containsp p "[")) ;; only top level nodes
                       (unless (member p ignore)
-                        (setq props (add props (form-property p def (member p reqs)))))))))
+                        (setq props (add props (form-property (bag-get rb "name") p def (member p reqs)))))))))
 
     (when props (bag-set rb props "properties"))))
 
@@ -198,19 +227,23 @@
         groups) ;; assoc list
     (bag-walk type-node (lambda (p)
                           ;;(format t "*** prop: ~A ~A ~A~%" (bag-get p "name") (bag-get p "required") (bag-get p "array")))
-                          (let ((name (bag-get p "name")))
+                          (let* ((name (bag-get p "name"))
+                                 (req (bag-get p "required"))
+                                 (ary (bag-get p "array")))
+
                             (dolist (rx patterns)
                               (when (regex-match rx name)
-                                (let* ((suffix (subseq name 0 (+ (- (length name) (length rx)) 3)))
-                                       (lst (getf matches suffix)))
+                                (let* ((prefix (subseq name 0 (+ (- (length name) (length rx)) 3)))
+                                       (key (join "" prefix (if req "1" "0") (if ary "x" "1")))
+                                       (lst (getf matches key)))
                                   ;; add but keep going to match paterns like DateTime and Time
-                                  (setf (getf matches suffix) (add lst p)))))))
+                                  (setf (getf matches key) (add lst p)))))))
               "properties[*]" t)
-    (dotimes (i (* 2 (length matches)))
-      (let ((prefix (nth (* 2 i) matches))
-            (group (nth (1+ (* 2 i)) matches)))
+    (dotimes (i (/ (length matches) 2))
+      (let* ((key (nth (* 2 i) matches))
+             (prefix (subseq key 0  (- (length key) 2)))
+             (group (nth (1+ (* 2 i)) matches)))
         (when (and (< 1 (length group)) (not (prefixp prefix "_")))
-          ;; TBD verify all group member have the same cardinality
           (setq groups (add groups (cons prefix (append (getf matches (join "" "_" prefix)) group)))))))
     (when (< 0 (length groups))
       (let (props)
@@ -261,7 +294,6 @@
     (bag-walk schema
               (lambda (type-node) (discover-groups-in-type type-node patterns))
               "datatypes[*]" t)
-    ;; TBD uncomment
     ))
 
 (defun convert-fhir-schema (input-filename output-filename)
@@ -347,7 +379,8 @@
       (send schema :set primitives "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.
-      (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      ;;(bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
 
       ;; Add each type list to the new schema being constructed.
