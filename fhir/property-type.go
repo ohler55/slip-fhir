@@ -6,10 +6,21 @@ import (
 	"github.com/ohler55/slip"
 )
 
+var propTypeMethod = slip.Method{
+	Name: ":type",
+	Doc: &slip.FuncDoc{
+		Name:   ":type",
+		Args:   []*slip.DocArg{},
+		Return: "list",
+		Text:   `__:type__ returns the property type.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyType{}}},
+}
+
 func initPropertyType() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := PropertyType{Function: slip.Function{Name: "property-type", Args: args}}
+			f := propertyType{Function: slip.Function{Name: "property-type", Args: args}}
 			f.Self = &f
 			return &f
 		},
@@ -27,13 +38,12 @@ func initPropertyType() {
 		}, &Pkg)
 }
 
-// PropertyType represents the property-type function.
-type PropertyType struct {
+type propertyType struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *PropertyType) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *propertyType) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
 	prop, ok := args[0].(*Prop)

@@ -7,6 +7,7 @@
 - plan
  - property class
  - unit tests
+ - use xml schema instead
  - client
   - read, etc
  - design.md update
@@ -22,8 +23,7 @@
   + type-property (name) => property
   + property-name
   + property-type
-  + add describe func to Prop
-  + property-group => list of properties
+  + property-group
   + property-enum
   + property-cardinality
   - property-validate (path value &optional on-error)

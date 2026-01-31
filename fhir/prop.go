@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"unsafe"
 
 	"github.com/ohler55/ojg/alt"
@@ -13,6 +14,14 @@ import (
 	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 )
+
+var propMethods = map[string]*slip.Method{
+	propNameMethod.Name:        &propNameMethod,
+	propCardinalityMethod.Name: &propCardinalityMethod,
+	propEnumMethod.Name:        &propEnumMethod,
+	propGroupMethod.Name:       &propGroupMethod,
+	propTypeMethod.Name:        &propTypeMethod,
+}
 
 // Prop contains information about the properties of a type.
 type Prop struct {
@@ -97,6 +106,22 @@ func (p *Prop) Hierarchy() []slip.Symbol {
 // Eval returns self.
 func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
 	return p
+}
+
+// Receive a method invocation from the send function. Not intended to be
+// called by any code other than the send function but is public to allow it
+// to be over-ridden.
+func (p *Prop) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+	method := propMethods[strings.ToLower(message)]
+	if method == nil {
+		slip.InvalidMethodPanic(s, depth,
+			p, nil, slip.Symbol(message), "Property does not include the %s method.", message)
+	}
+	if method.Combinations[0].Primary == nil {
+		slip.InvalidMethodPanic(s, depth,
+			p, nil, slip.Symbol(message), "Can not evaluate the Property %s method.", message)
+	}
+	return method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
 }
 
 // Describe the instance in detail.

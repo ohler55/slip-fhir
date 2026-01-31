@@ -6,10 +6,21 @@ import (
 	"github.com/ohler55/slip"
 )
 
+var propEnumMethod = slip.Method{
+	Name: ":enum",
+	Doc: &slip.FuncDoc{
+		Name:   ":enum",
+		Args:   []*slip.DocArg{},
+		Return: "list",
+		Text:   `__:enum__ returns the property enum or nil is there are none.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyEnum{}}},
+}
+
 func initPropertyEnum() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := PropertyEnum{Function: slip.Function{Name: "property-enum", Args: args}}
+			f := propertyEnum{Function: slip.Function{Name: "property-enum", Args: args}}
 			f.Self = &f
 			return &f
 		},
@@ -27,13 +38,12 @@ func initPropertyEnum() {
 		}, &Pkg)
 }
 
-// PropertyEnum represents the property-enum function.
-type PropertyEnum struct {
+type propertyEnum struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *PropertyEnum) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *propertyEnum) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
 	prop, ok := args[0].(*Prop)

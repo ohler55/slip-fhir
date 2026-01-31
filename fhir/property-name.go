@@ -6,10 +6,21 @@ import (
 	"github.com/ohler55/slip"
 )
 
+var propNameMethod = slip.Method{
+	Name: ":name",
+	Doc: &slip.FuncDoc{
+		Name:   ":name",
+		Args:   []*slip.DocArg{},
+		Return: "string",
+		Text:   `__:name__ returns the property name.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyName{}}},
+}
+
 func initPropertyName() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := PropertyName{Function: slip.Function{Name: "property-name", Args: args}}
+			f := propertyName{Function: slip.Function{Name: "property-name", Args: args}}
 			f.Self = &f
 			return &f
 		},
@@ -27,13 +38,12 @@ func initPropertyName() {
 		}, &Pkg)
 }
 
-// PropertyName represents the property-name function.
-type PropertyName struct {
+type propertyName struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *PropertyName) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *propertyName) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
 	prop, ok := args[0].(*Prop)

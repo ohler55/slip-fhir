@@ -6,10 +6,23 @@ import (
 	"github.com/ohler55/slip"
 )
 
+var propCardinalityMethod = slip.Method{
+	Name: ":cardinality",
+	Doc: &slip.FuncDoc{
+		Name:   ":cardinality",
+		Args:   []*slip.DocArg{},
+		Return: "fixnum,fixnum|nil",
+		Text: `__:cardinality__ returns the property cardinality as a minimum
+and maximum pair of values. If the maximum is unlimited then the returned
+maximum will be __nil__.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyCardinality{}}},
+}
+
 func initPropertyCardinality() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := PropertyCardinality{Function: slip.Function{Name: "property-cardinality", Args: args}}
+			f := propertyCardinality{Function: slip.Function{Name: "property-cardinality", Args: args}}
 			f.Self = &f
 			return &f
 		},
@@ -28,13 +41,13 @@ and maximum pair of values. If the maximum is unlimited then the returned maximu
 		}, &Pkg)
 }
 
-// PropertyCardinality represents the property-cardinality function.
-type PropertyCardinality struct {
+// propertyCardinality represents the property-cardinality function.
+type propertyCardinality struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *PropertyCardinality) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *propertyCardinality) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
 	prop, ok := args[0].(*Prop)

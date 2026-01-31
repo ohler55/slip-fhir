@@ -6,10 +6,21 @@ import (
 	"github.com/ohler55/slip"
 )
 
+var propGroupMethod = slip.Method{
+	Name: ":group",
+	Doc: &slip.FuncDoc{
+		Name:   ":group",
+		Args:   []*slip.DocArg{},
+		Return: "list",
+		Text:   `__:group__ returns the property group or nil is there are none.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyGroup{}}},
+}
+
 func initPropertyGroup() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := PropertyGroup{Function: slip.Function{Name: "property-group", Args: args}}
+			f := propertyGroup{Function: slip.Function{Name: "property-group", Args: args}}
 			f.Self = &f
 			return &f
 		},
@@ -28,13 +39,12 @@ group members. An example of a property with a groups is 'value[x]'.`,
 		}, &Pkg)
 }
 
-// PropertyGroup represents the property-group function.
-type PropertyGroup struct {
+type propertyGroup struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *PropertyGroup) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *propertyGroup) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
 	prop, ok := args[0].(*Prop)
