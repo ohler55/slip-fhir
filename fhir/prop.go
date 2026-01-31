@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"unsafe"
 
 	"github.com/ohler55/ojg/alt"
@@ -13,6 +14,15 @@ import (
 	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 )
+
+var propMethods = map[string]*slip.Method{
+	propNameMethod.Name:        &propNameMethod,
+	propCardinalityMethod.Name: &propCardinalityMethod,
+	propEnumMethod.Name:        &propEnumMethod,
+	propGroupMethod.Name:       &propGroupMethod,
+	propTypeMethod.Name:        &propTypeMethod,
+	propValidPMethod.Name:      &propValidPMethod,
+}
 
 // Prop contains information about the properties of a type.
 type Prop struct {
@@ -99,6 +109,86 @@ func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
 	return p
 }
 
+// Receive a method invocation from the send function. Not intended to be
+// called by any code other than the send function but is public to allow it
+// to be over-ridden.
+func (p *Prop) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+	method := propMethods[strings.ToLower(message)]
+	if method == nil {
+		slip.InvalidMethodPanic(s, depth,
+			p, nil, slip.Symbol(message), "Property does not include the %s method.", message)
+	}
+	if method.Combinations[0].Primary == nil {
+		slip.InvalidMethodPanic(s, depth,
+			p, nil, slip.Symbol(message), "Can not evaluate the Property %s method.", message)
+	}
+	return method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
+}
+
+// Describe the instance in detail.
+func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = p.Append(b)
+		b = append(b, colorOff...)
+	} else {
+		b = p.Append(b)
+	}
+	b = append(b, ", an instance of "...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Property "...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Property "...)
+	}
+	b = append(b, '\n')
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, p.docs, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Type: "...)
+	b = append(b, p.typeName...)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Cardinality: "...)
+	if p.required {
+		b = append(b, '1')
+	} else {
+		b = append(b, '0')
+	}
+	b = append(b, '.', '.')
+	if p.array {
+		b = append(b, '*')
+	} else {
+		b = append(b, '1')
+	}
+	b = append(b, '\n')
+	if 0 < len(p.enum) {
+		b = append(b, indentSpaces[:i2]...)
+		b = append(b, "Enum:"...)
+		for _, e := range p.enum {
+			b = append(b, ' ')
+			b = append(b, e...)
+		}
+		b = append(b, '\n')
+	}
+	if 0 < len(p.group) {
+		b = append(b, indentSpaces[:i2]...)
+		b = append(b, "Group:\n"...)
+		for _, gp := range p.group {
+			b = append(b, indentSpaces[:i3]...)
+			b = append(b, gp.name...)
+			b = append(b, '\n')
+		}
+	}
+	return b
+}
+
 func (p *Prop) init(t *Type) {
 	if 0 < len(p.group) {
 		for _, gp := range p.group {
@@ -113,6 +203,15 @@ func (p *Prop) init(t *Type) {
 			t.name, p.name, p.typeName))
 	}
 	p.ftype = pt.(Validator)
+}
+
+func (p *Prop) validateValue(value any, onErr OnErrorFunc) bool {
+	if 0 < len(p.group) {
+		panic("Can only validate a value with a non-group property.")
+	}
+	data := map[string]any{p.name: value}
+
+	return p.validate(jp.A(), data, onErr)
 }
 
 // data is the map the property is or may be contained in.

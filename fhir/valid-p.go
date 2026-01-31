@@ -46,7 +46,7 @@ to continue. The _on-error_ function is expected to take 3 arguments, a __bag-pa
 identifies a property, value of the property, and a message describing a validation error.
 
 
-If validation is successful then __nil__ is returned otherwise __t__ is returned,`,
+If validation is successful then __t__ is returned otherwise __nil__ is returned.`,
 		}, &Pkg)
 }
 
@@ -104,9 +104,9 @@ func (f *validP) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		}
 	}
 	if typ.Validate(data, onErrFn) {
-		return slip.True
+		return nil
 	}
-	return nil
+	return slip.True
 }
 
 func resolveToOnError(s *slip.Scope, fn slip.Object, depth int) (caller slip.Caller) {
