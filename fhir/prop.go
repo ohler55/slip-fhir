@@ -21,6 +21,7 @@ var propMethods = map[string]*slip.Method{
 	propEnumMethod.Name:        &propEnumMethod,
 	propGroupMethod.Name:       &propGroupMethod,
 	propTypeMethod.Name:        &propTypeMethod,
+	propValidPMethod.Name:      &propValidPMethod,
 }
 
 // Prop contains information about the properties of a type.
@@ -202,6 +203,15 @@ func (p *Prop) init(t *Type) {
 			t.name, p.name, p.typeName))
 	}
 	p.ftype = pt.(Validator)
+}
+
+func (p *Prop) validateValue(value any, onErr OnErrorFunc) bool {
+	if 0 < len(p.group) {
+		panic("Can only validate a value with a non-group property.")
+	}
+	data := map[string]any{p.name: value}
+
+	return p.validate(jp.A(), data, onErr)
 }
 
 // data is the map the property is or may be contained in.

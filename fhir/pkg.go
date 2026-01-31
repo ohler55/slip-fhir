@@ -195,6 +195,7 @@ func init() {
 	initPropertyEnum()
 	initPropertyGroup()
 	initPropertyCardinality()
+	initPropertyValidP()
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)

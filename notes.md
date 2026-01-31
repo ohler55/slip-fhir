@@ -5,7 +5,6 @@
 - get specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
- - property class
  - unit tests
  - use xml schema instead
  - client
@@ -15,18 +14,6 @@
 - enum
  - manually link when needed
 
-
-- type property access in lisp
- - fhir::property - similar to instance but no way to create
-  - methods and functions to get data
-  + type-properties => list of properties
-  + type-property (name) => property
-  + property-name
-  + property-type
-  + property-group
-  + property-enum
-  + property-cardinality
-  - property-validate (path value &optional on-error)
 
 - navigating type definitions
  - options
