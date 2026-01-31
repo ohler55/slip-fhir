@@ -580,6 +580,30 @@ func (t *Type) validateComplex(p jp.Expr, v any, onErr OnErrorFunc) bool {
 	return false
 }
 
+func (t *Type) propList() (props slip.List) {
+	if it, ok := t.inherit.(*Type); ok {
+		props = it.propList()
+	}
+	for _, p := range t.props {
+		props = append(props, p)
+	}
+	return
+}
+
+func (t *Type) findProp(name string) *Prop {
+	for _, p := range t.props {
+		if name == p.name {
+			return p
+		}
+	}
+	if it, ok := t.inherit.(*Type); ok {
+		if p := it.findProp(name); p != nil {
+			return p
+		}
+	}
+	return nil
+}
+
 func primitiveInt(v any) (i int64, ok bool) {
 	ok = true
 	switch tv := v.(type) {

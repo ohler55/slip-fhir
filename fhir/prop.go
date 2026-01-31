@@ -99,6 +99,70 @@ func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
 	return p
 }
 
+// Describe the instance in detail.
+func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = p.Append(b)
+		b = append(b, colorOff...)
+	} else {
+		b = p.Append(b)
+	}
+	b = append(b, ", an instance of "...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Property "...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Property "...)
+	}
+	b = append(b, '\n')
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, p.docs, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Type: "...)
+	b = append(b, p.typeName...)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Cardinality: "...)
+	if p.required {
+		b = append(b, '1')
+	} else {
+		b = append(b, '0')
+	}
+	b = append(b, '.', '.')
+	if p.array {
+		b = append(b, '*')
+	} else {
+		b = append(b, '1')
+	}
+	b = append(b, '\n')
+	if 0 < len(p.enum) {
+		b = append(b, indentSpaces[:i2]...)
+		b = append(b, "Enum:"...)
+		for _, e := range p.enum {
+			b = append(b, ' ')
+			b = append(b, e...)
+		}
+		b = append(b, '\n')
+	}
+	if 0 < len(p.group) {
+		b = append(b, indentSpaces[:i2]...)
+		b = append(b, "Group:\n"...)
+		for _, gp := range p.group {
+			b = append(b, indentSpaces[:i3]...)
+			b = append(b, gp.name...)
+			b = append(b, '\n')
+		}
+	}
+	return b
+}
+
 func (p *Prop) init(t *Type) {
 	if 0 < len(p.group) {
 		for _, gp := range p.group {

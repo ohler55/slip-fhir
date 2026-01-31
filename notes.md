@@ -18,15 +18,15 @@
 - type property access in lisp
  - fhir::property - similar to instance but no way to create
   - methods and functions to get data
-  - property-name
-  - property-type => Type
-  - property-group => list of properties
-  - property-cardinality => min (0 or 1), max (1 or nil)
-  - property-description
-  - property-enum
+  + type-properties => list of properties
+  + type-property (name) => property
+  + property-name
+  + property-type
+  + add describe func to Prop
+  + property-group => list of properties
+  + property-enum
+  + property-cardinality
   - property-validate (path value &optional on-error)
-  - type-properties => list of properties
-  - type-property (name) => property
 
 - navigating type definitions
  - options

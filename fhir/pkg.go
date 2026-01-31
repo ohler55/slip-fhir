@@ -188,6 +188,13 @@ func init() {
 	initInstanceSet()
 	initInstanceReplace()
 	initValidP()
+	initTypeProperties()
+	initTypeProperty()
+	initPropertyName()
+	initPropertyType()
+	initPropertyEnum()
+	initPropertyGroup()
+	initPropertyCardinality()
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
