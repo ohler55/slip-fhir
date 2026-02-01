@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
  * #%L
  * org.hl7.fhir.r5
  * %%
@@ -8,9 +8,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,32 +22,32 @@
 /*
   Copyright (c) 2011+, HL7, Inc.
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without modification, 
-  are permitted provided that the following conditions are met:
-  
-   * Redistributions of source code must retain the above copyright notice, this 
-     list of conditions and the following disclaimer.
-   * Redistributions in binary form must reproduce the above copyright notice, 
-     this list of conditions and the following disclaimer in the documentation 
-     and/or other materials provided with the distribution.
-   * Neither the name of HL7 nor the names of its contributors may be used to 
-     endorse or promote products derived from this software without specific 
-     prior written permission.
-  
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-  POSSIBILITY OF SUCH DAMAGE.
-  
 
-  Generated on Sun, Mar 26, 2023 15:21+1100 for FHIR v5.0.0 
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
+
+   * Redistributions of source code must retain the above copyright notice, this
+     list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+   * Neither the name of HL7 nor the names of its contributors may be used to
+     endorse or promote products derived from this software without specific
+     prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+
+  Generated on Sun, Mar 26, 2023 15:21+1100 for FHIR v5.0.0
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://hl7.org/fhir" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://hl7.org/fhir" elementFormDefault="qualified" version="5.0.0">
   <!-- Note: When using this schema with some tools, it may also be necessary to declare xmlns:xml="http://www.w3.org/XML/1998/namespace", however this causes performance issues with other tools and thus is not in the base schemas. -->
@@ -15745,7 +15745,7 @@ The ISO21090-codedString may be used to provide a coded representation of the co
           </xs:choice>
           <xs:element name="mustSupport" type="string" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Indicates that specific elements of the type are referenced by the knowledge module and must be supported by the consumer in order to obtain an effective evaluation. This does not mean that a value is required for this element, only that the consuming system must understand the element and be able to provide values for it if they are available. 
+              <xs:documentation xml:lang="en">Indicates that specific elements of the type are referenced by the knowledge module and must be supported by the consumer in order to obtain an effective evaluation. This does not mean that a value is required for this element, only that the consuming system must understand the element and be able to provide values for it if they are available.
 
 The value of mustSupport SHALL be a FHIRPath resolvable on the type of the DataRequirement. The path SHALL consist only of identifiers, constant indexers, and .resolve() (see the [Simple FHIRPath Profile](fhirpath.html#simple) for full details).</xs:documentation>
             </xs:annotation>
@@ -16818,7 +16818,7 @@ The value of mustSupport SHALL be a FHIRPath resolvable on the type of the DataR
          </xs:choice>
         <xs:choice minOccurs="0" maxOccurs="1">
            <xs:annotation>
-             <xs:documentation xml:lang="en">Specifies a value that each occurrence of the element in the instance SHALL follow - that is, any value in the pattern must be found in the instance, if the element has a value. Other additional values may be found too. This is effectively constraint by example.  
+             <xs:documentation xml:lang="en">Specifies a value that each occurrence of the element in the instance SHALL follow - that is, any value in the pattern must be found in the instance, if the element has a value. Other additional values may be found too. This is effectively constraint by example.
 
 When pattern[x] is used to constrain a primitive, it means that the value provided in the pattern[x] must match the instance value exactly.
 
@@ -19013,7 +19013,7 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
           </xs:element>
           <xs:element name="balance" type="Account.Balance" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
-              <xs:documentation xml:lang="en">The calculated account balances - these are calculated and processed by the finance system.The balances with a `term` that is not current are usually generated/updated by an invoicing or similar process.</xs:documentation>
+              <xs:documentation xml:lang="en">The calculated account balances - these are calculated and processed by the finance system.The balances with a `term` that is not current are usually generated/updated by an invoicing or similar process.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="calculatedAt" minOccurs="0" maxOccurs="1" type="instant">
@@ -21013,7 +21013,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
           </xs:element>
           <xs:element name="weekInterval" minOccurs="0" maxOccurs="1" type="positiveInt">
             <xs:annotation>
-              <xs:documentation xml:lang="en">The interval defines if the recurrence is every nth week. The default is every week, so it is expected that this value will be 2 or more.e.g. For recurring every second week this interval would be 2, or every third week the interval would be 3.</xs:documentation>
+              <xs:documentation xml:lang="en">The interval defines if the recurrence is every nth week. The default is every week, so it is expected that this value will be 2 or more.e.g. For recurring every second week this interval would be 2, or every third week the interval would be 3.</xs:documentation>
            </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -22558,7 +22558,7 @@ into another (possibly the same) biological entity.</xs:documentation>
           </xs:element>
           <xs:element name="fullUrl" minOccurs="0" maxOccurs="1" type="uri">
             <xs:annotation>
-              <xs:documentation xml:lang="en">The Absolute URL for the resource. Except for transactions and batches, each entry in a Bundle must have a fullUrl. The fullUrl SHALL NOT disagree with the id in the resource - i.e. if the fullUrl is not a urn:uuid, the URL shall be version-independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. Even when not required, fullUrl MAY be set to a urn:uuid to allow referencing entries in a transaction. The fullUrl can be an arbitrary URI and is not limited to urn:uuid, urn:oid, http, and https. The fullUrl element SHALL have a value except when: 
+              <xs:documentation xml:lang="en">The Absolute URL for the resource. Except for transactions and batches, each entry in a Bundle must have a fullUrl. The fullUrl SHALL NOT disagree with the id in the resource - i.e. if the fullUrl is not a urn:uuid, the URL shall be version-independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. Even when not required, fullUrl MAY be set to a urn:uuid to allow referencing entries in a transaction. The fullUrl can be an arbitrary URI and is not limited to urn:uuid, urn:oid, http, and https. The fullUrl element SHALL have a value except when:
 * invoking a create
 * invoking or responding to an operation where the body is not a single identified resource
 * invoking or returning the results of a search or history operation.</xs:documentation>
@@ -22951,14 +22951,14 @@ into another (possibly the same) biological entity.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="disclosure">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Refers to a list of patent disclosures made with respect to 
+          <xs:documentation xml:lang="en">Refers to a list of patent disclosures made with respect to
       material for which 'disclosure' relation is specified.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="dns-prefetch">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Used to indicate an origin that will be used to fetch required 
-      resources for the link context, and that the user agent ought to resolve 
+          <xs:documentation xml:lang="en">Used to indicate an origin that will be used to fetch required
+      resources for the link context, and that the user agent ought to resolve
       as early as possible.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -23259,10 +23259,10 @@ into another (possibly the same) biological entity.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="preconnect">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Used to indicate an origin that will be used to fetch required 
-      resources for the link context. Initiating an early connection, which 
-      includes the DNS lookup, TCP handshake, and optional TLS negotiation, 
-      allows the user agent to mask the high latency costs of establishing a 
+          <xs:documentation xml:lang="en">Used to indicate an origin that will be used to fetch required
+      resources for the link context. Initiating an early connection, which
+      includes the DNS lookup, TCP handshake, and optional TLS negotiation,
+      allows the user agent to mask the high latency costs of establishing a
       connection.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -23275,23 +23275,23 @@ into another (possibly the same) biological entity.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="prefetch">
         <xs:annotation>
-          <xs:documentation xml:lang="en">The prefetch link relation type is used to identify a resource 
-      that might be required by the next navigation from the link context, and 
-      that the user agent ought to fetch, such that the user agent can deliver a 
+          <xs:documentation xml:lang="en">The prefetch link relation type is used to identify a resource
+      that might be required by the next navigation from the link context, and
+      that the user agent ought to fetch, such that the user agent can deliver a
       faster response once the resource is requested in the future.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="preload">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Refers to a resource that should be loaded early in the 
+          <xs:documentation xml:lang="en">Refers to a resource that should be loaded early in the
       processing of the link's context, without blocking rendering.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="prerender">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Used to identify a resource that might be required by the next 
-      navigation from the link context, and that the user agent ought to fetch 
-      and execute, such that the user agent can deliver a faster response once 
+          <xs:documentation xml:lang="en">Used to identify a resource that might be required by the next
+      navigation from the link context, and that the user agent ought to fetch
+      and execute, such that the user agent can deliver a faster response once
       the resource is requested in the future.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -23332,8 +23332,8 @@ of the resource representation.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="publication">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Links to a publication manifest. A manifest represents 
-      structured information about a publication, such as informative metadata, 
+          <xs:documentation xml:lang="en">Links to a publication manifest. A manifest represents
+      structured information about a publication, such as informative metadata,
       a list of resources, and a default reading order.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -23346,7 +23346,7 @@ of the resource representation.</xs:documentation>
         <xs:annotation>
           <xs:documentation xml:lang="en">Identifies the root of RESTCONF API as configured on this HTTP server.
       The &quot;restconf&quot; relation defines the root of the API defined in RFC8040.
-      Subsequent revisions of RESTCONF will use alternate relation values to support 
+      Subsequent revisions of RESTCONF will use alternate relation values to support
       protocol versioning.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -23359,8 +23359,8 @@ of the resource representation.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="ruleinput">
         <xs:annotation>
-          <xs:documentation xml:lang="en">The resource identified by the link target provides an input value to an 
-    instance of a rule, where the resource which represents the rule instance is 
+          <xs:documentation xml:lang="en">The resource identified by the link target provides an input value to an
+    instance of a rule, where the resource which represents the rule instance is
     identified by the link context.
     </xs:documentation>
         </xs:annotation>
@@ -23408,7 +23408,7 @@ of the resource representation.</xs:documentation>
       </xs:enumeration>
       <xs:enumeration value="sponsored">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Refers to a resource that is within a context that is 
+          <xs:documentation xml:lang="en">Refers to a resource that is within a context that is
 		sponsored (such as advertising or another compensation agreement).</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
@@ -33678,10 +33678,10 @@ of the resource representation.</xs:documentation>
           </xs:element>
           <xs:element name="issuer" minOccurs="1" maxOccurs="1" type="uri">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Organization that is charged with issuing UDIs for devices. For example, the US FDA issuers include: 
-1) GS1: http://hl7.org/fhir/NamingSystem/gs1-di, 
-2) HIBCC: http://hl7.org/fhir/NamingSystem/hibcc-diI, 
-3) ICCBBA for blood containers: http://hl7.org/fhir/NamingSystem/iccbba-blood-di, 
+              <xs:documentation xml:lang="en">Organization that is charged with issuing UDIs for devices. For example, the US FDA issuers include:
+1) GS1: http://hl7.org/fhir/NamingSystem/gs1-di,
+2) HIBCC: http://hl7.org/fhir/NamingSystem/hibcc-diI,
+3) ICCBBA for blood containers: http://hl7.org/fhir/NamingSystem/iccbba-blood-di,
 4) ICCBA for other devices: http://hl7.org/fhir/NamingSystem/iccbba-other-di # Informationsstelle für Arzneispezialitäten (IFA GmbH) (EU only): http://hl7.org/fhir/NamingSystem/ifa-gmbh-di.</xs:documentation>
            </xs:annotation>
           </xs:element>
@@ -36078,7 +36078,7 @@ RegisteredName | UserFriendlyName | PatientReportedName.</xs:documentation>
           </xs:element>
           <xs:element name="length" minOccurs="0" maxOccurs="1" type="Duration">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Actual quantity of time the encounter lasted. This excludes the time during leaves of absence.When missing it is the time in between the start and end values.</xs:documentation>
+              <xs:documentation xml:lang="en">Actual quantity of time the encounter lasted. This excludes the time during leaves of absence.When missing it is the time in between the start and end values.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="reason" type="Encounter.Reason" minOccurs="0" maxOccurs="unbounded">
@@ -36113,7 +36113,7 @@ RegisteredName | UserFriendlyName | PatientReportedName.</xs:documentation>
           </xs:element>
           <xs:element name="admission" type="Encounter.Admission" minOccurs="0" maxOccurs="1">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Details about the stay during which a healthcare service is provided.This does not describe the event of admitting the patient, but rather any information that is relevant from the time of admittance until the time of discharge.</xs:documentation>
+              <xs:documentation xml:lang="en">Details about the stay during which a healthcare service is provided.This does not describe the event of admitting the patient, but rather any information that is relevant from the time of admittance until the time of discharge.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="location" type="Encounter.Location" minOccurs="0" maxOccurs="unbounded">
@@ -36430,7 +36430,7 @@ RegisteredName | UserFriendlyName | PatientReportedName.</xs:documentation>
           </xs:element>
           <xs:element name="length" minOccurs="0" maxOccurs="1" type="Duration">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Actual quantity of time the encounter lasted. This excludes the time during leaves of absence.When missing it is the time in between the start and end values.</xs:documentation>
+              <xs:documentation xml:lang="en">Actual quantity of time the encounter lasted. This excludes the time during leaves of absence.When missing it is the time in between the start and end values.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="location" type="EncounterHistory.Location" minOccurs="0" maxOccurs="unbounded">
@@ -50081,7 +50081,7 @@ See guidance around (not) making local changes to elements [here](canonicalresou
         <xs:sequence>
           <xs:element name="text" minOccurs="0" maxOccurs="1" type="string">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.The dosage instructions should reflect the dosage of the medication that was administered.</xs:documentation>
+              <xs:documentation xml:lang="en">Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.The dosage instructions should reflect the dosage of the medication that was administered.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="site" minOccurs="0" maxOccurs="1" type="CodeableConcept">
@@ -51436,7 +51436,7 @@ See guidance around (not) making local changes to elements [here](canonicalresou
   </xs:complexType>
   <xs:element name="MedicationStatement" type="MedicationStatement">
     <xs:annotation>
-      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. 
+      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains.
 
 The primary difference between a medicationstatement and a medicationadministration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medicationstatement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the Medication Statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information.
 
@@ -51445,7 +51445,7 @@ The MedicationStatement resource was previously called MedicationStatement.</xs:
   </xs:element>
   <xs:complexType name="MedicationStatement">
     <xs:annotation>
-      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. 
+      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains.
 
 The primary difference between a medicationstatement and a medicationadministration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medicationstatement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the Medication Statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information.
 
@@ -51549,7 +51549,7 @@ The MedicationStatement resource was previously called MedicationStatement.</xs:
   </xs:complexType>
   <xs:complexType name="MedicationStatement.Adherence">
     <xs:annotation>
-      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains. 
+      <xs:documentation xml:lang="en">A record of a medication that is being consumed by a patient.   A MedicationStatement may indicate that the patient may be taking the medication now or has taken the medication in the past or will be taking the medication in the future.  The source of this information can be the patient, significant other (such as a family member or spouse), or a clinician.  A common scenario where this information is captured is during the history taking process during a patient visit or stay.   The medication information may come from sources such as the patient's memory, from a prescription bottle,  or from a list of medications the patient, clinician or other party maintains.
 
 The primary difference between a medicationstatement and a medicationadministration is that the medication administration has complete administration information and is based on actual administration information from the person who administered the medication.  A medicationstatement is often, if not always, less specific.  There is no required date/time when the medication was administered, in fact we only know that a source has reported the patient is taking this medication, where details such as time, quantity, or rate or even medication product may be incomplete or missing or less precise.  As stated earlier, the Medication Statement information may come from the patient's memory, from a prescription bottle or from a list of medications the patient, clinician or other party maintains.  Medication administration is more formal and is not missing detailed information.
 
@@ -55043,7 +55043,7 @@ Reflex | Repeat | Re-run.</xs:documentation>
           </xs:element>
           <xs:element name="location" minOccurs="0" maxOccurs="unbounded" type="string">
             <xs:annotation>
-              <xs:documentation xml:lang="en">This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse. 
+              <xs:documentation xml:lang="en">This element is deprecated because it is XML specific. It is replaced by issue.expression, which is format independent, and simpler to parse.
 
 For resource issues, this will be a simple XPath limited to element names, repetition indicators and the default child accessor that identifies one of the elements in the resource that caused this issue to be raised.  For HTTP errors, will be &quot;http.&quot; + the parameter name.</xs:documentation>
            </xs:annotation>
@@ -55337,7 +55337,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
           </xs:element>
           <xs:element name="qualification" type="Organization.Qualification" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
-              <xs:documentation xml:lang="en">The official certifications, accreditations, training, designations and licenses that authorize and/or otherwise endorse the provision of care by the organization.For example, an approval to provide a type of services issued by a certifying body (such as the US Joint Commission) to an organization.</xs:documentation>
+              <xs:documentation xml:lang="en">The official certifications, accreditations, training, designations and licenses that authorize and/or otherwise endorse the provision of care by the organization.For example, an approval to provide a type of services issued by a certifying body (such as the US Joint Commission) to an organization.</xs:documentation>
            </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -55805,7 +55805,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
           </xs:element>
           <xs:element name="active" minOccurs="0" maxOccurs="1" type="boolean">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Whether this patient record is in active use. 
+              <xs:documentation xml:lang="en">Whether this patient record is in active use.
 Many systems use this property to mark as non-current patients, such as those that have not been seen for a period of time based on an organization's business rules.
 
 It is often used to filter patient lists to exclude inactive patients
@@ -57780,7 +57780,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
           </xs:choice>
           <xs:element name="address" minOccurs="0" maxOccurs="unbounded" type="Address">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Address(es) of the practitioner that are not role specific (typically home address). Work addresses are not typically entered in this property as they are usually role dependent.</xs:documentation>
+              <xs:documentation xml:lang="en">Address(es) of the practitioner that are not role specific (typically home address). Work addresses are not typically entered in this property as they are usually role dependent.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="photo" minOccurs="0" maxOccurs="unbounded" type="Attachment">
@@ -57790,12 +57790,12 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
           </xs:element>
           <xs:element name="qualification" type="Practitioner.Qualification" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
-              <xs:documentation xml:lang="en">The official qualifications, certifications, accreditations, training, licenses (and other types of educations/skills/capabilities) that authorize or otherwise pertain to the provision of care by the practitioner.For example, a medical license issued by a medical board of licensure authorizing the practitioner to practice medicine within a certain locality.</xs:documentation>
+              <xs:documentation xml:lang="en">The official qualifications, certifications, accreditations, training, licenses (and other types of educations/skills/capabilities) that authorize or otherwise pertain to the provision of care by the practitioner.For example, a medical license issued by a medical board of licensure authorizing the practitioner to practice medicine within a certain locality.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="communication" type="Practitioner.Communication" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
-              <xs:documentation xml:lang="en">A language which may be used to communicate with the practitioner, often for correspondence/administrative purposes.The `PractitionerRole.communication` property should be used for publishing the languages that a practitioner is able to communicate with patients (on a per Organization/Role basis).</xs:documentation>
+              <xs:documentation xml:lang="en">A language which may be used to communicate with the practitioner, often for correspondence/administrative purposes.The `PractitionerRole.communication` property should be used for publishing the languages that a practitioner is able to communicate with patients (on a per Organization/Role basis).</xs:documentation>
            </xs:annotation>
           </xs:element>
         </xs:sequence>
