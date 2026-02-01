@@ -4,6 +4,7 @@ package fhir_test
 
 import (
 	"math"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -17,6 +18,10 @@ import (
 
 func onErr(path jp.Expr, value any, message string) bool {
 	panic(message)
+}
+
+func onErrStop(path jp.Expr, value any, message string) bool {
+	return true
 }
 
 func TestTypeInteger(t *testing.T) {
@@ -49,6 +54,9 @@ func TestTypeInteger(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(math.MinInt32-1, onErr) })
 	tt.Panic(t, func() { pt.Validate(2.5, onErr) })
 	tt.Panic(t, func() { pt.Validate(float32(2.5), onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
+	tt.Equal(t, true, pt.Validate(math.MaxInt32+1, onErrStop))
 }
 
 func TestTypeInteger64(t *testing.T) {
@@ -77,6 +85,8 @@ func TestTypeInteger64(t *testing.T) {
 
 	tt.Panic(t, func() { pt.Validate("string", onErr) })
 	tt.Panic(t, func() { pt.Validate(2.5, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeUnsignedInt(t *testing.T) {
@@ -92,6 +102,9 @@ func TestTypeUnsignedInt(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate("string", onErr) })
 	tt.Panic(t, func() { pt.Validate(2.5, onErr) })
 	tt.Panic(t, func() { pt.Validate(-1, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
+	tt.Equal(t, true, pt.Validate(-1, onErrStop))
 }
 
 func TestTypePositiveInt(t *testing.T) {
@@ -107,6 +120,9 @@ func TestTypePositiveInt(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(2.5, onErr) })
 	tt.Panic(t, func() { pt.Validate(-1, onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
+	tt.Equal(t, true, pt.Validate(0, onErrStop))
 }
 
 func TestTypePositiveDecimal(t *testing.T) {
@@ -117,6 +133,8 @@ func TestTypePositiveDecimal(t *testing.T) {
 	pt.Validate(7.5, onErr)
 
 	tt.Panic(t, func() { pt.Validate("string", onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeBoolean(t *testing.T) {
@@ -129,6 +147,8 @@ func TestTypeBoolean(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate("string", onErr) })
 	tt.Panic(t, func() { pt.Validate(nil, onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeTime(t *testing.T) {
@@ -140,6 +160,8 @@ func TestTypeTime(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate("string", onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
 	tt.Panic(t, func() { pt.Validate(time.Now(), onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeDate(t *testing.T) {
@@ -151,6 +173,8 @@ func TestTypeDate(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate("20:21:22", onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
 	tt.Panic(t, func() { pt.Validate(time.Now(), onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeInstant(t *testing.T) {
@@ -162,6 +186,8 @@ func TestTypeInstant(t *testing.T) {
 
 	tt.Panic(t, func() { pt.Validate("20:21:22", onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeDateTime(t *testing.T) {
@@ -173,6 +199,19 @@ func TestTypeDateTime(t *testing.T) {
 
 	tt.Panic(t, func() { pt.Validate("20:21:22", onErr) })
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate("string", onErrStop))
+}
+
+func TestTypeCode(t *testing.T) {
+	pt, ok := slip.FindClass("code").(*fhir.Type)
+	tt.Equal(t, true, ok)
+
+	pt.Validate("abc", onErr)
+
+	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate(0, onErrStop))
 }
 
 func TestTypeXHTML(t *testing.T) {
@@ -182,9 +221,17 @@ func TestTypeXHTML(t *testing.T) {
 	pt.Validate("<x>y</x>", onErr)
 
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
+
+	tt.Equal(t, true, pt.Validate(0, onErrStop))
 }
 
-func TestTypeSimplify(t *testing.T) {
+func TestTypeName(t *testing.T) {
+	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	tt.Equal(t, "integer64", pt.Name())
+}
+
+func TestTypeSimplifyPrimitive(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `{
@@ -197,16 +244,117 @@ func TestTypeSimplify(t *testing.T) {
 }`, pretty.SEN(pt.Simplify()))
 }
 
+func TestTypeSimplifyComplex(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	tt.Equal(t, `{
+  description: "A set of ordered Quantities defined by a low and high limit."
+  inherit: Element
+  name: Range
+  package: fhir
+  parent: Element
+  properties: [
+    {
+      array: false
+      description: "The low limit. The boundary is inclusive."
+      enum: []
+      name: low
+      required: false
+      type: Quantity
+    }
+    {
+      array: false
+      description: "The high limit. The boundary is inclusive."
+      enum: []
+      name: high
+      required: false
+      type: Quantity
+    }
+  ]
+}`, pretty.SEN(rt.Simplify()))
+}
+
+func TestTypeVarNamesComplex(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	names := rt.VarNames()
+	sort.Strings(names)
+	tt.Equal(t, `[extension high id low]`, pretty.SEN(names))
+}
+
+func TestTypeMethods(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	var names []string
+	for _, m := range rt.Methods() {
+		names = append(names, m.Name)
+	}
+	sort.Strings(names)
+	tt.Equal(t, `[
+  ":class"
+  ":data"
+  ":describe"
+  ":equal"
+  ":get"
+  ":id"
+  ":init"
+  ":operation-handled-p"
+  ":print-self"
+  ":replace"
+  ":set"
+  ":type"
+  ":validate"
+  ":which-operations"
+]`, pretty.SEN(names))
+}
+
+func TestTypeGetMethod(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	tt.Equal(t, `{
+  combinations: [{from: Type primary: true}]
+  name: ":set"
+}`, pretty.SEN(rt.GetMethod(":set")))
+}
+
 func TestTypeDescribe(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
-	desc := string(pt.Describe(nil, 0, 60, false))
+	desc := string(pt.Describe(nil, 0, 80, false))
 	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 
-	desc = string(pt.Describe(nil, 0, 60, true))
+	desc = string(pt.Describe(nil, 0, 80, true))
 	tt.Equal(t, true, strings.Contains(desc, "is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
+
+	pt, ok = slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	desc = string(pt.Describe(nil, 0, 80, false))
+	tt.Equal(t, true, strings.Contains(desc, "is a FHIR DataType"))
+
+	pt, ok = slip.FindClass("Account").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	desc = string(pt.Describe(nil, 0, 80, false))
+	tt.Equal(t, true, strings.Contains(desc, "is a FHIR Resource"))
+
+	pt, ok = slip.FindClass("Account_coverage").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	desc = string(pt.Describe(nil, 0, 80, false))
+	tt.Equal(t, true, strings.Contains(desc, "is a FHIR BackboneType"))
+}
+
+func TestTypeDescribeSelf(t *testing.T) {
+	pt, ok := slip.FindClass("type").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	desc := string(pt.Describe(nil, 0, 80, false))
+
+	tt.Equal(t, true, strings.Contains(desc, "fhir:Type is the FHIR meta-class"))
+	tt.Equal(t, true, strings.Contains(desc, "Methods:"))
+	tt.Equal(t, true, strings.Contains(desc, ":which-operations"))
+
+	desc = string(pt.Describe(nil, 0, 80, true))
+	tt.Equal(t, true, strings.Contains(desc, "is the FHIR meta-class"))
 }
 
 func TestTypeLoadForm(t *testing.T) {
@@ -215,7 +363,7 @@ func TestTypeLoadForm(t *testing.T) {
 	tt.Nil(t, pt.LoadForm())
 }
 
-func TestTypeVarNames(t *testing.T) {
+func TestTypeVarNamesPrimitive(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, 0, len(pt.VarNames()))
