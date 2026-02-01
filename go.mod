@@ -6,6 +6,10 @@ require github.com/ohler55/slip v1.3.1
 
 require github.com/ohler55/ojg v1.27.0
 
-require golang.org/x/text v0.28.0 // indirect
+require (
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/term v0.34.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
+)
 
 replace github.com/ohler55/slip => ../slip

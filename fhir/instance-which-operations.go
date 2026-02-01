@@ -25,7 +25,3 @@ func (caller instanceWhichOperationsCaller) Call(s *slip.Scope, args slip.List, 
 
 	return typeMethodNames()
 }
-
-func (caller instanceWhichOperationsCaller) FuncDocs() *slip.FuncDoc {
-	return instanceWhichOperationsMethod.Doc
-}

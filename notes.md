@@ -11,6 +11,24 @@
   - read, etc
  - design.md update
 
+- load-fhir or build-fhir or ???
+ - load a defs file
+  - use for testing
+  - option for new package
+
+ - does there need to be a property-class?
+  - how to get describe-method to work without a class?
+- add vanilla methods to prop
+ - propIDMethod
+ - propTypeMethod
+ - propClassMethod
+ - propDescribeMethod
+ - propPrintSelfMethod
+ - propWhichOperationsMethod
+ - propOperationHandledPMethod
+ - propEqualMethod
+
+
 - enum
  - manually link when needed
 

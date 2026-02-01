@@ -14,6 +14,7 @@ import (
 	"github.com/ohler55/ojg/tt"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip-fhir/fhir"
+	"github.com/ohler55/slip/sliptest"
 )
 
 func onErr(path jp.Expr, value any, message string) bool {
@@ -24,7 +25,7 @@ func onErrStop(path jp.Expr, value any, message string) bool {
 	return true
 }
 
-func TestTypeInteger(t *testing.T) {
+func TestTypeValidateInteger(t *testing.T) {
 	pt, ok := slip.FindClass("fhir:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -59,7 +60,7 @@ func TestTypeInteger(t *testing.T) {
 	tt.Equal(t, true, pt.Validate(math.MaxInt32+1, onErrStop))
 }
 
-func TestTypeInteger64(t *testing.T) {
+func TestTypeValidateInteger64(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -89,7 +90,7 @@ func TestTypeInteger64(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeUnsignedInt(t *testing.T) {
+func TestTypeValidateUnsignedInt(t *testing.T) {
 	pt, ok := slip.FindClass("unsignedInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -107,7 +108,7 @@ func TestTypeUnsignedInt(t *testing.T) {
 	tt.Equal(t, true, pt.Validate(-1, onErrStop))
 }
 
-func TestTypePositiveInt(t *testing.T) {
+func TestTypeValidatePositiveInt(t *testing.T) {
 	pt, ok := slip.FindClass("positiveInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -125,7 +126,7 @@ func TestTypePositiveInt(t *testing.T) {
 	tt.Equal(t, true, pt.Validate(0, onErrStop))
 }
 
-func TestTypePositiveDecimal(t *testing.T) {
+func TestTypeValidatePositiveDecimal(t *testing.T) {
 	pt, ok := slip.FindClass("decimal").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -137,7 +138,7 @@ func TestTypePositiveDecimal(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeBoolean(t *testing.T) {
+func TestTypeValidateBoolean(t *testing.T) {
 	pt, ok := slip.FindClass("boolean").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -151,7 +152,7 @@ func TestTypeBoolean(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeTime(t *testing.T) {
+func TestTypeValidateTime(t *testing.T) {
 	pt, ok := slip.FindClass("fhir:time").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -164,7 +165,7 @@ func TestTypeTime(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeDate(t *testing.T) {
+func TestTypeValidateDate(t *testing.T) {
 	pt, ok := slip.FindClass("date").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -177,7 +178,7 @@ func TestTypeDate(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeInstant(t *testing.T) {
+func TestTypeValidateInstant(t *testing.T) {
 	pt, ok := slip.FindClass("instant").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -190,7 +191,7 @@ func TestTypeInstant(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeDateTime(t *testing.T) {
+func TestTypeValidateDateTime(t *testing.T) {
 	pt, ok := slip.FindClass("dateTime").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -203,7 +204,7 @@ func TestTypeDateTime(t *testing.T) {
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
-func TestTypeCode(t *testing.T) {
+func TestTypeValidateCode(t *testing.T) {
 	pt, ok := slip.FindClass("code").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -214,7 +215,7 @@ func TestTypeCode(t *testing.T) {
 	tt.Equal(t, true, pt.Validate(0, onErrStop))
 }
 
-func TestTypeXHTML(t *testing.T) {
+func TestTypeValidateXHTML(t *testing.T) {
 	pt, ok := slip.FindClass("xhtml").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
@@ -223,6 +224,34 @@ func TestTypeXHTML(t *testing.T) {
 	tt.Panic(t, func() { pt.Validate(0, onErr) })
 
 	tt.Equal(t, true, pt.Validate(0, onErrStop))
+}
+
+func TestTypeValidateBase(t *testing.T) {
+	bt, ok := slip.FindClass("base").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	tt.Equal(t, false, bt.Validate(nil, onErrStop))
+}
+
+func TestTypeValidateComplex(t *testing.T) {
+	ct, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+
+	ct.Validate(map[string]any{
+		"low":  map[string]any{"value": 30, "unit": "mL"},
+		"high": map[string]any{"value": 50, "unit": "mL"},
+	}, onErr)
+
+	tt.Panic(t, func() { ct.Validate(0, onErr) })
+	tt.Panic(t, func() { ct.Validate(map[string]any{"average": 5}, onErr) })
+	tt.Panic(t, func() { ct.Validate(map[string]any{"low": 5}, onErr) })
+
+	tt.Equal(t, true, ct.Validate(7, onErrStop))
+	tt.Equal(t, true, ct.Validate(map[string]any{"average": 5}, onErrStop))
+	tt.Equal(t, true, ct.Validate(map[string]any{"low": 5}, onErrStop))
+	tt.Equal(t, true, ct.Validate(map[string]any{
+		"LOW": map[string]any{"value": 30, "unit": "mL"},
+	}, onErrStop))
+
 }
 
 func TestTypeName(t *testing.T) {
@@ -422,10 +451,25 @@ func TestTypeDocumentation(t *testing.T) {
 	tt.Equal(t, newDoc, pt.Documentation())
 }
 
-func TestTypeMakeInstance(t *testing.T) {
+func TestTypeMakeInstancePrimitive(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Panic(t, func() { _ = pt.MakeInstance() })
+}
+
+func TestTypeMakeInstanceComplex(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(make-instance 'range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))`,
+		Expect: "/#<fhir:Range [0-9a-f]+>/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(send
+                   (send
+                     (make-instance 'range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))
+                     :data)
+                   :write nil)`,
+		Expect: `"{high: {unit: mL value: 50} low: {unit: mL value: 30}}"`,
+	}).Test(t)
 }
 
 func TestTypeBadInit(t *testing.T) {

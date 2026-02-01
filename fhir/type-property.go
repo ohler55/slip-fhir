@@ -39,14 +39,15 @@ type TypeProperty struct {
 }
 
 // Call the the function with the arguments provided.
-func (f *TypeProperty) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+func (f *TypeProperty) Call(s *slip.Scope, args slip.List, depth int) (prop slip.Object) {
 	slip.CheckArgCount(s, depth, f, args, 2, 2)
 	obj := args[0]
-	var prop *Prop
 top:
 	switch to := obj.(type) {
 	case *Type:
-		prop = to.findProp(slip.MustBeString(args[1], "name"))
+		if p := to.findProp(slip.MustBeString(args[1], "name")); p != nil {
+			prop = p
+		}
 	case slip.Symbol:
 		if c := slip.FindClass(string(to)); c != nil {
 			obj = c
@@ -55,5 +56,5 @@ top:
 	default:
 		slip.TypePanic(s, depth, "type", to, "fhir type")
 	}
-	return prop
+	return
 }

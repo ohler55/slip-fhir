@@ -40,7 +40,3 @@ func (caller instanceOperationHandledPCaller) Call(s *slip.Scope, args slip.List
 	}
 	return nil
 }
-
-func (caller instanceOperationHandledPCaller) FuncDocs() *slip.FuncDoc {
-	return instanceOperationHandledPMethod.Doc
-}

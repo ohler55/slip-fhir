@@ -35,7 +35,3 @@ func (caller instanceTypeCaller) Call(s *slip.Scope, args slip.List, depth int) 
 
 	return inst.Class()
 }
-
-func (caller instanceTypeCaller) FuncDocs() *slip.FuncDoc {
-	return instanceTypeMethod.Doc
-}

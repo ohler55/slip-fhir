@@ -35,7 +35,3 @@ func (caller instanceEqualCaller) Call(s *slip.Scope, args slip.List, depth int)
 	}
 	return nil
 }
-
-func (caller instanceEqualCaller) FuncDocs() *slip.FuncDoc {
-	return instanceEqualMethod.Doc
-}
