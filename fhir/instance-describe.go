@@ -38,18 +38,19 @@ func (caller instanceDescribeCaller) Call(s *slip.Scope, args slip.List, depth i
 	ansi := s.Get("*print-ansi*") != nil
 	right := int(s.Get("*print-right-margin*").(slip.Fixnum))
 	b := inst.Describe(nil, 0, right, ansi)
-	w := s.Get("*standard-output*").(io.Writer)
+	so := s.Get("*standard-output*")
+	ss, _ := so.(slip.Stream)
+	w := so.(io.Writer)
 	if 1 < len(args) {
 		var ok bool
+		ss, _ = args[1].(slip.Stream)
 		if w, ok = args[1].(io.Writer); !ok {
 			slip.TypePanic(s, depth, ":describe output-stream", args[1], "output-stream")
 		}
 	}
-	_, _ = w.Write(b)
+	if _, err := w.Write(b); err != nil {
+		slip.StreamPanic(s, depth, ss, "%s", err)
+	}
 
 	return nil
-}
-
-func (caller instanceDescribeCaller) FuncDocs() *slip.FuncDoc {
-	return instanceDescribeMethod.Doc
 }

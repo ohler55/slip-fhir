@@ -42,7 +42,3 @@ type instanceInitCaller struct{}
 func (caller instanceInitCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	return nil
 }
-
-func (caller instanceInitCaller) FuncDocs() *slip.FuncDoc {
-	return instanceInitMethod.Doc
-}

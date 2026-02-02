@@ -50,7 +50,3 @@ func (caller instancePrintSelfCaller) Call(s *slip.Scope, args slip.List, depth 
 	}
 	return nil
 }
-
-func (caller instancePrintSelfCaller) FuncDocs() *slip.FuncDoc {
-	return instancePrintSelfMethod.Doc
-}

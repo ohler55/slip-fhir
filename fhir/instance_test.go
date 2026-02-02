@@ -3,11 +3,24 @@
 package fhir_test
 
 import (
+	"fmt"
+	"sort"
 	"testing"
 
+	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/ojg/tt"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip-fhir/fhir"
+	"github.com/ohler55/slip/pkg/bag"
+	"github.com/ohler55/slip/pkg/flavors"
 	"github.com/ohler55/slip/sliptest"
 )
+
+type badWriter int
+
+func (w badWriter) Write([]byte) (int, error) {
+	return 0, fmt.Errorf("oops")
+}
 
 func TestInstanceIDMethod(t *testing.T) {
 	(&sliptest.Function{
@@ -141,4 +154,167 @@ func TestInstanceGetPathList(t *testing.T) {
                    (make-instance 'HumanName :data (make-bag "{given:[bill bob]}")) '(given t))`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
+}
+
+func TestInstanceSetMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+                   (send inst :set "high" (make-bag "{value:2}"))
+                   (send inst :get "high.value"))`,
+		Expect: "2",
+	}).Test(t)
+}
+
+func TestInstanceSetFunction(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+                   (instance-set inst "high" (make-bag "{value:2}"))
+                   (send inst :get "high.value"))`,
+		Expect: "2",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(instance-set 7 "high" 8)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceInit(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :init)`,
+		PanicType: slip.InvalidMethodErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstancePrintSelfMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self s))`,
+		Expect: "/#<fhir:Range [0-9a-f]+>/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstancePrintSelfBadWrite(t *testing.T) {
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
+	(&sliptest.Function{
+		Scope:     scope,
+		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self out)`,
+		PanicType: slip.StreamErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceDescribeMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe s))`,
+		Expect: "/an instance of .+fhir:Range/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceDescribeBadWrite(t *testing.T) {
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
+	(&sliptest.Function{
+		Scope:     scope,
+		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe out)`,
+		PanicType: slip.StreamErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceReplaceMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+                   (send inst :replace (make-bag "{low:{value:2}}"))
+                   (send inst :get "low.value"))`,
+		Expect: "2",
+	}).Test(t)
+}
+
+func TestInstanceReplaceFunction(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+                   (instance-replace inst (make-bag "{low:{value:2}}"))
+                   (send inst :get "low.value"))`,
+		Expect: "2",
+	}).Test(t)
+}
+
+func TestInstanceReplaceNotInstance(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(instance-replace 7 (make-bag "{low:{value:2}}"))`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceReplaceBadValue(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(instance-replace (make-instance 'range) 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceReplaceBadBagValue(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(instance-replace (make-instance 'range) (make-bag "7"))`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(instance-replace (make-instance 'range) (make-bag "{avg:{value:3}}"))`,
+		PanicType: slip.ErrorSymbol,
+	}).Test(t)
+}
+
+func TestInstanceMisc(t *testing.T) {
+	rt, ok := slip.FindClass("fhir:range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+
+	bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+	bg.Init(slip.NewScope(), slip.List{}, 0)
+	bg.Any = map[string]any{"value": int64(3)}
+
+	inst := rt.MakeInstance()
+	inst.SetSlotValue(slip.Symbol("low"), bg)
+	tt.Equal(t, "{low: {value: 3}}", pretty.SEN(inst.Simplify()))
+
+	names := inst.SlotNames()
+	sort.Strings(names)
+	tt.Equal(t, "[extension high id low]", pretty.SEN(names))
+
+	tt.Equal(t, true, inst.IsA("Range"))
+	tt.Equal(t, true, inst.IsA("Element"))
+	tt.Equal(t, false, inst.IsA("patient"))
+
+	fi, ok := inst.(*fhir.Instance)
+	tt.Equal(t, true, ok)
+	tt.Equal(t, true, fi.HasMethod(":ID"))
+	tt.Equal(t, false, fi.HasMethod(":xyz"))
+
+	// TBD
+}
+
+func TestInstanceSlots(t *testing.T) {
+	rt, ok := slip.FindClass("fhir:range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+
+	bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+	bg.Init(slip.NewScope(), slip.List{}, 0)
+	bg.Any = map[string]any{"value": int64(3)}
+
+	inst := rt.MakeInstance()
+	inst.SetSlotValue(slip.Symbol("low"), bg)
+	tt.Equal(t, "{low: {value: 3}}", pretty.SEN(inst.Simplify()))
+
+	value, has := inst.SlotValue(slip.Symbol("low"))
+	tt.Equal(t, true, has)
+	tt.Equal(t, "[[value 3]]", pretty.SEN(value))
+
+	// TBD more sets
 }
