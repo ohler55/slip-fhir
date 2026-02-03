@@ -6,6 +6,19 @@
 
 - plan
  - unit tests
+  - property validate
+ - PropertyClass
+ - does there need to be a property-class?
+  - how to get describe-method to work without a class?
+ - add vanilla methods to prop
+  - propIDMethod
+  - propClassMethod
+  - propDescribeMethod
+  - propPrintSelfMethod
+  - propWhichOperationsMethod
+  - propOperationHandledPMethod
+  - propEqualMethod
+
  - use xml schema instead
  - client
   - read, etc
@@ -16,21 +29,25 @@
   - use for testing
   - option for new package
 
- - does there need to be a property-class?
-  - how to get describe-method to work without a class?
-- add vanilla methods to prop
- - propIDMethod
- - propTypeMethod
- - propClassMethod
- - propDescribeMethod
- - propPrintSelfMethod
- - propWhichOperationsMethod
- - propOperationHandledPMethod
- - propEqualMethod
 
 
 - enum
  - manually link when needed
+
+- inspect - interactive
+ - list top level slots
+ - move cursor (hi-lighted) up and down (arrow and ^p ^n)
+  - on slot, x for expand, -> or ^f to open that slot and replace display
+  - <- or ^b to go back up
+  - esc to exit inspector
+ - need some kind of general dialog handler
+  - given list of text, x command, right, left commands as well
+  - or maybe require a tree and hardcode the navigation except for leaves
+- edit
+ - same as inspect but all modifications
+  - primitive, replace or edit with normal repl commands
+  - complex, add member from pick-list
+  - for a list, add {}
 
 
 - navigating type definitions

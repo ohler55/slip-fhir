@@ -3,9 +3,15 @@
 package fhir_test
 
 import (
+	"sort"
+	"strings"
 	"testing"
 
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/ojg/tt"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip-fhir/fhir"
 	"github.com/ohler55/slip/sliptest"
 )
 
@@ -146,4 +152,103 @@ func TestPropertyValidPfalse(t *testing.T) {
 		Source:    `(property-valid-p (type-property 'patient "name") (make-instance 'vanilla-flavor))`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
+}
+
+func TestPropertyBadMethods(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(send (type-property 'patient "gender") :init)`,
+		PanicType: slip.InvalidMethodErrorSymbol,
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (type-property 'patient "gender") :quux)`,
+		PanicType: slip.InvalidMethodErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyString(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	p := rt.FindProperty("low")
+	tt.NotNil(t, p)
+	tt.Equal(t, "/#<fhir:property low [0-9a-f]+>/", p.String())
+}
+
+func TestPropertySimplify(t *testing.T) {
+	pt, ok := slip.FindClass("Patient").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	p := pt.FindProperty("deceased[x]")
+	tt.NotNil(t, p)
+	names := jp.C("group").W().C("name").Get(p.Simplify())
+	sort.Slice(names, func(i, j int) bool { return names[i].(string) < names[j].(string) })
+	tt.Equal(t, "[_deceasedBoolean _deceasedDateTime deceasedBoolean deceasedDateTime]", pretty.SEN(names))
+}
+
+func TestPropertyMisc(t *testing.T) {
+	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	tt.Equal(t, true, ok)
+	p := rt.FindProperty("low")
+	tt.NotNil(t, p)
+
+	tt.Equal(t, true, p.Equal(p))
+	tt.Equal(t, p, p.Eval(nil, 0))
+	tt.Equal(t, "[property t]", pretty.SEN(p.Hierarchy()))
+}
+
+func TestPropertyDescribeAnsi(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(describe (type-property 'patient 'gender) out)`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/, an instance of .*fhir:Property/", desc)
+	tt.Equal(t, "/the gender that the patient is considered to have/", desc)
+	tt.Equal(t, "/Type: code/", desc)
+	tt.Equal(t, "/Cardinality: 0..1/", desc)
+	tt.Equal(t, "/Enum: male female other unknown/", desc)
+}
+
+func TestPropertyDescribePlain(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(let ((*print-ansi* nil)) (describe (type-property 'patient "deceased[x]") out))`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/, an instance of .*fhir:Property/", desc)
+	tt.Equal(t, "/Group:/", desc)
+	tt.Equal(t, "/deceasedBoolean/", desc)
+	tt.Equal(t, "/deceasedDateTime/", desc)
+}
+
+func TestPropertyDescribeCardinalityArray(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(describe (type-property 'patient 'name) out)`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, `/Cardinality: 0\.\.\*/`, desc)
+}
+
+func TestPropertyDescribeRequired(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(describe (type-property 'patient_link 'other) out)`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, `/Cardinality: 1\.\.1/`, desc)
 }

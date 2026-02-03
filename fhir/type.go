@@ -590,14 +590,16 @@ func (t *Type) propList() (props slip.List) {
 	return
 }
 
-func (t *Type) findProp(name string) *Prop {
+// FindPropery returns the property with the given name is one exists
+// otherwise nil is returned.
+func (t *Type) FindProperty(name string) *Prop {
 	for _, p := range t.props {
 		if name == p.name {
 			return p
 		}
 	}
 	if it, ok := t.inherit.(*Type); ok {
-		if p := it.findProp(name); p != nil {
+		if p := it.FindProperty(name); p != nil {
 			return p
 		}
 	}

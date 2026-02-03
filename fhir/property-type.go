@@ -11,8 +11,19 @@ var propTypeMethod = slip.Method{
 	Doc: &slip.FuncDoc{
 		Name:   ":type",
 		Args:   []*slip.DocArg{},
-		Return: "list",
+		Return: "fhir:type",
 		Text:   `__:type__ returns the property type.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyType{}}},
+}
+
+var propClassMethod = slip.Method{
+	Name: ":class",
+	Doc: &slip.FuncDoc{
+		Name:   ":class",
+		Args:   []*slip.DocArg{},
+		Return: "fhir:type",
+		Text:   `__:class__ returns the property type.`,
 	},
 	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyType{}}},
 }

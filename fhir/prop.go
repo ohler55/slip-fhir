@@ -21,6 +21,7 @@ var propMethods = map[string]*slip.Method{
 	propEnumMethod.Name:        &propEnumMethod,
 	propGroupMethod.Name:       &propGroupMethod,
 	propTypeMethod.Name:        &propTypeMethod,
+	propClassMethod.Name:       &propClassMethod,
 	propValidPMethod.Name:      &propValidPMethod,
 }
 
@@ -118,11 +119,10 @@ func (p *Prop) Receive(s *slip.Scope, message string, args slip.List, depth int)
 		slip.InvalidMethodPanic(s, depth,
 			p, nil, slip.Symbol(message), "Property does not include the %s method.", message)
 	}
-	if method.Combinations[0].Primary == nil {
-		slip.InvalidMethodPanic(s, depth,
-			p, nil, slip.Symbol(message), "Can not evaluate the Property %s method.", message)
+	if method.Combinations[0].Primary != nil {
+		result = method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
 	}
-	return method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
+	return
 }
 
 // Describe the instance in detail.
@@ -199,7 +199,7 @@ func (p *Prop) init(t *Type) {
 	}
 	pt := Pkg.FindClass(p.typeName)
 	if pt == nil {
-		panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
+		panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined type of %s",
 			t.name, p.name, p.typeName))
 	}
 	p.ftype = pt.(Validator)

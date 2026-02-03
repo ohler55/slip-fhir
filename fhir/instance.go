@@ -177,7 +177,7 @@ func (inst *Instance) MethodNames() slip.List {
 // Receive a method invocation from the send function. Not intended to be
 // called by any code other than the send function but is public to allow it
 // to be over-ridden.
-func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) slip.Object {
 	method := typeMethods[strings.ToLower(message)]
 	if method == nil {
 		slip.InvalidMethodPanic(s, depth,

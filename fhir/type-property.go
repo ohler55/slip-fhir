@@ -45,7 +45,7 @@ func (f *TypeProperty) Call(s *slip.Scope, args slip.List, depth int) (prop slip
 top:
 	switch to := obj.(type) {
 	case *Type:
-		if p := to.findProp(slip.MustBeString(args[1], "name")); p != nil {
+		if p := to.FindProperty(slip.MustBeString(args[1], "name")); p != nil {
 			prop = p
 		}
 	case slip.Symbol:
