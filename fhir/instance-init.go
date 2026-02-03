@@ -19,7 +19,7 @@ var (
 					Text: "The initial data for and instance.",
 				},
 				{
-					Name: "no-error",
+					Name: "on-error",
 					Type: "function",
 					Text: "The function to call on validation errors.",
 				},
@@ -33,12 +33,8 @@ var (
 			Text: `__:init__ is called after an instance is created with __make-instance__.
 It can not be called directly.`,
 		},
-		Combinations: []*slip.Combination{{From: &blankType, After: &instanceInitCaller{}}},
+		// This method is never called so any caller is fine for the After
+		// combination is fine. The method exists for documentation only.
+		Combinations: []*slip.Combination{{From: &blankType, After: &instanceTypeCaller{}}},
 	}
 )
-
-type instanceInitCaller struct{}
-
-func (caller instanceInitCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	return nil
-}

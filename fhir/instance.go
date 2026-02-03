@@ -75,9 +75,11 @@ func (inst *Instance) SlotNames() (names []string) {
 // SlotValue return the value of an instance variable.
 func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
 	var v any
+	inst.Lock()
 	if v, has = jp.C(string(sym)).FirstFound(inst.data); has {
 		value = slip.SimpleObject(v)
 	}
+	inst.Unlock()
 	return
 }
 
@@ -240,10 +242,12 @@ func (inst *Instance) Class() slip.Class {
 
 // Dup returns a duplicate of the instance.
 func (inst *Instance) Dup() slip.Instance {
+	inst.Lock()
 	dup := Instance{
 		class: inst.class,
 		data:  alt.Dup(inst.data).(map[string]any),
 	}
+	inst.Unlock()
 	if _, ok := inst.locker.(*sync.Mutex); ok {
 		dup.locker = &sync.Mutex{}
 	} else {

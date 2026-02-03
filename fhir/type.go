@@ -33,7 +33,7 @@ var typeMethods = map[string]*slip.Method{
 	instanceGetMethod.Name:               &instanceGetMethod,
 	instanceSetMethod.Name:               &instanceSetMethod,
 	instanceReplaceMethod.Name:           &instanceReplaceMethod,
-	instanceValidateMethod.Name:          &instanceValidateMethod,
+	instanceValidPMethod.Name:            &instanceValidPMethod,
 }
 
 // Type is the meta class for FHIR types.

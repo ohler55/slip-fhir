@@ -332,7 +332,7 @@ func TestTypeMethods(t *testing.T) {
   ":replace"
   ":set"
   ":type"
-  ":validate"
+  ":valid-p"
   ":which-operations"
 ]`, pretty.SEN(names))
 }
