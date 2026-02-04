@@ -192,6 +192,40 @@ func TestPropertyMisc(t *testing.T) {
 	tt.Equal(t, true, p.Equal(p))
 	tt.Equal(t, p, p.Eval(nil, 0))
 	tt.Equal(t, "[property t]", pretty.SEN(p.Hierarchy()))
+
+	tt.Equal(t, `[
+  ":cardinality"
+  ":class"
+  ":describe"
+  ":enum"
+  ":equal"
+  ":group"
+  ":id"
+  ":name"
+  ":operation-handled-p"
+  ":print-self"
+  ":type"
+  ":valid-p"
+  ":which-operations"
+]`, pretty.SEN(p.MethodNames()))
+
+	tt.Equal(t, "low", p.Name())
+	tt.Equal(t, "[]", pretty.SEN(p.VarNames()))
+	tt.Equal(t, "[]", pretty.SEN(p.InheritsList()))
+	tt.Equal(t, "property", string(p.Metaclass()))
+	tt.Nil(t, p.LoadForm())
+	tt.Panic(t, func() { _ = p.MakeInstance() })
+	tt.Equal(t, `{
+  combinations: [{from: Type primary: true}]
+  name: ":enum"
+}`, pretty.SEN(p.GetMethod(":enum")))
+	tt.Equal(t, 13, len(p.Methods()))
+
+	docs := p.Documentation()
+	defer p.SetDocumentation(docs)
+	tt.Equal(t, "The low limit. The boundary is inclusive.", p.Documentation())
+	p.SetDocumentation("testing")
+	tt.Equal(t, "testing", p.Documentation())
 }
 
 func TestPropertyDescribeAnsi(t *testing.T) {
@@ -251,4 +285,29 @@ func TestPropertyDescribeRequired(t *testing.T) {
 	}).Test(t)
 	desc := out.String()
 	tt.Equal(t, `/Cardinality: 1\.\.1/`, desc)
+}
+
+func TestPropertyDescribeSelf(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(describe 'fhir:property out)`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/ is the FHIR property meta-class/", desc)
+	tt.Equal(t, "/The meta-class for all FHIR properties./", desc)
+	tt.Equal(t, "/Methods:/", desc)
+	tt.Equal(t, "/:cardinality/", desc)
+
+	out.Reset()
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(let ((*print-ansi* nil)) (describe 'fhir:property out))`,
+		Expect: "",
+	}).Test(t)
+	desc = out.String()
+	tt.Equal(t, "/fhir:Property is the FHIR property meta-class/", desc)
 }

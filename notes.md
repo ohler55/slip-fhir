@@ -13,11 +13,13 @@
   - read, etc
  - design.md update
 
+- should Prop be renamed to Property?
+
 - load-fhir or build-fhir or ???
  - load a defs file
   - use for testing
   - option for new package
-
+  - if type already exists in the same package then fail and unintern all already loaded
 
 
 - enum

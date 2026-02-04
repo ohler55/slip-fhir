@@ -167,6 +167,11 @@ func (p *Prop) VarNames() (names []string) {
 	return
 }
 
+// MethodNames returns a sorted list of the methods of the instance.
+func (p *Prop) MethodNames() slip.List {
+	return propMethodNames()
+}
+
 // LoadForm returns a list that can be evaluated to create the class or nil if
 // the class is a built in class.
 func (p *Prop) LoadForm() slip.Object {
@@ -274,7 +279,7 @@ func (p *Prop) describeSelf(b []byte, indent, right int, ansi bool) []byte {
 	} else {
 		b = append(b, "fhir:Property"...)
 	}
-	b = append(b, " is the FHIR preperty meta-class\n"...)
+	b = append(b, " is the FHIR property meta-class\n"...)
 	i2 := indent + 2
 	i3 := indent + 4
 	b = append(b, indentSpaces[:i2]...)
