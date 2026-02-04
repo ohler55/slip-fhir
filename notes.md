@@ -6,18 +6,7 @@
 
 - plan
  - unit tests
-  - property validate
- - PropertyClass
- - does there need to be a property-class?
-  - how to get describe-method to work without a class?
- - add vanilla methods to prop
-  - propIDMethod
-  - propClassMethod
-  - propDescribeMethod
-  - propPrintSelfMethod
-  - propWhichOperationsMethod
-  - propOperationHandledPMethod
-  - propEqualMethod
+  - property
 
  - use xml schema instead
  - client

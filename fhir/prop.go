@@ -15,14 +15,25 @@ import (
 	"github.com/ohler55/slip"
 )
 
+const (
+	// PropertySymbol is the symbol with a value of "fhir-property".
+	PropertySymbol = slip.Symbol("property")
+)
+
 var propMethods = map[string]*slip.Method{
-	propNameMethod.Name:        &propNameMethod,
-	propCardinalityMethod.Name: &propCardinalityMethod,
-	propEnumMethod.Name:        &propEnumMethod,
-	propGroupMethod.Name:       &propGroupMethod,
-	propTypeMethod.Name:        &propTypeMethod,
-	propClassMethod.Name:       &propClassMethod,
-	propValidPMethod.Name:      &propValidPMethod,
+	propCardinalityMethod.Name:       &propCardinalityMethod,
+	propClassMethod.Name:             &propClassMethod,
+	propDescribeMethod.Name:          &propDescribeMethod,
+	propEnumMethod.Name:              &propEnumMethod,
+	propEqualMethod.Name:             &propEqualMethod,
+	propGroupMethod.Name:             &propGroupMethod,
+	propIDMethod.Name:                &propIDMethod,
+	propNameMethod.Name:              &propNameMethod,
+	propOperationHandledPMethod.Name: &propOperationHandledPMethod,
+	propPrintSelfMethod.Name:         &propPrintSelfMethod,
+	propTypeMethod.Name:              &propTypeMethod,
+	propValidPMethod.Name:            &propValidPMethod,
+	propWhichOperationsMethod.Name:   &propWhichOperationsMethod,
 }
 
 // Prop contains information about the properties of a type.
@@ -35,6 +46,7 @@ type Prop struct {
 	group    []*Prop
 	required bool
 	array    bool
+	pkg      *slip.Package
 }
 
 // NewProp creates a new Prop from a simple map (JSON).
@@ -110,6 +122,57 @@ func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
 	return p
 }
 
+// Name of the class.
+func (p *Prop) Name() string {
+	return p.name
+}
+
+// Pkg returns the package the flavor was defined in.
+func (p *Prop) Pkg() *slip.Package {
+	return p.pkg
+}
+
+// Documentation of the class.
+func (p *Prop) Documentation() string {
+	return p.docs
+}
+
+// SetDocumentation of the class.
+func (p *Prop) SetDocumentation(doc string) {
+	p.docs = doc
+}
+
+// MakeInstance creates a new instance but does not call the :init method.
+func (p *Prop) MakeInstance() slip.Instance {
+	panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", p))
+}
+
+// Inherits returns true if this Class inherits from a specified Class.
+func (p *Prop) Inherits(sc slip.Class) bool {
+	return false
+}
+
+// InheritsList returns a list of all inherited classes.
+func (p *Prop) InheritsList() (supers []slip.Class) {
+	return
+}
+
+// Metaclass returns the symbol built-in-class.
+func (p *Prop) Metaclass() slip.Symbol {
+	return PropertySymbol
+}
+
+// VarNames for DefMethod, requiredVars and defaultVars combined.
+func (p *Prop) VarNames() (names []string) {
+	return
+}
+
+// LoadForm returns a list that can be evaluated to create the class or nil if
+// the class is a built in class.
+func (p *Prop) LoadForm() slip.Object {
+	return nil
+}
+
 // Receive a method invocation from the send function. Not intended to be
 // called by any code other than the send function but is public to allow it
 // to be over-ridden.
@@ -125,8 +188,21 @@ func (p *Prop) Receive(s *slip.Scope, message string, args slip.List, depth int)
 	return
 }
 
+// GetMethod returns the method if it exists.
+func (p *Prop) GetMethod(name string) *slip.Method {
+	return propMethods[strings.ToLower(name)]
+}
+
+// Methods returns a map of the methods.
+func (p *Prop) Methods() map[string]*slip.Method {
+	return propMethods
+}
+
 // Describe the instance in detail.
 func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
+	if strings.EqualFold(p.name, "Property") {
+		return p.describeSelf(b, indent, right, ansi)
+	}
 	b = append(b, indentSpaces[:indent]...)
 	if ansi {
 		b = append(b, bold...)
@@ -189,7 +265,34 @@ func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
 	return b
 }
 
+func (p *Prop) describeSelf(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Property"...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Property"...)
+	}
+	b = append(b, " is the FHIR preperty meta-class\n"...)
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, p.docs, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Methods:\n"...)
+	for _, name := range propMethodNames() {
+		b = append(b, indentSpaces[:i3]...)
+		b = append(b, string(name.(slip.Symbol))...)
+		b = append(b, '\n')
+	}
+	return b
+}
+
 func (p *Prop) init(t *Type) {
+	p.pkg = t.pkg
 	if 0 < len(p.group) {
 		for _, gp := range p.group {
 			gp.init(t)
@@ -333,4 +436,17 @@ func sortProps(props []*Prop) {
 		}
 		return ni < nj
 	})
+}
+
+func propMethodNames() slip.List {
+	names := make([]string, 0, len(propMethods))
+	for k := range propMethods {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	methods := make(slip.List, len(names))
+	for i, name := range names {
+		methods[i] = slip.Symbol(name)
+	}
+	return methods
 }

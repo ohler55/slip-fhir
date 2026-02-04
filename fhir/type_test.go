@@ -431,7 +431,7 @@ func TestTypeHierachy(t *testing.T) {
 func TestTypeMetaclass(t *testing.T) {
 	pt, ok := slip.FindClass("integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
-	tt.Equal(t, slip.Symbol("fhir-type"), pt.Metaclass())
+	tt.Equal(t, slip.Symbol("type"), pt.Metaclass())
 }
 
 func TestTypeInherits(t *testing.T) {

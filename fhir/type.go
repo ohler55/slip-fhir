@@ -16,24 +16,24 @@ import (
 
 const (
 	// TypeSymbol is the symbol with a value of "fhir-type".
-	TypeSymbol = slip.Symbol("fhir-type")
+	TypeSymbol = slip.Symbol("type")
 )
 
 var typeMethods = map[string]*slip.Method{
-	instanceInitMethod.Name:              &instanceInitMethod,
-	instanceIDMethod.Name:                &instanceIDMethod,
-	instanceTypeMethod.Name:              &instanceTypeMethod,
 	instanceClassMethod.Name:             &instanceClassMethod,
-	instanceDescribeMethod.Name:          &instanceDescribeMethod,
-	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
 	instanceDataMethod.Name:              &instanceDataMethod,
-	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
-	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instanceDescribeMethod.Name:          &instanceDescribeMethod,
 	instanceEqualMethod.Name:             &instanceEqualMethod,
 	instanceGetMethod.Name:               &instanceGetMethod,
-	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceIDMethod.Name:                &instanceIDMethod,
+	instanceInitMethod.Name:              &instanceInitMethod,
+	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
 	instanceReplaceMethod.Name:           &instanceReplaceMethod,
+	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceTypeMethod.Name:              &instanceTypeMethod,
 	instanceValidPMethod.Name:            &instanceValidPMethod,
+	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
 }
 
 // Type is the meta class for FHIR types.
@@ -179,7 +179,7 @@ func (t *Type) VarNames() (names []string) {
 	for _, p := range t.props {
 		names = append(names, p.name)
 	}
-	return names
+	return
 }
 
 // GetMethod returns the method if it exists.
