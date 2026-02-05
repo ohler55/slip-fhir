@@ -18,7 +18,7 @@
 - load-fhir or build-fhir or ???
  - load a defs file
   - use for testing
-  - option for new package
+  - option for new package (maybe required?)
   - if type already exists in the same package then fail and unintern all already loaded
 
 

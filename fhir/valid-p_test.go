@@ -5,6 +5,7 @@ package fhir_test
 import (
 	"testing"
 
+	"github.com/ohler55/ojg/tt"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/sliptest"
 )
@@ -98,5 +99,53 @@ func TestValidPNotBag(t *testing.T) {
 	(&sliptest.Function{
 		Source:    `(valid-p (make-instance 'vanilla-flavor))`,
 		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestValidPgroup(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(valid-p (make-instance 'patient :data (make-bag "{resourceType:Patient deceasedBoolean:false}")))`,
+		Expect: "t",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (valid-p (make-bag "{resourceType:Patient deceasedBoolean:quux}")
+                            :type 'patient
+                            :on-error (lambda (p v m) (format s "~A ~A, ~A" p v m))))`,
+		Expect: `"#<bag-path $['deceased[x]'].deceasedBoolean> quux, a string is not a valid type for a boolean"`,
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (valid-p (make-bag "{resourceType:Patient deceasedBoolean:true deceasedDateTime:'2026-02-04'}")
+                            :type 'patient
+                            :on-error (lambda (p v m) (format s "~A ~A, ~A" p v m) t)))`,
+		Validate: func(t *testing.T, v slip.Object) {
+			msg := string(v.(slip.String))
+			tt.Equal(t, `/deceasedBoolean/`, msg)
+			tt.Equal(t, `/deceasedDateTime/`, msg)
+			tt.Equal(t, `/Only one deceased\[x\] property allowed. Both deceasedBoolean and deceasedDateTime present/`,
+				msg)
+		},
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(valid-p (make-bag "{resourceType:Patient
+                                      deceasedBoolean:false
+                                      _deceasedBoolean:{url:something}}") :type 'patient)`,
+		Expect: "t",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(valid-p (make-bag "{resourceType:Patient
+                                      deceasedBoolean:false
+                                      _deceasedBoolean:{url:7}}")
+                          :type 'patient
+                          :on-error (lambda (p v m) t))`,
+		Expect: "nil",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(valid-p (make-bag "{resourceType:Patient
+                                      deceasedBoolean:7}")
+                          :type 'patient
+                          :on-error (lambda (p v m) t))`,
+		Expect: "nil",
 	}).Test(t)
 }

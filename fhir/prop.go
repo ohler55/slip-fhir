@@ -322,7 +322,7 @@ func (p *Prop) validateValue(value any, onErr OnErrorFunc) bool {
 	return p.validate(jp.A(), data, onErr)
 }
 
-// data is the map the property is or may be contained in.
+// data is the map the property is in or may be contained in.
 func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
 	if 0 < len(p.group) {
 		return p.validateGroup(path, data, onErr)

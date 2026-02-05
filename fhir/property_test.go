@@ -134,6 +134,10 @@ func TestPropertyValidPfalse(t *testing.T) {
 		Expect: "nil",
 	}).Test(t)
 	(&sliptest.Function{
+		Source: `(property-valid-p (type-property 'patient "name") (make-bag "{given:bad}"))`,
+		Expect: "nil",
+	}).Test(t)
+	(&sliptest.Function{
 		Source:    `(property-valid-p t "quux")`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
@@ -147,10 +151,27 @@ func TestPropertyValidPfalse(t *testing.T) {
                    errors)`,
 		Expect: `((#<bag-path @.name[0].quux> nil "quux is not a property of HumanName"))`,
 	}).Test(t)
+}
 
+func TestPropertyValidPpanic(t *testing.T) {
 	(&sliptest.Function{
 		Source:    `(property-valid-p (type-property 'patient "name") (make-instance 'vanilla-flavor))`,
 		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(property-valid-p (type-property 'patient "deceased[x]") 5)`,
+		PanicType: slip.ErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyValidPrequired(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(property-valid-p (type-property 'patient "link") (make-bag "[{other:{reference:other}}]"))`,
+		Expect: "t",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(property-valid-p (type-property 'patient "link") (make-bag "[{type:seealso}]"))`,
+		Expect: "nil",
 	}).Test(t)
 }
 
@@ -310,4 +331,96 @@ func TestPropertyDescribeSelf(t *testing.T) {
 	}).Test(t)
 	desc = out.String()
 	tt.Equal(t, "/fhir:Property is the FHIR property meta-class/", desc)
+}
+
+func TestPropertyIDMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(send (type-property 'patient 'gender) :id)`,
+		Expect: "/[0-9]+/",
+	}).Test(t)
+}
+
+func TestPropertyEqualMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(send (type-property 'patient 'gender) :equal t)`,
+		Expect: "nil",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(send (type-property 'patient 'gender) :equal (type-property 'patient 'gender))`,
+		Expect: "t",
+	}).Test(t)
+}
+
+func TestPropertyPrintSelfMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (send (type-property 'patient 'gender) :print-self s))`,
+		Expect: "/#<fhir:property gender [0-9a-f]+>/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (type-property 'patient 'gender) :print-self 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyPrintSelfBadWrite(t *testing.T) {
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
+	(&sliptest.Function{
+		Scope:     scope,
+		Source:    `(send (type-property 'patient 'gender) :print-self out)`,
+		PanicType: slip.StreamErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyWhichOperationsMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(sort (send (type-property 'patient 'gender) :which-operations))`,
+		Expect: `(:cardinality :class :describe :enum :equal :group :id :name
+              :operation-handled-p :print-self :type :valid-p
+              :which-operations)`,
+	}).Test(t)
+}
+
+func TestPropertyOperationHandledPMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(send (type-property 'patient 'gender) :operation-handled-p :id)`,
+		Expect: "t",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(send (type-property 'patient 'gender) :operation-handled-p :quux)`,
+		Expect: "nil",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (type-property 'patient 'gender) :operation-handled-p 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyDescribeMethod(t *testing.T) {
+	(&sliptest.Function{
+		Source: `(with-output-to-string (s)
+                   (send (type-property 'patient 'gender) :describe s))`,
+		Expect: "/an instance of .+fhir:Property/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source: `(let ((*print-ansi* nil))
+                   (with-output-to-string (s)
+                     (send (type-property 'patient 'gender) :describe s)))`,
+		Expect: "/an instance of fhir:Property/",
+	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(send (type-property 'patient 'gender) :describe 7)`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
+}
+
+func TestPropertyDescribeBadWrite(t *testing.T) {
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
+	(&sliptest.Function{
+		Scope:     scope,
+		Source:    `(send (type-property 'patient 'gender) :describe out)`,
+		PanicType: slip.StreamErrorSymbol,
+	}).Test(t)
 }
