@@ -1,12 +1,28 @@
 ;;;;
 
 
-(defun properties-from-seq (seq)
+(defun property-from-element (elem)
   "Form a properties list from all the seq of elements or attributes."
-  (format t "*** seq: ~A~%~%" seq)
+  (let* ((px (cadr elem))
+         (type (cdr (assoc "type" px)))
+         (mn (cdr (assoc "minOccurs" px)))
+         (mx (cdr (assoc "maxOccurs" px)))
+         (docs (cddr (caddr elem)))
+         (prop (make-bag "{}")))
+    (format t "*** property: ~A..~A~%" mn mx )
 
-  ;; TBD need name, type, cardinality (minOccurs, maxOccurs, use), choices (enum), docs, group
-  )
+    (bag-set prop (cdr (assoc "name" px)) "name")
+    ;; TBD correct type (id is and is-primitive not a string, also remove the -primitive suffix
+    (bag-set prop type "type")
+    (when docs (bag-set prop (join "\n\n" (mapcar (lambda (doc) (caddr doc)) docs)) "description"))
+    (when (and (integerp mn) (/= 0 mn)) (bag-set prop t "required"))
+    (when (equal (cdr (assoc "maxOccurs" px)) "unbounded") (bag-set prop t "array"))
+    (when (equal "required" (cdr (assoc "use" px)))
+      (bag-set prop t "required"))
+
+    ;; TBD need name, type, cardinality (minOccurs, maxOccurs, use), choices (enum), docs, group
+    (format t "*** property: ~A~%" (send prop :write nil))
+    prop))
 
 ;;; The FHIR heirarchy is defined as:
 ;;; Base
@@ -32,22 +48,13 @@
     (bag-set hb name "name")
     (bag-set hb super "parent")
 
-    (when seq
-      (setq properties (append properties (properties-from-seq seq))))
+    (dolist (elem seq)
+      (setq properties (add properties (property-from-element elem))))
     (when attr
-      ;; TBD extract properties from seq elements and add to properties list
-      )
+      (format t "*** attr: ~A~%~%" attr)
+      (setq properties (add properties (property-from-element attr))))
 
-    ;; (when (setq val (bag-get def "description"))
-    ;;   (send hb :set (replace-all val "\r" "\n") "description"))
-    ;; (if (equal "Element" name)
-    ;;     (add-properties hb def nil)
-    ;;     (add-properties hb def '("id" "extension")))
-    ;; (send hb :set (case name
-    ;;                 ("Base" nil)
-    ;;                 ("Element" "Base")
-    ;;                 ("DataType" "Element")
-    ;;                 ("BackboneType" "DataType")) "parent")
+    (when properties (bag-set hb properties "properties"))
     hb))
 
 (defun find-named (schema name)
