@@ -1,8 +1,9 @@
 ;;;;
 
 
-(defun form-property-from-element (seq)
+(defun properties-from-seq (seq)
   "Form a properties list from all the seq of elements or attributes."
+  (format t "*** seq: ~A~%~%" seq)
 
   ;; TBD need name, type, cardinality (minOccurs, maxOccurs, use), choices (enum), docs, group
   )
@@ -31,10 +32,8 @@
     (bag-set hb name "name")
     (bag-set hb super "parent")
 
-    (format t "*** seq: ~A~%*** attr: ~A~%" seq attr)
     (when seq
-      ;; TBD extract properties from seq elements and add to properties list
-      )
+      (setq properties (append properties (properties-from-seq seq))))
     (when attr
       ;; TBD extract properties from seq elements and add to properties list
       )
