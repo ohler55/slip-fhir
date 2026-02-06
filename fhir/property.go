@@ -15,30 +15,43 @@ import (
 	"github.com/ohler55/slip"
 )
 
+const (
+	// PropertySymbol is the symbol with a value of "fhir-property".
+	PropertySymbol = slip.Symbol("property")
+)
+
 var propMethods = map[string]*slip.Method{
-	propNameMethod.Name:        &propNameMethod,
-	propCardinalityMethod.Name: &propCardinalityMethod,
-	propEnumMethod.Name:        &propEnumMethod,
-	propGroupMethod.Name:       &propGroupMethod,
-	propTypeMethod.Name:        &propTypeMethod,
-	propValidPMethod.Name:      &propValidPMethod,
+	propCardinalityMethod.Name:       &propCardinalityMethod,
+	propClassMethod.Name:             &propClassMethod,
+	propDescribeMethod.Name:          &propDescribeMethod,
+	propEnumMethod.Name:              &propEnumMethod,
+	propEqualMethod.Name:             &propEqualMethod,
+	propGroupMethod.Name:             &propGroupMethod,
+	propIDMethod.Name:                &propIDMethod,
+	propNameMethod.Name:              &propNameMethod,
+	propOperationHandledPMethod.Name: &propOperationHandledPMethod,
+	propPrintSelfMethod.Name:         &propPrintSelfMethod,
+	propTypeMethod.Name:              &propTypeMethod,
+	propValidPMethod.Name:            &propValidPMethod,
+	propWhichOperationsMethod.Name:   &propWhichOperationsMethod,
 }
 
-// Prop contains information about the properties of a type.
-type Prop struct {
+// Property contains information about the properties of a type.
+type Property struct {
 	name     string
 	docs     string
 	typeName string
 	ftype    Validator
 	enum     []string
-	group    []*Prop
+	group    []*Property
 	required bool
 	array    bool
+	pkg      *slip.Package
 }
 
 // NewProp creates a new Prop from a simple map (JSON).
-func NewProp(simple any) *Prop {
-	p := Prop{
+func NewProp(simple any) *Property {
+	p := Property{
 		name:     alt.String(jp.C("name").First(simple)),
 		docs:     alt.String(jp.C("description").First(simple)),
 		typeName: alt.String(jp.C("type").First(simple)),
@@ -55,12 +68,12 @@ func NewProp(simple any) *Prop {
 }
 
 // String representation of the Object.
-func (p *Prop) String() string {
+func (p *Property) String() string {
 	return string(p.Append([]byte{}))
 }
 
 // Append a buffer with a representation of the Object.
-func (p *Prop) Append(b []byte) []byte {
+func (p *Property) Append(b []byte) []byte {
 	b = append(b, "#<fhir:property "...)
 	b = append(b, p.name...)
 	b = append(b, ' ')
@@ -69,13 +82,13 @@ func (p *Prop) Append(b []byte) []byte {
 }
 
 // ID returns unique ID for the instance.
-func (p *Prop) ID() uint64 {
+func (p *Property) ID() uint64 {
 	return uint64(uintptr(unsafe.Pointer(p)))
 }
 
 // Simplify the Object into simple go types of nil, bool, int64, float64,
 // string, []any, map[string]any, or time.Time.
-func (p *Prop) Simplify() any {
+func (p *Property) Simplify() any {
 	simple := map[string]any{
 		"name":        p.name,
 		"description": p.docs,
@@ -95,38 +108,106 @@ func (p *Prop) Simplify() any {
 }
 
 // Equal returns true if this Object and the other are equal in value.
-func (p *Prop) Equal(other slip.Object) bool {
+func (p *Property) Equal(other slip.Object) bool {
 	return p == other
 }
 
 // Hierarchy returns the class hierarchy as symbols for the instance.
-func (p *Prop) Hierarchy() []slip.Symbol {
+func (p *Property) Hierarchy() []slip.Symbol {
 	return []slip.Symbol{slip.Symbol("property"), slip.TrueSymbol}
 }
 
 // Eval returns self.
-func (p *Prop) Eval(s *slip.Scope, depth int) slip.Object {
+func (p *Property) Eval(s *slip.Scope, depth int) slip.Object {
 	return p
+}
+
+// Name of the class.
+func (p *Property) Name() string {
+	return p.name
+}
+
+// Pkg returns the package the flavor was defined in.
+func (p *Property) Pkg() *slip.Package {
+	return p.pkg
+}
+
+// Documentation of the class.
+func (p *Property) Documentation() string {
+	return p.docs
+}
+
+// SetDocumentation of the class.
+func (p *Property) SetDocumentation(doc string) {
+	p.docs = doc
+}
+
+// MakeInstance creates a new instance but does not call the :init method.
+func (p *Property) MakeInstance() slip.Instance {
+	panic(slip.ErrorNew(slip.NewScope(), 0, "Can not allocate an instance of %s.", p))
+}
+
+// Inherits returns true if this Class inherits from a specified Class.
+func (p *Property) Inherits(sc slip.Class) bool {
+	return false
+}
+
+// InheritsList returns a list of all inherited classes.
+func (p *Property) InheritsList() (supers []slip.Class) {
+	return
+}
+
+// Metaclass returns the symbol built-in-class.
+func (p *Property) Metaclass() slip.Symbol {
+	return PropertySymbol
+}
+
+// VarNames for DefMethod, requiredVars and defaultVars combined.
+func (p *Property) VarNames() (names []string) {
+	return
+}
+
+// MethodNames returns a sorted list of the methods of the instance.
+func (p *Property) MethodNames() slip.List {
+	return propMethodNames()
+}
+
+// LoadForm returns a list that can be evaluated to create the class or nil if
+// the class is a built in class.
+func (p *Property) LoadForm() slip.Object {
+	return nil
 }
 
 // Receive a method invocation from the send function. Not intended to be
 // called by any code other than the send function but is public to allow it
 // to be over-ridden.
-func (p *Prop) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+func (p *Property) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
 	method := propMethods[strings.ToLower(message)]
 	if method == nil {
 		slip.InvalidMethodPanic(s, depth,
 			p, nil, slip.Symbol(message), "Property does not include the %s method.", message)
 	}
-	if method.Combinations[0].Primary == nil {
-		slip.InvalidMethodPanic(s, depth,
-			p, nil, slip.Symbol(message), "Can not evaluate the Property %s method.", message)
+	if method.Combinations[0].Primary != nil {
+		result = method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
 	}
-	return method.Combinations[0].Primary.Call(s, append(slip.List{p}, args...), depth)
+	return
+}
+
+// GetMethod returns the method if it exists.
+func (p *Property) GetMethod(name string) *slip.Method {
+	return propMethods[strings.ToLower(name)]
+}
+
+// Methods returns a map of the methods.
+func (p *Property) Methods() map[string]*slip.Method {
+	return propMethods
 }
 
 // Describe the instance in detail.
-func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
+func (p *Property) Describe(b []byte, indent, right int, ansi bool) []byte {
+	if strings.EqualFold(p.name, "Property") {
+		return p.describeSelf(b, indent, right, ansi)
+	}
 	b = append(b, indentSpaces[:indent]...)
 	if ansi {
 		b = append(b, bold...)
@@ -189,7 +270,34 @@ func (p *Prop) Describe(b []byte, indent, right int, ansi bool) []byte {
 	return b
 }
 
-func (p *Prop) init(t *Type) {
+func (p *Property) describeSelf(b []byte, indent, right int, ansi bool) []byte {
+	b = append(b, indentSpaces[:indent]...)
+	if ansi {
+		b = append(b, bold...)
+		b = append(b, "fhir:Property"...)
+		b = append(b, colorOff...)
+	} else {
+		b = append(b, "fhir:Property"...)
+	}
+	b = append(b, " is the FHIR property meta-class\n"...)
+	i2 := indent + 2
+	i3 := indent + 4
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Documentation:\n"...)
+	b = slip.AppendDoc(b, p.docs, i3, right, ansi)
+	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Methods:\n"...)
+	for _, name := range propMethodNames() {
+		b = append(b, indentSpaces[:i3]...)
+		b = append(b, string(name.(slip.Symbol))...)
+		b = append(b, '\n')
+	}
+	return b
+}
+
+func (p *Property) init(t *Type) {
+	p.pkg = t.pkg
 	if 0 < len(p.group) {
 		for _, gp := range p.group {
 			gp.init(t)
@@ -199,13 +307,13 @@ func (p *Prop) init(t *Type) {
 	}
 	pt := Pkg.FindClass(p.typeName)
 	if pt == nil {
-		panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined parent of %s",
+		panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined type of %s",
 			t.name, p.name, p.typeName))
 	}
 	p.ftype = pt.(Validator)
 }
 
-func (p *Prop) validateValue(value any, onErr OnErrorFunc) bool {
+func (p *Property) validateValue(value any, onErr OnErrorFunc) bool {
 	if 0 < len(p.group) {
 		panic("Can only validate a value with a non-group property.")
 	}
@@ -214,8 +322,8 @@ func (p *Prop) validateValue(value any, onErr OnErrorFunc) bool {
 	return p.validate(jp.A(), data, onErr)
 }
 
-// data is the map the property is or may be contained in.
-func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+// data is the map the property is in or may be contained in.
+func (p *Property) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
 	if 0 < len(p.group) {
 		return p.validateGroup(path, data, onErr)
 	}
@@ -261,10 +369,10 @@ func (p *Prop) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc) bo
 	return false
 }
 
-func (p *Prop) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
+func (p *Property) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFunc) bool {
 	var (
 		foundData any
-		foundProp *Prop
+		foundProp *Property
 	)
 	ppath := append(path, jp.Child(p.name))
 	gpath := append(ppath, jp.Child(""))
@@ -302,7 +410,7 @@ func (p *Prop) validateGroup(path jp.Expr, data map[string]any, onErr OnErrorFun
 	return false
 }
 
-func (p *Prop) groupFind(name string) (gprop *Prop) {
+func (p *Property) groupFind(name string) (gprop *Property) {
 	for _, gp := range p.group {
 		if gp.name == name {
 			gprop = gp
@@ -312,7 +420,7 @@ func (p *Prop) groupFind(name string) (gprop *Prop) {
 	return
 }
 
-func sortProps(props []*Prop) {
+func sortProps(props []*Property) {
 	sort.Slice(props, func(i, j int) bool {
 		ni := props[i].name
 		if ni == "resourceType" {
@@ -333,4 +441,17 @@ func sortProps(props []*Prop) {
 		}
 		return ni < nj
 	})
+}
+
+func propMethodNames() slip.List {
+	names := make([]string, 0, len(propMethods))
+	for k := range propMethods {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	methods := make(slip.List, len(names))
+	for i, name := range names {
+		methods[i] = slip.Symbol(name)
+	}
+	return methods
 }

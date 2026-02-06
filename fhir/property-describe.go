@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	instanceDescribeMethod = slip.Method{
+	propDescribeMethod = slip.Method{
 		Name: ":describe",
 		Doc: &slip.FuncDoc{
 			Name: ":describe",
@@ -23,21 +23,21 @@ var (
 				},
 			},
 			Return: "nil",
-			Text:   `__:describe__ writes a description of the instance to _output-stream_.`,
+			Text:   `__:describe__ writes a description of the prop to _output-stream_.`,
 		},
-		Combinations: []*slip.Combination{{From: &blankType, Primary: &instanceDescribeCaller{}}},
+		Combinations: []*slip.Combination{{From: &blankType, Primary: &propDescribeCaller{}}},
 	}
 )
 
-type instanceDescribeCaller struct{}
+type propDescribeCaller struct{}
 
-func (caller instanceDescribeCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, &instanceDescribeMethod, args, 1, 2)
-	inst := args[0].(*Instance)
+func (caller propDescribeCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+	slip.CheckArgCount(s, depth, &propDescribeMethod, args, 1, 2)
+	p := args[0].(*Property)
 
 	ansi := s.Get("*print-ansi*") != nil
 	right := int(s.Get("*print-right-margin*").(slip.Fixnum))
-	b := inst.Describe(nil, 0, right, ansi)
+	b := p.Describe(nil, 0, right, ansi)
 	so := s.Get("*standard-output*")
 	ss, _ := so.(slip.Stream)
 	w := so.(io.Writer)
@@ -51,6 +51,5 @@ func (caller instanceDescribeCaller) Call(s *slip.Scope, args slip.List, depth i
 	if _, err := w.Write(b); err != nil {
 		slip.StreamPanic(s, depth, ss, "%s", err)
 	}
-
 	return nil
 }

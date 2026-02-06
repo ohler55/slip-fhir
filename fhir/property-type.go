@@ -11,8 +11,19 @@ var propTypeMethod = slip.Method{
 	Doc: &slip.FuncDoc{
 		Name:   ":type",
 		Args:   []*slip.DocArg{},
-		Return: "list",
+		Return: "fhir:type",
 		Text:   `__:type__ returns the property type.`,
+	},
+	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyType{}}},
+}
+
+var propClassMethod = slip.Method{
+	Name: ":class",
+	Doc: &slip.FuncDoc{
+		Name:   ":class",
+		Args:   []*slip.DocArg{},
+		Return: "fhir:type",
+		Text:   `__:class__ returns the property type.`,
 	},
 	Combinations: []*slip.Combination{{From: &blankType, Primary: &propertyType{}}},
 }
@@ -46,7 +57,7 @@ type propertyType struct {
 func (f *propertyType) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
-	prop, ok := args[0].(*Prop)
+	prop, ok := args[0].(*Property)
 	if !ok {
 		slip.TypePanic(s, depth, "property", args[0], "fhir:property")
 	}

@@ -16,24 +16,24 @@ import (
 
 const (
 	// TypeSymbol is the symbol with a value of "fhir-type".
-	TypeSymbol = slip.Symbol("fhir-type")
+	TypeSymbol = slip.Symbol("type")
 )
 
 var typeMethods = map[string]*slip.Method{
-	instanceInitMethod.Name:              &instanceInitMethod,
-	instanceIDMethod.Name:                &instanceIDMethod,
-	instanceTypeMethod.Name:              &instanceTypeMethod,
 	instanceClassMethod.Name:             &instanceClassMethod,
-	instanceDescribeMethod.Name:          &instanceDescribeMethod,
-	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
 	instanceDataMethod.Name:              &instanceDataMethod,
-	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
-	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instanceDescribeMethod.Name:          &instanceDescribeMethod,
 	instanceEqualMethod.Name:             &instanceEqualMethod,
 	instanceGetMethod.Name:               &instanceGetMethod,
-	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceIDMethod.Name:                &instanceIDMethod,
+	instanceInitMethod.Name:              &instanceInitMethod,
+	instanceOperationHandledPMethod.Name: &instanceOperationHandledPMethod,
+	instancePrintSelfMethod.Name:         &instancePrintSelfMethod,
 	instanceReplaceMethod.Name:           &instanceReplaceMethod,
-	instanceValidateMethod.Name:          &instanceValidateMethod,
+	instanceSetMethod.Name:               &instanceSetMethod,
+	instanceTypeMethod.Name:              &instanceTypeMethod,
+	instanceValidPMethod.Name:            &instanceValidPMethod,
+	instanceWhichOperationsMethod.Name:   &instanceWhichOperationsMethod,
 }
 
 // Type is the meta class for FHIR types.
@@ -49,8 +49,8 @@ type Type struct {
 	pattern string
 	rx      *regexp.Regexp
 	// complex types have properties
-	props   []*Prop
-	propMap map[string]*Prop
+	props   []*Property
+	propMap map[string]*Property
 
 	inited bool
 }
@@ -179,7 +179,7 @@ func (t *Type) VarNames() (names []string) {
 	for _, p := range t.props {
 		names = append(names, p.name)
 	}
-	return names
+	return
 }
 
 // GetMethod returns the method if it exists.
@@ -293,7 +293,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 	var (
 		nameWidth int
 		typeWidth int
-		props     []*Prop
+		props     []*Property
 	)
 	for _, p := range t.props {
 		if full || p.name[0] != '_' {
@@ -357,7 +357,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 		b = append(b, '\n')
 
 		if 0 < len(p.group) {
-			var group []*Prop
+			var group []*Property
 			for _, gp := range p.group {
 				if full || gp.name[0] != '_' {
 					group = append(group, gp)
@@ -411,7 +411,7 @@ func (t *Type) init() {
 		t.supers = append(t.supers, t.inherit.InheritsList()...)
 	}
 
-	t.propMap = map[string]*Prop{}
+	t.propMap = map[string]*Property{}
 	for _, p := range t.props {
 		p.init(t)
 		if 0 < len(p.group) {
@@ -590,14 +590,16 @@ func (t *Type) propList() (props slip.List) {
 	return
 }
 
-func (t *Type) findProp(name string) *Prop {
+// FindPropery returns the property with the given name is one exists
+// otherwise nil is returned.
+func (t *Type) FindProperty(name string) *Property {
 	for _, p := range t.props {
 		if name == p.name {
 			return p
 		}
 	}
 	if it, ok := t.inherit.(*Type); ok {
-		if p := it.findProp(name); p != nil {
+		if p := it.FindProperty(name); p != nil {
 			return p
 		}
 	}

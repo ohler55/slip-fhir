@@ -46,7 +46,7 @@ type propertyEnum struct {
 func (f *propertyEnum) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 1)
 
-	prop, ok := args[0].(*Prop)
+	prop, ok := args[0].(*Property)
 	if !ok {
 		slip.TypePanic(s, depth, "property", args[0], "fhir:property")
 	}

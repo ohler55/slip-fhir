@@ -64,6 +64,11 @@ change the FHIR version which also redefines the fhir classes.`,
 		pkg:         &Pkg,
 		description: "The meta-class for all FHIR types. All FHIR instance methods are defined by this class.",
 	}
+	blankProp = Property{
+		name: "Property",
+		pkg:  &Pkg,
+		docs: "The meta-class for all FHIR properties.",
+	}
 )
 
 func init() {
@@ -208,6 +213,7 @@ func initTypes(schema any) {
 		vv.Val = slip.String(version)
 	}
 	slip.RegisterClass("type", &blankType)
+	slip.RegisterClass("property", &blankProp)
 
 	initPrimitives(schema)
 	loadTypes(jp.C("hierarchy").W().Get(schema))

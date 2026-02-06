@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	instancePrintSelfMethod = slip.Method{
+	propPrintSelfMethod = slip.Method{
 		Name: ":print-self",
 		Doc: &slip.FuncDoc{
 			Name: ":print-self",
@@ -23,17 +23,17 @@ var (
 				},
 			},
 			Return: "nil",
-			Text:   `__:print-self__ writes the instance string representation to the _stream_.`,
+			Text:   `__:print-self__ writes the prop string representation to the _stream_.`,
 		},
-		Combinations: []*slip.Combination{{From: &blankType, Primary: &instancePrintSelfCaller{}}},
+		Combinations: []*slip.Combination{{From: &blankType, Primary: &propPrintSelfCaller{}}},
 	}
 )
 
-type instancePrintSelfCaller struct{}
+type propPrintSelfCaller struct{}
 
-func (caller instancePrintSelfCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, &instancePrintSelfMethod, args, 1, 2)
-	inst := args[0].(*Instance)
+func (caller propPrintSelfCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+	slip.CheckArgCount(s, depth, &propPrintSelfMethod, args, 1, 2)
+	p := args[0].(*Property)
 
 	so := s.Get("*standard-output*")
 	ss, _ := so.(slip.Stream)
@@ -45,7 +45,7 @@ func (caller instancePrintSelfCaller) Call(s *slip.Scope, args slip.List, depth 
 			slip.TypePanic(s, depth, ":print-self output-stream", args[1], "output-stream")
 		}
 	}
-	if _, err := w.Write(inst.Append(nil)); err != nil {
+	if _, err := w.Write(p.Append(nil)); err != nil {
 		slip.StreamPanic(s, depth, ss, "%s", err)
 	}
 	return nil

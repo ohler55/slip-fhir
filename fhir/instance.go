@@ -58,8 +58,9 @@ func (inst *Instance) Hierarchy() []slip.Symbol {
 // IsA return true if the instance is of a type that inherits from the
 // provided flavor.
 func (inst *Instance) IsA(class string) bool {
+	fc := "fhir:" + class
 	for _, sym := range inst.class.Hierarchy() {
-		if class == string(sym) {
+		if strings.EqualFold(fc, string(sym)) || strings.EqualFold(class, string(sym)) {
 			return true
 		}
 	}
@@ -74,9 +75,11 @@ func (inst *Instance) SlotNames() (names []string) {
 // SlotValue return the value of an instance variable.
 func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
 	var v any
+	inst.Lock()
 	if v, has = jp.C(string(sym)).FirstFound(inst.data); has {
 		value = slip.SimpleObject(v)
 	}
+	inst.Unlock()
 	return
 }
 
@@ -174,7 +177,7 @@ func (inst *Instance) MethodNames() slip.List {
 // Receive a method invocation from the send function. Not intended to be
 // called by any code other than the send function but is public to allow it
 // to be over-ridden.
-func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) (result slip.Object) {
+func (inst *Instance) Receive(s *slip.Scope, message string, args slip.List, depth int) slip.Object {
 	method := typeMethods[strings.ToLower(message)]
 	if method == nil {
 		slip.InvalidMethodPanic(s, depth,
@@ -239,10 +242,12 @@ func (inst *Instance) Class() slip.Class {
 
 // Dup returns a duplicate of the instance.
 func (inst *Instance) Dup() slip.Instance {
+	inst.Lock()
 	dup := Instance{
 		class: inst.class,
 		data:  alt.Dup(inst.data).(map[string]any),
 	}
+	inst.Unlock()
 	if _, ok := inst.locker.(*sync.Mutex); ok {
 		dup.locker = &sync.Mutex{}
 	} else {

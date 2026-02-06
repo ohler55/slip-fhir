@@ -67,7 +67,7 @@ func (f *DescribeType) Call(s *slip.Scope, args slip.List, depth int) slip.Objec
 			ss, _ = args[0].(slip.Stream)
 			args = args[1:]
 		case slip.Symbol:
-			if len(ta) <= 1 && ta[0] != ':' {
+			if len(ta) <= 1 || ta[0] != ':' {
 				slip.TypePanic(s, depth, "describe-type output-stream", ta, "output-stream")
 			}
 			// otherwise a keyword
