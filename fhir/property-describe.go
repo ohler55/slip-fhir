@@ -33,7 +33,7 @@ type propDescribeCaller struct{}
 
 func (caller propDescribeCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, &propDescribeMethod, args, 1, 2)
-	p := args[0].(*Prop)
+	p := args[0].(*Property)
 
 	ansi := s.Get("*print-ansi*") != nil
 	right := int(s.Get("*print-right-margin*").(slip.Fixnum))

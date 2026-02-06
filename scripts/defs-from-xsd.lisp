@@ -1,6 +1,56 @@
 ;;;;
 
 
+(defun form-property-from-element (seq)
+  "Form a properties list from all the seq of elements or attributes."
+
+  ;; TBD need name, type, cardinality (minOccurs, maxOccurs, use), choices (enum), docs, group
+  )
+
+;;; The FHIR heirarchy is defined as:
+;;; Base
+;;;   Element
+;;;     BackboneElement - not is schema file, same as BackboneType though
+;;;     DataType
+;;;       <-- most datatypes go here (e.g., Coding)
+;;;       PrimitiveType <-- not really here in non-XML implementations
+;;;       BackboneType
+;;;   Resource - not in the schema file
+;;;     DomainResource - not in the schema file
+;;;       <-- most resources go here
+;;;
+(defun form-hierarchy-node (name element)
+  "Build a base hierarchy node from the provided schema definition."
+  (format t "----------------~%~A~%" element)
+  (let* ((hb (make-bag "{}"))
+         (cc (caddr (assoc "complexContent" (cddr element))))
+         (super (cdaadr cc))
+         (seq (when cc (cddr (assoc "sequence" (cddr cc)))))
+         (attr (when cc (assoc "attribute" (cddr cc))))
+         properties)
+    (bag-set hb name "name")
+    (bag-set hb super "parent")
+
+    (format t "*** seq: ~A~%*** attr: ~A~%" seq attr)
+    (when seq
+      ;; TBD extract properties from seq elements and add to properties list
+      )
+    (when attr
+      ;; TBD extract properties from seq elements and add to properties list
+      )
+
+    ;; (when (setq val (bag-get def "description"))
+    ;;   (send hb :set (replace-all val "\r" "\n") "description"))
+    ;; (if (equal "Element" name)
+    ;;     (add-properties hb def nil)
+    ;;     (add-properties hb def '("id" "extension")))
+    ;; (send hb :set (case name
+    ;;                 ("Base" nil)
+    ;;                 ("Element" "Base")
+    ;;                 ("DataType" "Element")
+    ;;                 ("BackboneType" "DataType")) "parent")
+    hb))
+
 (defun find-named (schema name)
   (dolist (element schema)
     (when (and (equal name (cdr (assoc "name" (cadr element))))
@@ -12,19 +62,38 @@
 (defun defs-from-xsd (input-filename output-filename)
   "TBD."
   (let ((schema (cddr (assoc "schema" (with-open-file (f input-filename :direction :input) (xml-read f)))))
-        (defs (make-bag "{}")))
+        (defs (make-bag "{}"))
+        primitives datatypes hierarchy backbones resources)
 
     (do ((name (caar schema) (caar schema)))
         ((not (or (equal :comment name) (equal "import" name))))
       (setq schema (cdr schema)))
 
+    (dolist (element schema)
+      (let ((name (cdr (assoc "name" (cadr element)))))
+        (cond ((member name '("Base"
+                              "Element"
+                              "DataType"
+                              "BackboneType"))
+               (setq hierarchy (add hierarchy (form-hierarchy-node name element))))
+              (t nil))))
+
 
     ;; (format t "~A~%" schema)
 
-    ;;(find-named schema "Patient")
-    (dolist (element schema)
-      (format t "~A ~A~%" (car element) (cdr (assoc "name" (cadr element)))))
-    ))
+    ;; (dolist (element schema)
+    ;;   (format t "~A ~A~%" (car element) (cdr (assoc "name" (cadr element)))))
+
+      ;; Add each type list to the new schema being constructed.
+    (send defs :set primitives "primitives")
+    (send defs :set hierarchy "hierarchy")
+    (send defs :set datatypes "datatypes")
+    (send defs :set backbones "backbones")
+    (send defs :set resources "resources")
+
+    (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
+      (send defs :write f :pretty t :json t :depth 1))
+  ))
 
 (defvar pat '("complexType" (("name" . "Patient"))
               ("annotation" ()

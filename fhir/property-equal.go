@@ -29,7 +29,7 @@ type propEqualCaller struct{}
 
 func (caller propEqualCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, &propEqualMethod, args, 2, 2)
-	p := args[0].(*Prop)
+	p := args[0].(*Property)
 	if p.Equal(args[1]) {
 		return slip.True
 	}

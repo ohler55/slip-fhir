@@ -5,9 +5,6 @@
 - get specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
- - unit tests
-  - property
-
  - use xml schema instead
  - client
   - read, etc

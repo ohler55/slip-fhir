@@ -64,7 +64,7 @@ change the FHIR version which also redefines the fhir classes.`,
 		pkg:         &Pkg,
 		description: "The meta-class for all FHIR types. All FHIR instance methods are defined by this class.",
 	}
-	blankProp = Prop{
+	blankProp = Property{
 		name: "Property",
 		pkg:  &Pkg,
 		docs: "The meta-class for all FHIR properties.",

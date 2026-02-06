@@ -33,7 +33,7 @@ type propPrintSelfCaller struct{}
 
 func (caller propPrintSelfCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, &propPrintSelfMethod, args, 1, 2)
-	p := args[0].(*Prop)
+	p := args[0].(*Property)
 
 	so := s.Get("*standard-output*")
 	ss, _ := so.(slip.Stream)

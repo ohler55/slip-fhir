@@ -49,8 +49,8 @@ type Type struct {
 	pattern string
 	rx      *regexp.Regexp
 	// complex types have properties
-	props   []*Prop
-	propMap map[string]*Prop
+	props   []*Property
+	propMap map[string]*Property
 
 	inited bool
 }
@@ -293,7 +293,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 	var (
 		nameWidth int
 		typeWidth int
-		props     []*Prop
+		props     []*Property
 	)
 	for _, p := range t.props {
 		if full || p.name[0] != '_' {
@@ -357,7 +357,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 		b = append(b, '\n')
 
 		if 0 < len(p.group) {
-			var group []*Prop
+			var group []*Property
 			for _, gp := range p.group {
 				if full || gp.name[0] != '_' {
 					group = append(group, gp)
@@ -411,7 +411,7 @@ func (t *Type) init() {
 		t.supers = append(t.supers, t.inherit.InheritsList()...)
 	}
 
-	t.propMap = map[string]*Prop{}
+	t.propMap = map[string]*Property{}
 	for _, p := range t.props {
 		p.init(t)
 		if 0 < len(p.group) {
@@ -592,7 +592,7 @@ func (t *Type) propList() (props slip.List) {
 
 // FindPropery returns the property with the given name is one exists
 // otherwise nil is returned.
-func (t *Type) FindProperty(name string) *Prop {
+func (t *Type) FindProperty(name string) *Property {
 	for _, p := range t.props {
 		if name == p.name {
 			return p

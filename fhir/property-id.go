@@ -23,7 +23,7 @@ type prodIDCaller struct{}
 
 func (caller prodIDCaller) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, &propIDMethod, args, 1, 1)
-	p := args[0].(*Prop)
+	p := args[0].(*Property)
 
 	return slip.Fixnum(p.ID())
 }
