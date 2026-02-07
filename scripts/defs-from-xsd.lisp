@@ -1,5 +1,26 @@
 ;;;;
 
+(defconstant primitive-parents '(("string" . "cl:string")
+                                 ("code" . "string")
+                                 ("id" . "string")
+                                 ("markdown" . "string")
+                                 ("integer" . "fixnum")
+                                 ("unsignedInt" . "integer")
+                                 ("positiveInt" . "integer")
+                                 ("integer64" . "fixnum")
+                                 ("decimal" . "double-float")
+                                 ("boolean" . "symbol")
+                                 ("time" . "cl:string")
+                                 ("date" . "cl:string")
+                                 ("dateTime" . "cl:string")
+                                 ("instant" . "cl:string")
+                                 ("base64Binary" . "cl:string")
+                                 ("uri" . "cl:string")
+                                 ("url" . "uri")
+                                 ("canonical" . "uri")
+                                 ("oid" . "uri")
+                                 ("uuid" . "uri")))
+
 (defun fix-type (pname type)
   "TBD"
   (cond ((string= pname "id") "id")
@@ -7,6 +28,14 @@
         ((string= type "ResourceContainer") "Resource")
         (t type)))
 
+(defun find-named (schema name key)
+  "Search for an element of the schema with the specified name and key where the
+   key should match the first car of the element."
+  (dolist (element schema)
+    (when (and (equal name (cdr (assoc "name" (cadr element))))
+               (equal key (car element)))
+      (format t "~A~%" element)
+      (return element))))
 
 (defun property-from-element (elem)
   "Form a properties list from all the seq of elements or attributes."
@@ -31,10 +60,43 @@
     ;; (format t "*** property: ~A~%" (send prop :write nil))
     prop))
 
-(defun form-primitive-node (name element)
-  (format t "~A ~A~%" (car element) name)
+(defun primitive-docs (name schema)
+  (let ((ct (find-named schema name "complexType")))
+    (when ct
+      (join "\n\n" (mapcar (lambda (doc) (caddr doc)) (cddr (caddr ct)))))))
 
-  )
+(defun form-primitive-node (name element schema)
+  "TBD"
+  (format t "*** primitive: ~A~%" element)
+  (setq name (trim-suffix name "-primitive"))
+  (let* ((restriction (cddr (caddr element)))
+         (pattern (when restriction (cdaadr (assoc "pattern" restriction))))
+         (mn (when restriction (cdaadr (assoc "minLength" restriction))))
+         (mx (when restriction (cdaadr (assoc "maxLength" restriction))))
+         (pb (make-bag "{}")))
+    ;; Restrictions for primitives include "pattern", "minLength",
+    ;; "maxLength", and "union". The union sub-element is ignored as
+    ;; identifies member types as XSD types.
+
+    (bag-set pb name "name")
+    (when pattern (bag-set pb pattern "pattern"))
+    (when mn (bag-set pb mn "minLen"))
+    (when mx (bag-set pb mx "maxLen"))
+    ;; The FHIR XSD jumps back and forth between XSD types and FHIR types. For
+    ;; primitives, the FHIR hierarchy is ignored in favor of XSD
+    ;; types. Alternatively if using the matching complexType element the base
+    ;; is always "Element" which also contradicts the web pages. The FHIR
+    ;; types are needed for the defs JSON file so the parents are manually
+    ;; set.
+    (bag-set pb (cdr (assoc name primitive-parents)) "parent")
+
+    ;; Get the description from the associated complexType. All except for
+    ;; SampledDataDataType which is not on the web site but is in the XSD ad
+    ;; has no documentation.
+    (unless (string= "SampledDataDataType" name)
+      (bag-set pb (primitive-docs name schema) "description"))
+
+    pb))
 
 ;;; The FHIR heirarchy is defined as:
 ;;; Base
@@ -78,13 +140,6 @@
     (when properties (bag-set hb properties "properties"))
     hb))
 
-(defun find-named (schema name)
-  (dolist (element schema)
-    (when (and (equal name (cdr (assoc "name" (cadr element))))
-               (equal "complexType" (car element)))
-      (format t "~A~%" element)
-      )))
-
 (defun defs-from-xsd (input-filename output-filename)
   "TBD."
   (let ((schema (cddr (assoc "schema" (with-open-file (f input-filename :direction :input) (xml-read f)))))
@@ -105,7 +160,7 @@
                               "DomainResource"))
                (setq hierarchy (add hierarchy (form-hierarchy-node name element))))
               ((suffixp name "-primitive")
-               (setq primitives (add primitives (form-primitive-node name element))))
+               (setq primitives (add primitives (form-primitive-node name element schema))))
               (t
                ;; (format t "~A ~A~%" (car element) name)
                nil

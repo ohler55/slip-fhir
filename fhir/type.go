@@ -48,6 +48,8 @@ type Type struct {
 	// primitive types may have a pattern and regexp
 	pattern string
 	rx      *regexp.Regexp
+	minLen  int
+	maxLen  int
 	// complex types have properties
 	props   []*Property
 	propMap map[string]*Property
