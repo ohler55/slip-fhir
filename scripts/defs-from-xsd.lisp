@@ -1,18 +1,24 @@
 ;;;;
 
+(defun fix-type (pname type)
+  "TBD"
+  (cond ((string= pname "id") "id")
+        ((suffixp type "-primitive") (trim-suffix type "-primitive"))
+        ((string= type "ResourceContainer") "Resource")
+        (t type)))
+
 
 (defun property-from-element (elem)
   "Form a properties list from all the seq of elements or attributes."
   (let* ((px (cadr elem))
-         (type (cdr (assoc "type" px)))
+         (name (cdr (assoc "name" px)))
+         (type (fix-type name (cdr (assoc "type" px))))
          (mn (cdr (assoc "minOccurs" px)))
          (mx (cdr (assoc "maxOccurs" px)))
          (docs (cddr (caddr elem)))
          (prop (make-bag "{}")))
-    (format t "*** property: ~A..~A~%" mn mx )
 
-    (bag-set prop (cdr (assoc "name" px)) "name")
-    ;; TBD correct type (id is and is-primitive not a string, also remove the -primitive suffix
+    (bag-set prop name "name")
     (bag-set prop type "type")
     (when docs (bag-set prop (join "\n\n" (mapcar (lambda (doc) (caddr doc)) docs)) "description"))
     (when (and (integerp mn) (/= 0 mn)) (bag-set prop t "required"))
@@ -20,9 +26,15 @@
     (when (equal "required" (cdr (assoc "use" px)))
       (bag-set prop t "required"))
 
-    ;; TBD need name, type, cardinality (minOccurs, maxOccurs, use), choices (enum), docs, group
-    (format t "*** property: ~A~%" (send prop :write nil))
+    ;; TBD need choices (enum), group
+
+    ;; (format t "*** property: ~A~%" (send prop :write nil))
     prop))
+
+(defun form-primitive-node (name element)
+  (format t "~A ~A~%" (car element) name)
+
+  )
 
 ;;; The FHIR heirarchy is defined as:
 ;;; Base
@@ -32,15 +44,16 @@
 ;;;       <-- most datatypes go here (e.g., Coding)
 ;;;       PrimitiveType <-- not really here in non-XML implementations
 ;;;       BackboneType
-;;;   Resource - not in the schema file
-;;;     DomainResource - not in the schema file
+;;;   Resource
+;;;     DomainResource
 ;;;       <-- most resources go here
 ;;;
 (defun form-hierarchy-node (name element)
   "Build a base hierarchy node from the provided schema definition."
-  (format t "----------------~%~A~%" element)
+  ;; (format t "----------------~%~A~%" element)
   (let* ((hb (make-bag "{}"))
          (cc (caddr (assoc "complexContent" (cddr element))))
+         (anno (cddr (assoc "annotation" (cddr element))))
          (super (cdaadr cc))
          (seq (when cc (cddr (assoc "sequence" (cddr cc)))))
          (attr (when cc (assoc "attribute" (cddr cc))))
@@ -48,10 +61,18 @@
     (bag-set hb name "name")
     (bag-set hb super "parent")
 
+    (when anno (bag-set hb (join "\n\n" (mapcar (lambda (doc) (caddr doc)) anno)) "description"))
+
     (dolist (elem seq)
-      (setq properties (add properties (property-from-element elem))))
+      ;; (format t "*** ~A~%" elem)
+      (case (car elem)
+        ("element"
+         (setq properties (add properties (property-from-element elem))))
+        ("choice"
+         ;; TBD
+         (format t "*** choice: ~A~%" elem))
+        ))
     (when attr
-      (format t "*** attr: ~A~%~%" attr)
       (setq properties (add properties (property-from-element attr))))
 
     (when properties (bag-set hb properties "properties"))
@@ -63,7 +84,6 @@
                (equal "complexType" (car element)))
       (format t "~A~%" element)
       )))
-
 
 (defun defs-from-xsd (input-filename output-filename)
   "TBD."
@@ -80,9 +100,16 @@
         (cond ((member name '("Base"
                               "Element"
                               "DataType"
-                              "BackboneType"))
+                              "BackboneType"
+                              "Resource"
+                              "DomainResource"))
                (setq hierarchy (add hierarchy (form-hierarchy-node name element))))
-              (t nil))))
+              ((suffixp name "-primitive")
+               (setq primitives (add primitives (form-primitive-node name element))))
+              (t
+               ;; (format t "~A ~A~%" (car element) name)
+               nil
+              ))))
 
 
     ;; (format t "~A~%" schema)
