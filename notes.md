@@ -4,6 +4,13 @@
 
 - get specs from https://www.hl7.org/fhir//downloads.html
 
+- slip
+ - add method set instance to sync and expose a lock and unlock
+  - set-synchronized (active)
+  - synchronizedp
+  - synchronize (sync-instance &rest forms)
+   - sync-instance must be sync active
+
 - plan
  - design.md update
  - fhir:load-definition (filename package)

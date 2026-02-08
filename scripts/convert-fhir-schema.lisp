@@ -332,22 +332,19 @@
                                  ;; customization a case statement is used.
                                  (case p
                                    ("string"
-                                    (send pb :set "string" "name")
+                                    ;;(send pb :set "string" "name")
                                     (send pb :set "cl:string" "parent"))
                                    ("integer"
-                                    (send pb :set "integer" "name")
                                     (send pb :set "fixnum" "parent"))
                                    ("unsignedInt" (send pb :set "integer" "parent"))
                                    ("positiveInt" (send pb :set "integer" "parent"))
                                    ("integer64" (send pb :set "fixnum" "parent"))
                                    ("decimal" (send pb :set "double-float" "parent"))
                                    ("boolean" (send pb :set "symbol" "parent"))
-                                   ("time"
-                                    (send pb :set "time" "name")
-                                    (send pb :set "string" "parent"))
-                                   ("date" (send pb :set "string" "parent"))
-                                   ((or "instant" "dateTime")
-                                    (send pb :set "time" "parent"))
+                                   ("time" (send pb :set "cl:string" "parent"))
+                                   ("date" (send pb :set "cl:string" "parent"))
+                                   ((or "instant" "dateTime") (send pb :set "cl:time" "parent"))
+                                   ((or "id" "code" "markdown") (send pb :set "string" "parent"))
                                    (t (send pb :set "string" "parent")))
 
                                  (setq primitives (add primitives pb))))
