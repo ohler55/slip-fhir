@@ -5,12 +5,10 @@
 - get specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
- - use xml schema instead
+ - design.md update
+ - fhir:load-definition (filename package)
  - client
   - read, etc
- - design.md update
-
-- should Prop be renamed to Property?
 
 - load-fhir or build-fhir or ???
  - load a defs file
@@ -18,6 +16,9 @@
   - option for new package (maybe required?)
   - if type already exists in the same package then fail and unintern all already loaded
 
+
+- xml schema (fhir-single.xsd)
+ - no better, missing enums as well
 
 - enum
  - manually link when needed

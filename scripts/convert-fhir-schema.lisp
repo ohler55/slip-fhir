@@ -379,8 +379,8 @@
       (send schema :set primitives "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.
-      ;;(bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
-      (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
+      (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      ;; (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
 
       ;; Add each type list to the new schema being constructed.
