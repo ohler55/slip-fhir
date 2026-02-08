@@ -6,6 +6,10 @@
 
 - plan
  - use xml schema instead
+  - maybe no better than json
+  - missing _xxx
+  - language choices
+
  - client
   - read, etc
  - design.md update
