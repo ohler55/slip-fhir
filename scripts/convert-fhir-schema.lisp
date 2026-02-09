@@ -223,10 +223,10 @@
    include that information. This function looks for property names that match
    the pattern of a prefix followed by a type suffix. All must have the same
    cardinality. When found those are grouped together."
+
   (let (matches ;; property list
         groups) ;; assoc list
     (bag-walk type-node (lambda (p)
-                          ;;(format t "*** prop: ~A ~A ~A~%" (bag-get p "name") (bag-get p "required") (bag-get p "array")))
                           (let* ((name (bag-get p "name"))
                                  (req (bag-get p "required"))
                                  (ary (bag-get p "array")))
@@ -255,13 +255,18 @@
           (let ((gp (make-bag "{}"))
                 (np (get-group-prop group)))
             (bag-set gp (join "" (car group) "[x]") "name")
+            (dolist (p (cdr group))
+              (let* ((xpath (format nil "properties[?@.name == '_~A']" (bag-get p "name")))
+                     (xp (bag-get type-node xpath t)))
+                (when xp
+                  (setq group (add group xp))
+                  (setq props (remove xp props)))
+                (bag-remove p "description")))
             (bag-set gp (cdr group) "group")
             (bag-set gp (bag-get np "description") "description")
             (when (bag-get np "array")  (bag-set gp t "array"))
             (when (bag-get np "required")  (bag-set gp t "required"))
-            (dolist (p (cdr group))
-              (unless (prefixp (bag-get p "name") "_")
-                (bag-remove p "description")))
+
             (setq props (add props gp))))
         (bag-set type-node props "properties")))))
 
@@ -332,22 +337,18 @@
                                  ;; customization a case statement is used.
                                  (case p
                                    ("string"
-                                    (send pb :set "string" "name")
                                     (send pb :set "cl:string" "parent"))
                                    ("integer"
-                                    (send pb :set "integer" "name")
                                     (send pb :set "fixnum" "parent"))
                                    ("unsignedInt" (send pb :set "integer" "parent"))
                                    ("positiveInt" (send pb :set "integer" "parent"))
                                    ("integer64" (send pb :set "fixnum" "parent"))
                                    ("decimal" (send pb :set "double-float" "parent"))
                                    ("boolean" (send pb :set "symbol" "parent"))
-                                   ("time"
-                                    (send pb :set "time" "name")
-                                    (send pb :set "string" "parent"))
-                                   ("date" (send pb :set "string" "parent"))
-                                   ((or "instant" "dateTime")
-                                    (send pb :set "time" "parent"))
+                                   ("time" (send pb :set "cl:string" "parent"))
+                                   ("date" (send pb :set "cl:string" "parent"))
+                                   ((or "instant" "dateTime") (send pb :set "cl:time" "parent"))
+                                   ((or "id" "code" "markdown") (send pb :set "string" "parent"))
                                    (t (send pb :set "string" "parent")))
 
                                  (setq primitives (add primitives pb))))
@@ -379,8 +380,8 @@
       (send schema :set primitives "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.
-      ;;(bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
-      (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
+      (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
+      ;; (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
       (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
 
       ;; Add each type list to the new schema being constructed.

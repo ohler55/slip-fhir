@@ -4,20 +4,27 @@
 
 - get specs from https://www.hl7.org/fhir//downloads.html
 
+- slip
+ - add method set instance to sync and expose a lock and unlock
+  - set-synchronized (active)
+  - synchronizedp
+  - synchronize (sync-instance &rest forms)
+   - sync-instance must be sync active
+
 - plan
- - use xml schema instead
+ - fhir:load-definition (filename package)
  - client
   - read, etc
- - design.md update
 
-- should Prop be renamed to Property?
-
-- load-fhir or build-fhir or ???
+- load-fhir or load-definitions or ???
  - load a defs file
   - use for testing
   - option for new package (maybe required?)
   - if type already exists in the same package then fail and unintern all already loaded
 
+
+- xml schema (fhir-single.xsd)
+ - no better, missing enums as well
 
 - enum
  - manually link when needed
