@@ -12,12 +12,11 @@
    - sync-instance must be sync active
 
 - plan
- - design.md update
  - fhir:load-definition (filename package)
  - client
   - read, etc
 
-- load-fhir or build-fhir or ???
+- load-fhir or load-definitions or ???
  - load a defs file
   - use for testing
   - option for new package (maybe required?)

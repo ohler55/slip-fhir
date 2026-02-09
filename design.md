@@ -187,21 +187,69 @@ approach they prefer.
 
 #### Property
 
-- properties are fhir:property
+Non primitive or complex `fhir:Type` include properties which are
+instances of `fhir:Property`. Each `fhir:Property` instance includes a
+name, a type, cardinality flags, a description, and optionally enum
+values and groups of other properties if the property is something
+live value[x] in the FHIR specification. Information about properties
+can be viewed using the `describe` function. Properties are always
+contained in a `fhir:Type` and can be found using the `type-property`
+function. Together a property can be describe.
 
+```lisp
+▶ (describe (type-property 'patient 'gender))
+```
+
+Like `fhir:Type` instances `fhir:Property` instance have methods which
+can be viewed with the `describe` function.
+
+```lisp
+▶ (describe 'fhir:Property)
+```
 
 #### Primitive Types
 
-- largely hand coded to fit into a lisp or slip class hierarchy
+While primitive types are listed in the FHIR schema files the
+information about the inheritance hierarchy is missing but is added
+manually by the script that generates the definition file this package
+loads when required by the `require` function. All primitives are
+based off a Slip or Lisp type. For example a `fhir:string` inherits or
+is based on `cl:string`. The `fhir:code` is based on `fhir:string`
+which, as noted, is based on `fhir:string`.
 
 ### Error Handling
 
-- general panic, similar to Lisp error and the same as slip
-- error handling
- - on-error callback
- - panic on error is default
-- string, time, integer, Condition, and Ratio are shadowed so use fhir:string for example
+In Lisp errors are raised when they occur. Slip follows that approach
+but it's version of raising an error is a Go panic. When an error
+occurs in this package a panic is raised and can be caught with a
+`recover` function.
 
+One of the primary purposes, other than documentation, of the
+`fhir:Type` and `fhir:Property` are to aid in data validation. The
+appraoch used to report validation violations is to use an on-error
+callback. Validation violations include a JSON path to identify where
+the violation was encountered, the value at the location or in the
+case of a set, the provided value. An error message is also
+included. The on-error function provide to validation functions or
+methods must take three arguments; a path, value, and message. The
+function can then return __t__ to abort and fail validation or __nil__
+to continue. Of course the option to panic is also available.
+
+### Shadowing
+
+Some of the FHIR type names collide with Lisp core types. When loading these type do not shadow the built in types but instead a warning message is displayed when loading that those `fhir` package types are shadowned by the common list package. To specify those types the package name must be included. For example to descrine a `fhir:string` this would be the call.
+
+```lisp
+▶ (describe 'fhir:string)
+```
+
+The shadowed types are:
+
+  `fhir:string`
+  `fhir:integer`
+  `fhir:ratio`
+  `fhir:time`
+  `fhir:condition`
 
 ## Client
 
