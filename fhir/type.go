@@ -428,9 +428,6 @@ func (t *Type) init() {
 	}
 	if t.inherit != nil {
 		if it, ok := t.inherit.(*Type); ok {
-			if !it.inited {
-				it.init()
-			}
 			for k, ip := range it.propMap {
 				t.propMap[k] = ip
 			}

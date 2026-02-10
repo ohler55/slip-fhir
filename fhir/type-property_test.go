@@ -32,7 +32,7 @@ func TestTypePropertyInherit(t *testing.T) {
 
 func TestTypePropertyNotFound(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(type-property 'patient 'quux)`,
+		Source: `(type-property 'fhir5:patient 'quux)`,
 		Expect: "nil",
 	}).Test(t)
 }

@@ -1,0 +1,20 @@
+{
+  "backbones": [],
+  "datatypes": [],
+  "hierarchy": [],
+  "primitives": [],
+  "resources": [
+    {
+      "description": "A test type.",
+      "name": "Dummy",
+      "parent": "NoType",
+      "properties": [
+        {
+          "description": "Something",
+          "name": "test",
+          "type": "boolean"
+        }
+      ]
+    }
+  ]
+}
