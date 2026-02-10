@@ -6,19 +6,8 @@
 
 
 - plan
- - fhir:load-definitions (filename package)
-  - make default load into fhir5
-  - user can use fhir5 package
-  - update Type, Property, and instance Append function to use correct package
-
  - client
   - read, etc
-
-- load-fhir or load-definitions or ???
- - load a defs file
-  - use for testing
-  - option for new package (maybe required?)
-  - if type already exists in the same package then fail and unintern all already loaded
 
 
 - xml schema (fhir-single.xsd)
