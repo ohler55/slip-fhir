@@ -26,7 +26,7 @@ func onErrStop(path jp.Expr, value any, message string) bool {
 }
 
 func TestTypeValidateInteger(t *testing.T) {
-	pt, ok := slip.FindClass("fhir:integer").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0, onErr)
@@ -61,7 +61,7 @@ func TestTypeValidateInteger(t *testing.T) {
 }
 
 func TestTypeValidateInteger64(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0, onErr)
@@ -84,14 +84,14 @@ func TestTypeValidateInteger64(t *testing.T) {
 	pt.Validate(2.0, onErr)
 	pt.Validate(float32(2.0), onErr)
 
-	tt.Panic(t, func() { pt.Validate("string", onErr) })
+	tt.Panic(t, func() { pt.Validate("fhir5:string", onErr) })
 	tt.Panic(t, func() { pt.Validate(2.5, onErr) })
 
 	tt.Equal(t, true, pt.Validate("string", onErrStop))
 }
 
 func TestTypeValidateUnsignedInt(t *testing.T) {
-	pt, ok := slip.FindClass("unsignedInt").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:unsignedInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(0, onErr)
@@ -109,7 +109,7 @@ func TestTypeValidateUnsignedInt(t *testing.T) {
 }
 
 func TestTypeValidatePositiveInt(t *testing.T) {
-	pt, ok := slip.FindClass("positiveInt").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:positiveInt").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(7, onErr)
@@ -127,7 +127,7 @@ func TestTypeValidatePositiveInt(t *testing.T) {
 }
 
 func TestTypeValidatePositiveDecimal(t *testing.T) {
-	pt, ok := slip.FindClass("decimal").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:decimal").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(7, onErr)
@@ -139,7 +139,7 @@ func TestTypeValidatePositiveDecimal(t *testing.T) {
 }
 
 func TestTypeValidateBoolean(t *testing.T) {
-	pt, ok := slip.FindClass("boolean").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:boolean").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate(true, onErr)
@@ -153,7 +153,7 @@ func TestTypeValidateBoolean(t *testing.T) {
 }
 
 func TestTypeValidateTime(t *testing.T) {
-	pt, ok := slip.FindClass("fhir:time").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:time").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("20:22:23", onErr)
@@ -166,7 +166,7 @@ func TestTypeValidateTime(t *testing.T) {
 }
 
 func TestTypeValidateDate(t *testing.T) {
-	pt, ok := slip.FindClass("date").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:date").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20", onErr)
@@ -179,7 +179,7 @@ func TestTypeValidateDate(t *testing.T) {
 }
 
 func TestTypeValidateInstant(t *testing.T) {
-	pt, ok := slip.FindClass("instant").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:instant").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20T20:21:22.123Z", onErr)
@@ -192,7 +192,7 @@ func TestTypeValidateInstant(t *testing.T) {
 }
 
 func TestTypeValidateDateTime(t *testing.T) {
-	pt, ok := slip.FindClass("dateTime").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:dateTime").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("2026-01-20T20:21:22.123Z", onErr)
@@ -205,7 +205,7 @@ func TestTypeValidateDateTime(t *testing.T) {
 }
 
 func TestTypeValidateCode(t *testing.T) {
-	pt, ok := slip.FindClass("code").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:code").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("abc", onErr)
@@ -216,7 +216,7 @@ func TestTypeValidateCode(t *testing.T) {
 }
 
 func TestTypeValidateXHTML(t *testing.T) {
-	pt, ok := slip.FindClass("xhtml").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:xhtml").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	pt.Validate("<x>y</x>", onErr)
@@ -227,13 +227,13 @@ func TestTypeValidateXHTML(t *testing.T) {
 }
 
 func TestTypeValidateBase(t *testing.T) {
-	bt, ok := slip.FindClass("base").(*fhir.Type)
+	bt, ok := slip.FindClass("fhir5:base").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, false, bt.Validate(nil, onErrStop))
 }
 
 func TestTypeValidateComplex(t *testing.T) {
-	ct, ok := slip.FindClass("Range").(*fhir.Type)
+	ct, ok := slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	ct.Validate(map[string]any{
@@ -255,32 +255,32 @@ func TestTypeValidateComplex(t *testing.T) {
 }
 
 func TestTypeName(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, "integer64", pt.Name())
 }
 
 func TestTypeSimplifyPrimitive(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `{
   description: "A very large whole number"
   inherit: fixnum
   name: integer64
-  package: fhir
+  package: fhir5
   parent: fixnum
   pattern: "^[0]|[-+]?[1-9][0-9]*$"
 }`, pretty.SEN(pt.Simplify()))
 }
 
 func TestTypeSimplifyComplex(t *testing.T) {
-	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `{
   description: "A set of ordered Quantities defined by a low and high limit."
   inherit: Element
   name: Range
-  package: fhir
+  package: fhir5
   parent: Element
   properties: [
     {
@@ -304,7 +304,7 @@ func TestTypeSimplifyComplex(t *testing.T) {
 }
 
 func TestTypeVarNamesComplex(t *testing.T) {
-	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	names := rt.VarNames()
 	sort.Strings(names)
@@ -312,7 +312,7 @@ func TestTypeVarNamesComplex(t *testing.T) {
 }
 
 func TestTypeMethods(t *testing.T) {
-	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	var names []string
 	for _, m := range rt.Methods() {
@@ -338,7 +338,7 @@ func TestTypeMethods(t *testing.T) {
 }
 
 func TestTypeGetMethod(t *testing.T) {
-	rt, ok := slip.FindClass("Range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `{
   combinations: [{from: Type primary: true}]
@@ -347,27 +347,27 @@ func TestTypeGetMethod(t *testing.T) {
 }
 
 func TestTypeDescribe(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc := string(pt.Describe(nil, 0, 80, false))
-	tt.Equal(t, true, strings.Contains(desc, "fhir:integer64 is a FHIR PrimitiveType"))
+	tt.Equal(t, true, strings.Contains(desc, "fhir5:integer64 is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 
 	desc = string(pt.Describe(nil, 0, 80, true))
 	tt.Equal(t, true, strings.Contains(desc, "is a FHIR PrimitiveType"))
 	tt.Equal(t, true, strings.Contains(desc, "Direct Ancestor: fixnum"))
 
-	pt, ok = slip.FindClass("Range").(*fhir.Type)
+	pt, ok = slip.FindClass("fhir5:Range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc = string(pt.Describe(nil, 0, 80, false))
 	tt.Equal(t, true, strings.Contains(desc, "is a FHIR DataType"))
 
-	pt, ok = slip.FindClass("Account").(*fhir.Type)
+	pt, ok = slip.FindClass("fhir5:Account").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc = string(pt.Describe(nil, 0, 80, false))
 	tt.Equal(t, true, strings.Contains(desc, "is a FHIR Resource"))
 
-	pt, ok = slip.FindClass("Account_coverage").(*fhir.Type)
+	pt, ok = slip.FindClass("fhir5:Account_coverage").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	desc = string(pt.Describe(nil, 0, 80, false))
 	tt.Equal(t, true, strings.Contains(desc, "is a FHIR BackboneType"))
@@ -387,38 +387,38 @@ func TestTypeDescribeSelf(t *testing.T) {
 }
 
 func TestTypeLoadForm(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Nil(t, pt.LoadForm())
 }
 
 func TestTypeVarNamesPrimitive(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, 0, len(pt.VarNames()))
 }
 
 func TestTypeEval(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, pt, pt.Eval(nil, 0))
 }
 
 func TestTypeEqual(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, true, pt.Equal(pt))
 	var pt2 *fhir.Type
-	pt2, ok = slip.FindClass("fhir:integer").(*fhir.Type)
+	pt2, ok = slip.FindClass("fhir5:integer").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, false, pt.Equal(pt2))
 }
 
 func TestTypeHierachy(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, `[
-  "fhir:integer64"
+  "fhir5:integer64"
   "common-lisp:fixnum"
   "common-lisp:integer"
   "common-lisp:rational"
@@ -429,20 +429,20 @@ func TestTypeHierachy(t *testing.T) {
 }
 
 func TestTypeMetaclass(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, slip.Symbol("type"), pt.Metaclass())
 }
 
 func TestTypeInherits(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Equal(t, true, pt.Inherits(slip.FindClass("real")))
 	tt.Equal(t, false, pt.Inherits(slip.FindClass("float")))
 }
 
 func TestTypeDocumentation(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	orig := pt.Documentation()
 	defer pt.SetDocumentation(orig)
@@ -452,20 +452,20 @@ func TestTypeDocumentation(t *testing.T) {
 }
 
 func TestTypeMakeInstancePrimitive(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Panic(t, func() { _ = pt.MakeInstance() })
 }
 
 func TestTypeMakeInstanceComplex(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(make-instance 'range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))`,
-		Expect: "/#<fhir:Range [0-9a-f]+>/",
+		Source: `(make-instance 'fhir5:range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))`,
+		Expect: "/#<fhir5:Range [0-9a-f]+>/",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(send
                    (send
-                     (make-instance 'range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))
+                     (make-instance 'fhir5:range :data (make-bag "{low:{value:30 unit:mL} high:{value:50 unit:mL}}"))
                      :data)
                    :write nil)`,
 		Expect: `"{high: {unit: mL value: 50} low: {unit: mL value: 30}}"`,
@@ -473,7 +473,7 @@ func TestTypeMakeInstanceComplex(t *testing.T) {
 }
 
 func TestTypeBadInit(t *testing.T) {
-	pt, ok := slip.FindClass("integer64").(*fhir.Type)
+	pt, ok := slip.FindClass("fhir5:integer64").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	tt.Panic(t, func() { _ = pt.MakeInstance() })
 }

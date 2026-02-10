@@ -1,0 +1,14 @@
+{
+  "backbones": [],
+  "datatypes": [],
+  "hierarchy": [],
+  "primitives": [
+    {
+      "description": "A whole number",
+      "name": "integer",
+      "parent": "fixnum",
+      "pattern": "^[0]|[-+]?[1-9][0-9]*$"
+    }
+  ],
+  "resources": []
+}

@@ -58,7 +58,7 @@ func (inst *Instance) Hierarchy() []slip.Symbol {
 // IsA return true if the instance is of a type that inherits from the
 // provided flavor.
 func (inst *Instance) IsA(class string) bool {
-	fc := "fhir:" + class
+	fc := fmt.Sprintf("%s:%s", inst.class.pkg.Name, class)
 	for _, sym := range inst.class.Hierarchy() {
 		if strings.EqualFold(fc, string(sym)) || strings.EqualFold(class, string(sym)) {
 			return true
@@ -75,11 +75,11 @@ func (inst *Instance) SlotNames() (names []string) {
 // SlotValue return the value of an instance variable.
 func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
 	var v any
-	inst.Lock()
+	inst.locker.Lock()
 	if v, has = jp.C(string(sym)).FirstFound(inst.data); has {
 		value = slip.SimpleObject(v)
 	}
-	inst.Unlock()
+	inst.locker.Unlock()
 	return
 }
 
@@ -106,9 +106,9 @@ func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool
 		panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
 	})
 
-	inst.Lock()
+	inst.locker.Lock()
 	_ = jp.C(string(sym)).Set(inst.data, data)
-	inst.Unlock()
+	inst.locker.Unlock()
 
 	return true
 }
@@ -242,12 +242,12 @@ func (inst *Instance) Class() slip.Class {
 
 // Dup returns a duplicate of the instance.
 func (inst *Instance) Dup() slip.Instance {
-	inst.Lock()
+	inst.locker.Lock()
 	dup := Instance{
 		class: inst.class,
 		data:  alt.Dup(inst.data).(map[string]any),
 	}
-	inst.Unlock()
+	inst.locker.Unlock()
 	if _, ok := inst.locker.(*sync.Mutex); ok {
 		dup.locker = &sync.Mutex{}
 	} else {
@@ -274,14 +274,4 @@ func (inst *Instance) SetSynchronized(on bool) {
 func (inst *Instance) Synchronized() bool {
 	_, ok := inst.locker.(*sync.Mutex)
 	return ok
-}
-
-// Lock the instance to synchronize changes.
-func (inst *Instance) Lock() {
-	inst.locker.Lock()
-}
-
-// Unlock the instance to synchronize changes.
-func (inst *Instance) Unlock() {
-	inst.locker.Unlock()
 }

@@ -24,14 +24,14 @@ func (w badWriter) Write([]byte) (int, error) {
 
 func TestInstanceIDMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(send (make-instance 'patient) :id)`,
+		Source: `(send (make-instance 'fhir5:patient) :id)`,
 		Expect: "/[0-9]+/",
 	}).Test(t)
 }
 
 func TestInstanceIDFunction(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(instance-id (make-instance 'patient))`,
+		Source: `(instance-id (make-instance 'fhir5:patient))`,
 		Expect: "/[0-9]+/",
 	}).Test(t)
 	(&sliptest.Function{
@@ -42,14 +42,14 @@ func TestInstanceIDFunction(t *testing.T) {
 
 func TestInstanceTypeFunction(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(send (make-instance 'patient) :type)`,
-		Expect: "#<fhir:Type Patient>",
+		Source: `(send (make-instance 'fhir5:patient) :type)`,
+		Expect: "#<fhir5:Type Patient>",
 	}).Test(t)
 }
 
 func TestInstanceWhichOperationsMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(sort (send (make-instance 'patient) :which-operations))`,
+		Source: `(sort (send (make-instance 'fhir5:patient) :which-operations))`,
 		Expect: `(:class :data :describe :equal :get :id :init :operation-handled-p :print-self
         :replace :set :type :valid-p :which-operations)`,
 	}).Test(t)
@@ -57,33 +57,33 @@ func TestInstanceWhichOperationsMethod(t *testing.T) {
 
 func TestInstanceOperationHandledPMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(send (make-instance 'patient) :operation-handled-p :id)`,
+		Source: `(send (make-instance 'fhir5:patient) :operation-handled-p :id)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(send (make-instance 'patient) :operation-handled-p :quux)`,
+		Source: `(send (make-instance 'fhir5:patient) :operation-handled-p :quux)`,
 		Expect: "nil",
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(send (make-instance 'patient) :operation-handled-p 7)`,
+		Source:    `(send (make-instance 'fhir5:patient) :operation-handled-p 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceEqualMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((pat (make-instance 'patient)))
+		Source: `(let ((pat (make-instance 'fhir5:patient)))
                    (send pat :equal pat))`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(let ((pat (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")))
-                       (pat2 (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}"))))
+		Source: `(let ((pat (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")))
+                       (pat2 (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}"))))
                    (send pat :equal pat2))`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(send (make-instance 'patient) :equal 7)`,
+		Source: `(send (make-instance 'fhir5:patient) :equal 7)`,
 		Expect: "nil",
 	}).Test(t)
 }
@@ -104,14 +104,15 @@ func TestInstanceDataFunction(t *testing.T) {
 
 func TestInstanceGetMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(send (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")) :get "low.value")`,
+		Source: `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")) :get "low.value")`,
 		Expect: "1",
 	}).Test(t)
 }
 
 func TestInstanceGetFunction(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(instance-get (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")) "low.value")`,
+		Source: `(instance-get
+                   (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")) "low.value")`,
 		Expect: "1",
 	}).Test(t)
 	(&sliptest.Function{
@@ -120,7 +121,7 @@ func TestInstanceGetFunction(t *testing.T) {
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(instance-get
-                   (make-instance 'HumanName :data (make-bag "{given:[bill bob]}")) 7)`,
+                   (make-instance 'fhir5:HumanName :data (make-bag "{given:[bill bob]}")) 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
@@ -128,37 +129,37 @@ func TestInstanceGetFunction(t *testing.T) {
 func TestInstanceGetPathList(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(instance-get
-                   (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")) '(low "value"))`,
+                   (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")) '(low "value"))`,
 		Expect: "1",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(send
                    (instance-get
-                     (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")) "low")
+                     (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")) "low")
                    :write nil)`,
 		Expect: `"{value: 1}"`,
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(instance-get
-                   (make-instance 'HumanName :data (make-bag "{given:[bill bob]}")) '(given 1))`,
+                   (make-instance 'fhir5:HumanName :data (make-bag "{given:[bill bob]}")) '(given 1))`,
 		Expect: `"bob"`,
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(instance-get
-                   (make-instance 'HumanName :data (make-bag "{given:[bill bob]}")) '(given nil))`,
+                   (make-instance 'fhir5:HumanName :data (make-bag "{given:[bill bob]}")) '(given nil))`,
 		Expect: `"bill"`,
 	}).Test(t)
 
 	(&sliptest.Function{
 		Source: `(instance-get
-                   (make-instance 'HumanName :data (make-bag "{given:[bill bob]}")) '(given t))`,
+                   (make-instance 'fhir5:HumanName :data (make-bag "{given:[bill bob]}")) '(given t))`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceSetMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}"))))
                    (send inst :set "high" (make-bag "{value:2}"))
                    (send inst :get "high.value"))`,
 		Expect: "2",
@@ -167,7 +168,7 @@ func TestInstanceSetMethod(t *testing.T) {
 
 func TestInstanceSetFunction(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}"))))
                    (instance-set inst "high" (make-bag "{value:2}"))
                    (send inst :get "high.value"))`,
 		Expect: "2",
@@ -180,23 +181,24 @@ func TestInstanceSetFunction(t *testing.T) {
 
 func TestInstanceInit(t *testing.T) {
 	(&sliptest.Function{
-		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :init)`,
+		Source:    `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :init)`,
 		PanicType: slip.InvalidMethodErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(make-instance 'range :data nil)`,
+		Source:    `(make-instance 'fhir5:range :data nil)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(make-instance 'range :data (make-bag "{low:{value:1}}") :on-error 7)`,
+		Source:    `(make-instance 'fhir5:range :data (make-bag "{low:{value:1}}") :on-error 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(make-instance 'range :data (make-bag "{quux:{value:1}}"))`,
+		Source:    `(make-instance 'fhir5:range :data (make-bag "{quux:{value:1}}"))`,
 		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'range :data (make-bag "{quux:{value:1}}") :on-error (lambda (p v m) t))))
+		Source: `(let ((inst (make-instance 'fhir5:range
+                                            :data (make-bag "{quux:{value:1}}") :on-error (lambda (p v m) t))))
                    (send (send inst :data) :write nil))`,
 		Expect: `"{}"`,
 	}).Test(t)
@@ -205,11 +207,11 @@ func TestInstanceInit(t *testing.T) {
 func TestInstancePrintSelfMethod(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
-                   (send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self s))`,
-		Expect: "/#<fhir:Range [0-9a-f]+>/",
+                   (send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :print-self s))`,
+		Expect: "/#<fhir5:Range [0-9a-f]+>/",
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self 7)`,
+		Source:    `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :print-self 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
@@ -219,7 +221,7 @@ func TestInstancePrintSelfBadWrite(t *testing.T) {
 	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
 	(&sliptest.Function{
 		Scope:     scope,
-		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :print-self out)`,
+		Source:    `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :print-self out)`,
 		PanicType: slip.StreamErrorSymbol,
 	}).Test(t)
 }
@@ -227,17 +229,17 @@ func TestInstancePrintSelfBadWrite(t *testing.T) {
 func TestInstanceDescribeMethod(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
-                   (send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe s))`,
-		Expect: "/an instance of .+fhir:Range/",
+                   (send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :describe s))`,
+		Expect: "/an instance of .+fhir5:Range/",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(let ((*print-ansi* nil))
                    (with-output-to-string (s)
-                     (send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe s)))`,
-		Expect: "/an instance of fhir:Range/",
+                     (send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :describe s)))`,
+		Expect: "/an instance of fhir5:Range/",
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe 7)`,
+		Source:    `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :describe 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
@@ -247,14 +249,14 @@ func TestInstanceDescribeBadWrite(t *testing.T) {
 	scope.Let("out", &slip.OutputStream{Writer: badWriter(0)})
 	(&sliptest.Function{
 		Scope:     scope,
-		Source:    `(send (make-instance 'range :data (make-bag "{low:{value:1}}")) :describe out)`,
+		Source:    `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}")) :describe out)`,
 		PanicType: slip.StreamErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceReplaceMethod(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}"))))
                    (send inst :replace (make-bag "{low:{value:2}}"))
                    (send inst :get "low.value"))`,
 		Expect: "2",
@@ -263,7 +265,7 @@ func TestInstanceReplaceMethod(t *testing.T) {
 
 func TestInstanceReplaceFunction(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'range :data (make-bag "{low:{value:1}}"))))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{low:{value:1}}"))))
                    (instance-replace inst (make-bag "{low:{value:2}}"))
                    (send inst :get "low.value"))`,
 		Expect: "2",
@@ -279,24 +281,24 @@ func TestInstanceReplaceNotInstance(t *testing.T) {
 
 func TestInstanceReplaceBadValue(t *testing.T) {
 	(&sliptest.Function{
-		Source:    `(instance-replace (make-instance 'range) 7)`,
+		Source:    `(instance-replace (make-instance 'fhir5:range) 7)`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceReplaceBadBagValue(t *testing.T) {
 	(&sliptest.Function{
-		Source:    `(instance-replace (make-instance 'range) (make-bag "7"))`,
+		Source:    `(instance-replace (make-instance 'fhir5:range) (make-bag "7"))`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(instance-replace (make-instance 'range) (make-bag "{avg:{value:3}}"))`,
+		Source:    `(instance-replace (make-instance 'fhir5:range) (make-bag "{avg:{value:3}}"))`,
 		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceMisc(t *testing.T) {
-	rt, ok := slip.FindClass("fhir:range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	bg := bag.Flavor().MakeInstance().(*flavors.Instance)
@@ -311,9 +313,9 @@ func TestInstanceMisc(t *testing.T) {
 	sort.Strings(names)
 	tt.Equal(t, "[extension high id low]", pretty.SEN(names))
 
-	tt.Equal(t, true, inst.IsA("Range"))
-	tt.Equal(t, true, inst.IsA("Element"))
-	tt.Equal(t, false, inst.IsA("patient"))
+	tt.Equal(t, true, inst.IsA("fhir5:Range"))
+	tt.Equal(t, true, inst.IsA("fhir5:Element"))
+	tt.Equal(t, false, inst.IsA("fhir5:patient"))
 
 	fi, ok := inst.(*fhir.Instance)
 	tt.Equal(t, true, ok)
@@ -356,13 +358,13 @@ func TestInstanceMisc(t *testing.T) {
      (setf (slot-value inst (quote low)) (("value" . 3))) inst)`, fi.LoadForm().String())
 
 	(&sliptest.Function{
-		Source:    `(send (make-instance 'fhir:range) :quux)`,
+		Source:    `(send (make-instance 'fhir5:range) :quux)`,
 		PanicType: slip.InvalidMethodErrorSymbol,
 	}).Test(t)
 }
 
 func TestInstanceSlots(t *testing.T) {
-	rt, ok := slip.FindClass("fhir:range").(*fhir.Type)
+	rt, ok := slip.FindClass("fhir5:range").(*fhir.Type)
 	tt.Equal(t, true, ok)
 
 	bg := bag.Flavor().MakeInstance().(*flavors.Instance)
@@ -382,7 +384,7 @@ func TestInstanceSlots(t *testing.T) {
 	tt.Panic(t, func() { _ = inst.SetSlotValue(slip.Symbol("low"), vanilla) })
 
 	var qt *fhir.Type
-	qt, ok = slip.FindClass("fhir:quantity").(*fhir.Type)
+	qt, ok = slip.FindClass("fhir5:quantity").(*fhir.Type)
 	tt.Equal(t, true, ok)
 	q := qt.MakeInstance()
 	q.SetSlotValue(slip.Symbol("value"), slip.Fixnum(5))
@@ -396,11 +398,11 @@ func TestInstanceSlots(t *testing.T) {
 
 func TestInstanceValidPtrue(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(send (make-instance 'fhir:range :data (make-bag "{low:{value:2}}")) :valid-p)`,
+		Source: `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:2}}")) :valid-p)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(send (make-instance 'fhir:range :data (make-bag "{low:{value:2}}")) :valid-p
+		Source: `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:2}}")) :valid-p
                        (lambda (p v m) nil))`,
 		Expect: "t",
 	}).Test(t)
@@ -408,7 +410,7 @@ func TestInstanceValidPtrue(t *testing.T) {
 
 func TestInstanceValidPfalse(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'fhir:range :data (make-bag "{quux:{value:2}}") :no-validation t))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{quux:{value:2}}") :no-validation t))
                        errors)
                    (send inst :valid-p (lambda (p v m) (setq errors (add errors (list p v m)))))
                    errors)`,
@@ -416,13 +418,13 @@ func TestInstanceValidPfalse(t *testing.T) {
 	}).Test(t)
 
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'fhir:range :data (make-bag "{quux:{value:2}}") :no-validation t)))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{quux:{value:2}}") :no-validation t)))
                    (send inst :valid-p))`,
 		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 
 	(&sliptest.Function{
-		Source: `(let ((inst (make-instance 'fhir:range :data (make-bag "{quux:{value:2}}") :no-validation t)))
+		Source: `(let ((inst (make-instance 'fhir5:range :data (make-bag "{quux:{value:2}}") :no-validation t)))
                    (send inst :valid-p (lambda (p v m) t)))`,
 		Expect: "nil",
 	}).Test(t)

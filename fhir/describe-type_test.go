@@ -17,7 +17,7 @@ func TestDescribeTypeMinimum(t *testing.T) {
 	scope.Let("out", &slip.OutputStream{Writer: &out})
 	(&sliptest.Function{
 		Scope:  scope,
-		Source: `(describe-type (find-class 'patient) out)`,
+		Source: `(describe-type (find-class 'fhir5:patient) out)`,
 		Expect: "nil",
 	}).Test(t)
 	desc := out.String()
@@ -33,7 +33,7 @@ func TestDescribeTypeFull(t *testing.T) {
 	scope.Let("out", &slip.OutputStream{Writer: &out})
 	(&sliptest.Function{
 		Scope:  scope,
-		Source: `(describe-type 'patient out :full t :stripe-color bg-light-blue)`,
+		Source: `(describe-type 'fhir5:patient out :full t :stripe-color bg-light-blue)`,
 		Expect: "nil",
 	}).Test(t)
 	desc := out.String()

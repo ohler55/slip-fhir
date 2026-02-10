@@ -5,11 +5,8 @@ package fhir
 import (
 	_ "embed"
 	"fmt"
-	"strings"
 	"time"
 
-	"github.com/ohler55/ojg/alt"
-	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
@@ -51,14 +48,13 @@ var (
 		Doc: `The __fhir__ package provides a FHIR client to aid in making requests
 to a FHIR server and in handling responses. Classes for each of the FHIR resource and
 non-primitive types are defined from a specified FHIR JSON Schema file. Instances of
-the fhir classes can be used to build as well as access fields of FHIR datatypes.
+the fhir classes can be used to build as well as access fields of FHIR datatypes. The
+fhir package contains the functions and metaclasses for dynamically loaded FHIR types.
 
 
-The default FHIR version is v5.0.0. The _set-fhir-version_ function can be used to
-change the FHIR version which also redefines the fhir classes.`,
+The default FHIR version is v5.0.0 and is in package fhir5.`,
 		PreSet: slip.DefaultPreSet,
 	}
-	types     []Validator
 	blankType = Type{
 		name:        "Type",
 		pkg:         &Pkg,
@@ -78,12 +74,6 @@ func init() {
 			Const:  true,
 			Export: true,
 			Doc:    `The fhir package.`,
-		},
-		"*fhir-version*": {
-			Val:    slip.String("unknown"),
-			Const:  true,
-			Export: true,
-			Doc:    `The FHIR version.`,
 		},
 		"bg-black": {
 			Val:    slip.String("\x1b[0;40m"),
@@ -184,7 +174,8 @@ func init() {
 	})
 	// slip/pkg/clos is needed so make sure it gets inited first with an
 	// import.
-	initTypes(sen.MustParse(fhir5JSON))
+	slip.RegisterClass("type", &blankType)
+	slip.RegisterClass("property", &blankProp)
 
 	initDescribeType()
 	initInstanceID()
@@ -201,69 +192,15 @@ func init() {
 	initPropertyGroup()
 	initPropertyCardinality()
 	initPropertyValidP()
+	initLoadDefinitions()
+
+	p5 := slip.DefPackage("fhir5", []string{}, "FHIR version 5.0.0")
+	defineTypes(sen.MustParse(fhir5JSON), p5)
+	// defineTypes(sen.MustParse(fhir5JSON), &Pkg)
 
 	Pkg.Initialize(nil, &Type{}) // lock
 	slip.AddPackage(&Pkg)
 	slip.UserPkg.Use(&Pkg)
-}
-
-func initTypes(schema any) {
-	if version := alt.String(jp.C("version").First(schema)); 0 < len(version) {
-		vv := Pkg.GetVarVal("*fhir-version*")
-		vv.Val = slip.String(version)
-	}
-	slip.RegisterClass("type", &blankType)
-	slip.RegisterClass("property", &blankProp)
-
-	initPrimitives(schema)
-	loadTypes(jp.C("hierarchy").W().Get(schema))
-	loadTypes(jp.C("datatypes").W().Get(schema))
-	loadTypes(jp.C("backbones").W().Get(schema))
-	loadTypes(jp.C("resources").W().Get(schema))
-	initTypeParents()
-}
-
-func initPrimitives(schema any) {
-	var primitives []*Type
-	for _, pa := range jp.C("primitives").W().Get(schema) {
-		pt := Type{
-			name:        alt.String(jp.C("name").First(pa)),
-			description: alt.String(jp.C("description").First(pa)),
-			pkg:         &Pkg,
-			parent:      alt.String(jp.C("parent").First(pa)),
-			pattern:     alt.String(jp.C("pattern").First(pa)),
-		}
-		slip.RegisterClass(strings.ToLower(pt.name), &pt)
-		primitives = append(primitives, &pt)
-		types = append(types, &pt)
-	}
-	for _, pt := range primitives {
-		pt.init()
-	}
-}
-
-func loadTypes(defs []any) {
-	for _, ts := range defs {
-		ft := Type{
-			name:        alt.String(jp.C("name").First(ts)),
-			description: alt.String(jp.C("description").First(ts)),
-			pkg:         &Pkg,
-			parent:      alt.String(jp.C("parent").First(ts)),
-		}
-		for _, ps := range jp.C("properties").W().Get(ts) {
-			ft.props = append(ft.props, NewProp(ps))
-		}
-		slip.RegisterClass(strings.ToLower(ft.name), &ft)
-		types = append(types, &ft)
-	}
-}
-
-func initTypeParents() {
-	for _, ft := range types {
-		if base, ok := ft.(*Type); ok {
-			base.init()
-		}
-	}
 }
 
 func objectify(v any) (obj slip.Object) {
