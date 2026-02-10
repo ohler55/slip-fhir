@@ -41,7 +41,7 @@ type Property struct {
 	name     string
 	docs     string
 	typeName string
-	ftype    Validator
+	ftype    *Type
 	enum     []string
 	group    []*Property
 	required bool
@@ -74,7 +74,9 @@ func (p *Property) String() string {
 
 // Append a buffer with a representation of the Object.
 func (p *Property) Append(b []byte) []byte {
-	b = append(b, "#<fhir:property "...)
+	b = append(b, "#<"...)
+	b = append(b, p.pkg.Name...)
+	b = append(b, ":Property "...)
 	b = append(b, p.name...)
 	b = append(b, ' ')
 	b = strconv.AppendUint(b, p.ID(), 16)
@@ -305,12 +307,12 @@ func (p *Property) init(t *Type) {
 		sortProps(p.group)
 		return
 	}
-	pt := Pkg.FindClass(p.typeName)
+	pt := p.pkg.FindClass(p.typeName)
 	if pt == nil {
 		panic(fmt.Sprintf("FHIR type %s property %s specifies an undefined type of %s",
 			t.name, p.name, p.typeName))
 	}
-	p.ftype = pt.(Validator)
+	p.ftype = pt.(*Type)
 }
 
 func (p *Property) validateValue(value any, onErr OnErrorFunc) bool {
@@ -338,7 +340,7 @@ func (p *Property) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc
 		return false
 	}
 	if p.array {
-		ft := p.ftype.(*Type)
+		ft := p.ftype
 		if array, ok := value.([]any); ok {
 			for i, av := range array {
 				if ft.validate(append(ppath, jp.Nth(i)), av, onErr) {
@@ -349,7 +351,7 @@ func (p *Property) validate(path jp.Expr, data map[string]any, onErr OnErrorFunc
 			return onErr(ppath, nil, fmt.Sprintf("%s must be an array", ppath))
 		}
 	} else {
-		if ft, ok := p.ftype.(*Type); ok && ft.validate(ppath, value, onErr) {
+		if p.ftype.validate(ppath, value, onErr) {
 			return true
 		}
 		if 0 < len(p.enum) {
@@ -392,7 +394,7 @@ func (p *Property) validateGroup(path jp.Expr, data map[string]any, onErr OnErro
 	}
 	if foundProp != nil {
 		gpath[len(gpath)-1] = jp.Child(foundProp.name)
-		if ft, ok := foundProp.ftype.(*Type); ok && ft.validate(gpath, foundData, onErr) {
+		if foundProp.ftype.validate(gpath, foundData, onErr) {
 			return true
 		}
 		xname := "_" + foundProp.name
@@ -401,7 +403,7 @@ func (p *Property) validateGroup(path jp.Expr, data map[string]any, onErr OnErro
 			// check for invalid properties.
 			if xprop := p.groupFind(xname); xprop != nil {
 				gpath[len(gpath)-1] = jp.Child(xname)
-				if ft, ok := xprop.ftype.(*Type); ok && ft.validate(gpath, dv, onErr) {
+				if xprop.ftype.validate(gpath, dv, onErr) {
 					return true
 				}
 			}

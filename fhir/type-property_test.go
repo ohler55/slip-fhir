@@ -11,22 +11,22 @@ import (
 
 func TestTypeProperty(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(type-property (find-class 'patient) 'gender)`,
-		Expect: "/#<fhir:property gender [0-9a-f]+>/",
+		Source: `(type-property (find-class 'fhir5:patient) 'gender)`,
+		Expect: "/#<fhir5:Property gender [0-9a-f]+>/",
 	}).Test(t)
 }
 
 func TestTypePropertySymbol(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(type-property 'patient "gender")`,
-		Expect: "/#<fhir:property gender [0-9a-f]+>/",
+		Source: `(type-property 'fhir5:patient "gender")`,
+		Expect: "/#<fhir5:Property gender [0-9a-f]+>/",
 	}).Test(t)
 }
 
 func TestTypePropertyInherit(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(type-property 'patient 'id)`,
-		Expect: "/#<fhir:property id [0-9a-f]+>/",
+		Source: `(type-property 'fhir5:patient 'id)`,
+		Expect: "/#<fhir5:Property id [0-9a-f]+>/",
 	}).Test(t)
 }
 

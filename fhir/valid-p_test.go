@@ -12,18 +12,18 @@ import (
 
 func TestValidPBasic(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(valid-p (make-instance 'range :data (make-bag "{low:{value:1} high:{value:2}}")))`,
+		Source: `(valid-p (make-instance 'fhir5:range :data (make-bag "{low:{value:1} high:{value:2}}")))`,
 		Expect: "t",
 	}).Test(t)
 }
 
 func TestValidPWithType(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(valid-p (make-bag "{low:{value:1} high:{value:2}}") :type 'range)`,
+		Source: `(valid-p (make-bag "{low:{value:1} high:{value:2}}") :type 'fhir5:range)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(valid-p 7 :type 'fhir:integer)`,
+		Source: `(valid-p 7 :type 'fhir5:integer)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
@@ -35,7 +35,7 @@ func TestValidPWithType(t *testing.T) {
 		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(valid-p 7.5 :type 'fhir:integer)`,
+		Source:    `(valid-p 7.5 :type 'fhir5:integer)`,
 		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 }
@@ -43,27 +43,27 @@ func TestValidPWithType(t *testing.T) {
 func TestValidPWithOnError(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
-                   (valid-p 7 :type 'fhir:integer :on-error (lambda (p v m) (format s "~A: ~A" p m))))`,
+                   (valid-p 7 :type 'fhir5:integer :on-error (lambda (p v m) (format s "~A: ~A" p m))))`,
 		Expect: `""`,
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
-                   (valid-p 7.5 :type 'fhir:integer :on-error (lambda (p v m) (format s "~A: ~A" p m))))`,
+                   (valid-p 7.5 :type 'fhir5:integer :on-error (lambda (p v m) (format s "~A: ~A" p m))))`,
 		Expect: `"#<bag-path $>: a decimal is not a valid type for a integer"`,
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
                    (valid-p (make-bag "{low:{value:{a:1}}}")
-                            :type 'fhir:range
+                            :type 'fhir5:range
                             :on-error (lambda (p v m) (format s "~A: ~A ~A" p v m))))`,
 		Expect: `/#<bag-flavor .*is not a valid type for a decimal/`,
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(valid-p 7.5 :type 'fhir:integer :on-error (lambda (p v m) t))`,
+		Source: `(valid-p 7.5 :type 'fhir5:integer :on-error (lambda (p v m) t))`,
 		Expect: "nil",
 	}).Test(t)
 	(&sliptest.Function{
-		Source:    `(valid-p 7.5 :type 'fhir:integer :on-error (lambda (p v) t))`,
+		Source:    `(valid-p 7.5 :type 'fhir5:integer :on-error (lambda (p v) t))`,
 		PanicType: slip.TypeErrorSymbol,
 	}).Test(t)
 }
@@ -75,22 +75,22 @@ func TestValidPWithOnErrorFunc(t *testing.T) {
 	}()
 	_ = slip.ReadString("(defun on-err-func (p v m) t)", scope).Eval(scope, nil)
 	(&sliptest.Function{
-		Source: `(valid-p 7 :type 'fhir:integer :on-error #'on-err-func)`,
+		Source: `(valid-p 7 :type 'fhir5:integer :on-error #'on-err-func)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(valid-p 7.5 :type 'fhir:integer :on-error #'on-err-func)`,
+		Source: `(valid-p 7.5 :type 'fhir5:integer :on-error #'on-err-func)`,
 		Expect: "nil",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(valid-p 7 :type 'fhir:string :on-error 'on-err-func)`,
+		Source: `(valid-p 7 :type 'fhir5:string :on-error 'on-err-func)`,
 		Expect: "nil",
 	}).Test(t)
 }
 
 func TestValidPWithOnErrorList(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(valid-p 7 :type 'fhir:integer :on-error '(lambda (p v m) t))`,
+		Source: `(valid-p 7 :type 'fhir5:integer :on-error '(lambda (p v m) t))`,
 		Expect: "t",
 	}).Test(t)
 }
@@ -104,20 +104,21 @@ func TestValidPNotBag(t *testing.T) {
 
 func TestValidPgroup(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(valid-p (make-instance 'patient :data (make-bag "{resourceType:Patient deceasedBoolean:false}")))`,
+		Source: `(valid-p (make-instance 'fhir5:patient
+                                         :data (make-bag "{resourceType:Patient deceasedBoolean:false}")))`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
                    (valid-p (make-bag "{resourceType:Patient deceasedBoolean:quux}")
-                            :type 'patient
+                            :type 'fhir5:patient
                             :on-error (lambda (p v m) (format s "~A ~A, ~A" p v m))))`,
 		Expect: `"#<bag-path $['deceased[x]'].deceasedBoolean> quux, a string is not a valid type for a boolean"`,
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(with-output-to-string (s)
                    (valid-p (make-bag "{resourceType:Patient deceasedBoolean:true deceasedDateTime:'2026-02-04'}")
-                            :type 'patient
+                            :type 'fhir5:patient
                             :on-error (lambda (p v m) (format s "~A ~A, ~A" p v m) t)))`,
 		Validate: func(t *testing.T, v slip.Object) {
 			msg := string(v.(slip.String))
@@ -130,21 +131,21 @@ func TestValidPgroup(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(valid-p (make-bag "{resourceType:Patient
                                       deceasedBoolean:false
-                                      _deceasedBoolean:{url:something}}") :type 'patient)`,
+                                      _deceasedBoolean:{url:something}}") :type 'fhir5:patient)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(valid-p (make-bag "{resourceType:Patient
                                       deceasedBoolean:false
                                       _deceasedBoolean:{url:7}}")
-                          :type 'patient
+                          :type 'fhir5:patient
                           :on-error (lambda (p v m) t))`,
 		Expect: "nil",
 	}).Test(t)
 	(&sliptest.Function{
 		Source: `(valid-p (make-bag "{resourceType:Patient
                                       deceasedBoolean:7}")
-                          :type 'patient
+                          :type 'fhir5:patient
                           :on-error (lambda (p v m) t))`,
 		Expect: "nil",
 	}).Test(t)

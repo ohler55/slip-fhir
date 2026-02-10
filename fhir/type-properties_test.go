@@ -11,14 +11,14 @@ import (
 
 func TestTypeProperties(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(sort (mapcar (lambda (p) (send p :name)) (type-properties (find-class 'range))))`,
+		Source: `(sort (mapcar (lambda (p) (send p :name)) (type-properties (find-class 'fhir5:range))))`,
 		Expect: `("extension" "high" "id" "low")`,
 	}).Test(t)
 }
 
 func TestTypePropertiesSymbol(t *testing.T) {
 	(&sliptest.Function{
-		Source: `(sort (mapcar (lambda (p) (send p :name)) (type-properties 'range)))`,
+		Source: `(sort (mapcar (lambda (p) (send p :name)) (type-properties 'fhir5:range)))`,
 		Expect: `("extension" "high" "id" "low")`,
 	}).Test(t)
 }

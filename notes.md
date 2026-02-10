@@ -4,15 +4,13 @@
 
 - get specs from https://www.hl7.org/fhir//downloads.html
 
-- slip
- - add method set instance to sync and expose a lock and unlock
-  - set-synchronized (active)
-  - synchronizedp
-  - synchronize (sync-instance &rest forms)
-   - sync-instance must be sync active
 
 - plan
- - fhir:load-definition (filename package)
+ - fhir:load-definitions (filename package)
+  - make default load into fhir5
+  - user can use fhir5 package
+  - update Type, Property, and instance Append function to use correct package
+
  - client
   - read, etc
 

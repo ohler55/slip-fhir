@@ -58,7 +58,7 @@ func (inst *Instance) Hierarchy() []slip.Symbol {
 // IsA return true if the instance is of a type that inherits from the
 // provided flavor.
 func (inst *Instance) IsA(class string) bool {
-	fc := "fhir:" + class
+	fc := fmt.Sprintf("%s:%s", inst.class.pkg.Name, class)
 	for _, sym := range inst.class.Hierarchy() {
 		if strings.EqualFold(fc, string(sym)) || strings.EqualFold(class, string(sym)) {
 			return true

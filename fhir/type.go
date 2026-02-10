@@ -62,7 +62,9 @@ func (t *Type) String() string {
 
 // Append a buffer with a representation of the Object.
 func (t *Type) Append(b []byte) []byte {
-	b = append(b, "#<fhir:Type "...)
+	b = append(b, "#<"...)
+	b = append(b, t.pkg.Name...)
+	b = append(b, ":Type "...)
 	b = append(b, t.name...)
 	return append(b, '>')
 }
@@ -133,7 +135,7 @@ func (t *Type) Equal(other slip.Object) (eq bool) {
 // Hierarchy returns the class hierarchy as symbols for the instance.
 func (t *Type) Hierarchy() []slip.Symbol {
 	names := make([]slip.Symbol, len(t.supers)+2)
-	names[0] = slip.Symbol("fhir:" + t.name)
+	names[0] = slip.Symbol(fmt.Sprintf("%s:%s", t.pkg.Name, t.name))
 	for i, sc := range t.supers {
 		names[i+1] = slip.Symbol(fmt.Sprintf("%s:%s", sc.Pkg().Name, sc.Name()))
 	}
@@ -230,11 +232,13 @@ func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string)
 	b = append(b, indentSpaces[:indent]...)
 	if ansi {
 		b = append(b, bold...)
-		b = append(b, "fhir:"...)
+		b = append(b, t.pkg.Name...)
+		b = append(b, ':')
 		b = append(b, t.name...)
 		b = append(b, colorOff...)
 	} else {
-		b = append(b, "fhir:"...)
+		b = append(b, t.pkg.Name...)
+		b = append(b, ':')
 		b = append(b, t.name...)
 	}
 	b = append(b, " is a FHIR "...)
@@ -396,7 +400,7 @@ func (t *Type) init() {
 		panic(fmt.Sprintf("primitive type %s specifies a parent of itself", t.name))
 	}
 	if 0 < len(t.parent) {
-		if t.inherit = Pkg.FindClass(t.parent); t.inherit == nil {
+		if t.inherit = t.pkg.FindClass(t.parent); t.inherit == nil {
 			// try current package
 			if t.inherit = slip.FindClass(t.parent); t.inherit == nil {
 				panic(fmt.Sprintf("FHIR type %s specifies an undefined parent of %s", t.name, t.parent))
