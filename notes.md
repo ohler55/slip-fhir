@@ -8,11 +8,7 @@
 - plan
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   - http-read (url &key type id version headers params timeout mime-type)
-   - if type, append to url (check before id)
-   - if id, append to url (check before version)
-   - if version, append to url (check before params)
-   - if params, append to url
-  - http-update (url resource version condition headers params timeout)
+  - http-update (url resource &key version condition headers params timeout)
   - http-patch (url patch &key type id condition headers params timeout)
   - http-delete (url &key type id condition headers params timeout)
   - http-create (url resource &key condition headers params timeout)
