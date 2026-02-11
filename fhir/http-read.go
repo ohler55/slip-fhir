@@ -3,7 +3,16 @@
 package fhir
 
 import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+
+	"github.com/ohler55/ojg/oj"
+	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/bag"
+	"github.com/ohler55/slip/pkg/flavors"
 )
 
 func initHTTPRead() {
@@ -96,12 +105,54 @@ type HTTPRead struct {
 func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 15)
 
-	// TBD return *url.URL
-	// uu := httpKeysParser(base slip.List, args slip.List, keys []slip.Symbol)
+	var base slip.List
+	switch ta := args[0].(type) {
+	case slip.String:
+		base = slip.List{slip.Symbol(":url"), ta}
+	case slip.List:
+		base = ta
+	default:
+		slip.TypePanic(s, depth, "base", ta, "string", "property-list")
+	}
+	args = args[1:]
 
-	//slip.TypePanic(s, depth, "type", to, "fhir type")
+	uu := httpKeysParser(base, args, []slip.Symbol{slip.Symbol(":type")}) // more keys
 
-	// TBD send request and get response
+	res, err := http.Get(uu.String())
+	if err != nil {
+		panic(err)
+	}
+	var body []byte
+	if body, err = io.ReadAll(res.Body); err != nil {
+		panic(err)
+	}
+	data := oj.MustParse(body)
+	fmt.Printf("*** %s\n", pretty.SEN(data))
+	// resType := alt.String(jp.C("resourceType").First(data))
+	// TBD find class else bag, if _elements was present in uu params then bag
 
+	resource := bag.Flavor().MakeInstance().(*flavors.Instance)
+	resource.Any = data
+
+	return slip.List{
+		slip.Symbol(":resource"), resource,
+		slip.Symbol(":status"), slip.Fixnum(res.StatusCode),
+		slip.Symbol(":headers"), respHeaders(res),
+	}
+}
+
+func httpKeysParser(base slip.List, args slip.List, keys []slip.Symbol) *url.URL {
+	uv, _ := slip.GetArgsKeyValue(base, slip.Symbol(":url"))
+	uu, err := url.Parse(slip.MustBeString(uv, ":url"))
+	if err != nil {
+		panic(err)
+	}
+	// TBD update uu according to base keys and args
+
+	return uu
+}
+
+func respHeaders(res *http.Response) slip.List {
+	// TBD
 	return nil
 }

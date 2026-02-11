@@ -4,7 +4,7 @@
 
 - get specs from https://www.hl7.org/fhir//downloads.html
 
-
+- make-instance for Type :data can be string
 - plan
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   - http-read (url &key type id version headers params timeout mime-type)
@@ -45,6 +45,11 @@
    - jetstream
   - subscriptions
 
+- sample fhir servers
+ - https://server.fire.ly (best)
+ - http://hapi.fhir.org/baseR4 (down often and only r4)
+ - http://test.fhir.org/r4
+ - info https://confluence.hl7.org/spaces/FHIR/pages/35718859/Public+Test+Servers
 
 - xml schema (fhir-single.xsd)
  - no better, missing enums as well
