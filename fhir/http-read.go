@@ -3,13 +3,15 @@
 package fhir
 
 import (
-	"fmt"
+	"context"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
+	"github.com/ohler55/ojg/alt"
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/oj"
-	"github.com/ohler55/ojg/pretty"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
@@ -76,6 +78,11 @@ Request Timeout code in the response.`,
 					Text: `If true the mime type of the request will be set to "application/fhir+xml"
 otherwise the mime type is "application/fhir+json".`,
 				},
+				{
+					Name: "fhir-package",
+					Type: "string|symbol",
+					Text: `The FHIR package to use. Default: fhir5.`,
+				},
 			},
 			Return: "property-list",
 			Text: `__http-read__ forms a URL from the provided parameters and sents a GET request to
@@ -103,7 +110,7 @@ type HTTPRead struct {
 
 // Call the the function with the arguments provided.
 func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 1, 15)
+	slip.CheckArgCount(s, depth, f, args, 1, 17)
 
 	var base slip.List
 	switch ta := args[0].(type) {
@@ -116,10 +123,34 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	}
 	args = args[1:]
 
-	uu := httpKeysParser(base, args, []slip.Symbol{slip.Symbol(":type")}) // more keys
+	fhirPkg := "fhir5"
+	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":fhir-package")); has {
+		fhirPkg = slip.MustBeString(v, ":fhir-package")
+	}
+	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":fhir-package")); has {
+		fhirPkg = slip.MustBeString(v, ":fhir-package")
+	}
 
-	res, err := http.Get(uu.String())
+	uu := httpKeysParser(base, args, []slip.Symbol{slip.Symbol(":type")}) // more keys
+	ctx := context.Background()
+	if timeout := timeoutFromArgs(base, args); 0 < timeout {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil)
 	if err != nil {
+		panic(err)
+	}
+
+	// TBD add headers,
+	httpKeysHeader(base, args, req)
+
+	var (
+		client http.Client
+		res    *http.Response
+	)
+	if res, err = client.Do(req); err != nil {
 		panic(err)
 	}
 	var body []byte
@@ -127,13 +158,27 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		panic(err)
 	}
 	data := oj.MustParse(body)
-	fmt.Printf("*** %s\n", pretty.SEN(data))
-	// resType := alt.String(jp.C("resourceType").First(data))
-	// TBD find class else bag, if _elements was present in uu params then bag
 
-	resource := bag.Flavor().MakeInstance().(*flavors.Instance)
-	resource.Any = data
+	var resource slip.Object
 
+	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
+		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+		bg.Any = data
+		resource = bg
+	} else {
+		resType := alt.String(jp.C("resourceType").First(data))
+		if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
+			if inst, ok := class.MakeInstance().(*Instance); ok {
+				inst.data, _ = data.(map[string]any)
+				resource = inst
+			}
+		}
+		if resource == nil {
+			bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+			bg.Any = data
+			resource = bg
+		}
+	}
 	return slip.List{
 		slip.Symbol(":resource"), resource,
 		slip.Symbol(":status"), slip.Fixnum(res.StatusCode),
@@ -141,18 +186,49 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	}
 }
 
-func httpKeysParser(base slip.List, args slip.List, keys []slip.Symbol) *url.URL {
+// TBD move the following to a more common location, maybe http.go
+
+func httpKeysParser(base, args slip.List, keys []slip.Symbol) *url.URL {
 	uv, _ := slip.GetArgsKeyValue(base, slip.Symbol(":url"))
 	uu, err := url.Parse(slip.MustBeString(uv, ":url"))
 	if err != nil {
 		panic(err)
 	}
 	// TBD update uu according to base keys and args
+	// always add a _format=application/fhir+json or application/fhir+xml
 
 	return uu
 }
 
+func httpKeysHeader(base slip.List, args slip.List, req *http.Request) {
+
+	// TBD some
+
+}
+
 func respHeaders(res *http.Response) slip.List {
-	// TBD
-	return nil
+	var header slip.List
+
+	for k, va := range res.Header {
+		for _, v := range va {
+			header = append(header, slip.String(k), slip.String(v))
+		}
+	}
+	return header
+}
+
+func timeoutFromArgs(base, args slip.List) time.Duration {
+	var timeout time.Duration
+
+	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":timeout")); has {
+		if r, ok := v.(slip.Real); ok {
+			timeout = time.Duration(r.RealValue() * float64(time.Second))
+		}
+	}
+	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":timeout")); has {
+		if r, ok := v.(slip.Real); ok {
+			timeout = time.Duration(r.RealValue() * float64(time.Second))
+		}
+	}
+	return timeout
 }

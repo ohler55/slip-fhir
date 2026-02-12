@@ -46,7 +46,7 @@
   - subscriptions
 
 - sample fhir servers
- - https://server.fire.ly (best)
+ - https://server.fire.ly (best) https://server.fire.ly/r5
  - http://hapi.fhir.org/baseR4 (down often and only r4)
  - http://test.fhir.org/r4
  - info https://confluence.hl7.org/spaces/FHIR/pages/35718859/Public+Test+Servers
