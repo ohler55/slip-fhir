@@ -6,8 +6,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"net/url"
-	"time"
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
@@ -16,6 +14,13 @@ import (
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
 )
+
+var httpReadKeys = []slip.Symbol{
+	slip.Symbol(":type"),
+	slip.Symbol(":id"),
+	slip.Symbol(":version"),
+	slip.Symbol(":params"),
+}
 
 func initHTTPRead() {
 	slip.Define(
@@ -53,11 +58,14 @@ then a vread request is sent.`,
 				},
 				{
 					Name: "headers",
-					Type: "property-list",
-					Text: `If present, the values in the property are merged and supersede any
-_:headers_ in the _base_. The property list indicators should be strings that will be used as
-the key in a HTTP header. The headers FHIR servers should handle are describe at
-https://www.hl7.org/fhir//http.html#Http-Headers.`,
+					Type: "assoc-list",
+					Text: `If present, the values in the association list are merged and supersede any
+_:headers_ in the _base_. The __car__ of each element of the list is header field key and the remaining
+values in the list element are the values for header field. An example is
+  (("Content-Type" "application/fhir+json") ("ETag" "W/"))
+
+
+The headers FHIR servers should handle are describe at https://www.hl7.org/fhir//http.html#Http-Headers.`,
 				},
 				{
 					Name: "params",
@@ -73,12 +81,6 @@ values in the request URL query. Multiple values with the same key are allowed.`
 Request Timeout code in the response.`,
 				},
 				{
-					Name: "xml",
-					Type: "boolean",
-					Text: `If true the mime type of the request will be set to "application/fhir+xml"
-otherwise the mime type is "application/fhir+json".`,
-				},
-				{
 					Name: "fhir-package",
 					Type: "string|symbol",
 					Text: `The FHIR package to use. Default: fhir5.`,
@@ -87,7 +89,8 @@ otherwise the mime type is "application/fhir+json".`,
 			Return: "property-list",
 			Text: `__http-read__ forms a URL from the provided parameters and sents a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
-a string or if _base_ is a property list then the _:url_ in the property list.
+a string or if _base_ is a property list then the _:url_ in the property list. Only the
+_application/fhir+json_ format is currently supported.
 
 
 The return value should include a resource of either the expected resource, nil, an OperationOutcome,
@@ -110,7 +113,7 @@ type HTTPRead struct {
 
 // Call the the function with the arguments provided.
 func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 1, 17)
+	slip.CheckArgCount(s, depth, f, args, 1, 15)
 
 	var base slip.List
 	switch ta := args[0].(type) {
@@ -131,7 +134,7 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		fhirPkg = slip.MustBeString(v, ":fhir-package")
 	}
 
-	uu := httpKeysParser(base, args, []slip.Symbol{slip.Symbol(":type")}) // more keys
+	uu := httpKeysParser(s, depth, base, args, httpReadKeys)
 	ctx := context.Background()
 	if timeout := timeoutFromArgs(base, args); 0 < timeout {
 		var cancel context.CancelFunc
@@ -142,9 +145,7 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	if err != nil {
 		panic(err)
 	}
-
-	// TBD add headers,
-	httpKeysHeader(base, args, req)
+	httpKeysHeader(s, depth, base, args, req)
 
 	var (
 		client http.Client
@@ -184,51 +185,4 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		slip.Symbol(":status"), slip.Fixnum(res.StatusCode),
 		slip.Symbol(":headers"), respHeaders(res),
 	}
-}
-
-// TBD move the following to a more common location, maybe http.go
-
-func httpKeysParser(base, args slip.List, keys []slip.Symbol) *url.URL {
-	uv, _ := slip.GetArgsKeyValue(base, slip.Symbol(":url"))
-	uu, err := url.Parse(slip.MustBeString(uv, ":url"))
-	if err != nil {
-		panic(err)
-	}
-	// TBD update uu according to base keys and args
-	// always add a _format=application/fhir+json or application/fhir+xml
-
-	return uu
-}
-
-func httpKeysHeader(base slip.List, args slip.List, req *http.Request) {
-
-	// TBD some
-
-}
-
-func respHeaders(res *http.Response) slip.List {
-	var header slip.List
-
-	for k, va := range res.Header {
-		for _, v := range va {
-			header = append(header, slip.String(k), slip.String(v))
-		}
-	}
-	return header
-}
-
-func timeoutFromArgs(base, args slip.List) time.Duration {
-	var timeout time.Duration
-
-	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":timeout")); has {
-		if r, ok := v.(slip.Real); ok {
-			timeout = time.Duration(r.RealValue() * float64(time.Second))
-		}
-	}
-	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":timeout")); has {
-		if r, ok := v.(slip.Real); ok {
-			timeout = time.Duration(r.RealValue() * float64(time.Second))
-		}
-	}
-	return timeout
 }

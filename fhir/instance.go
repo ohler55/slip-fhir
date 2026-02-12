@@ -12,6 +12,7 @@ import (
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/ojg/pretty"
+	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
@@ -121,11 +122,15 @@ func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
 		skip  bool
 	)
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":data")); has {
-		if bg, ok := value.(*flavors.Instance); ok && bag.Flavor() == bg.Type {
-			data, _ = bg.Any.(map[string]any)
-		}
-		if data == nil {
-			slip.TypePanic(scope, depth, ":data", args[1], "bag")
+		switch tv := value.(type) {
+		case slip.String:
+			data = sen.MustParse([]byte(tv)).(map[string]any)
+		case *flavors.Instance:
+			if bag.Flavor() == tv.Type {
+				data, _ = tv.Any.(map[string]any)
+			} else {
+				slip.TypePanic(scope, depth, ":data", args[1], "bag", "string")
+			}
 		}
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":on-error")); has {
