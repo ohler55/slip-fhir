@@ -131,6 +131,8 @@ func (inst *Instance) Init(scope *slip.Scope, args slip.List, depth int) {
 			} else {
 				slip.TypePanic(scope, depth, ":data", args[1], "bag", "string")
 			}
+		default:
+			slip.TypePanic(scope, depth, ":data", args[1], "bag", "string")
 		}
 	}
 	if value, has := slip.GetArgsKeyValue(args, slip.Symbol(":on-error")); has {

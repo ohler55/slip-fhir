@@ -83,7 +83,8 @@ Request Timeout code in the response.`,
 				{
 					Name: "fhir-package",
 					Type: "string|symbol",
-					Text: `The FHIR package to use. Default: fhir5.`,
+					Text: `The FHIR package to use when creating FHIR types from responses.
+Default: fhir5.`,
 				},
 			},
 			Return: "property-list",
@@ -95,10 +96,8 @@ _application/fhir+json_ format is currently supported.
 
 The return value should include a resource of either the expected resource, nil, an OperationOutcome,
 or if an _ elements_ parameter is specified, a __bag__. The return value from the call will be a
-property list with three indicators:
-  __:resource__ retrieved, nil, __bag__, or OperationOutcome.
-  __:status__ of the response such as 200.
-  __:headers__ in the response.
+list of three members. The first is the HTTP status as a __fixnum__. The second is the resource
+retrieved, nil, __bag__, or OperationOutcome. The last element in the list are the headers.
 
 
 For additional information about the FHIR HTTP read refer to https://www.hl7.org/fhir//http.html#read.
@@ -181,8 +180,8 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		}
 	}
 	return slip.List{
-		slip.Symbol(":resource"), resource,
-		slip.Symbol(":status"), slip.Fixnum(res.StatusCode),
-		slip.Symbol(":headers"), respHeaders(res),
+		slip.Fixnum(res.StatusCode),
+		resource,
+		respHeaders(res),
 	}
 }

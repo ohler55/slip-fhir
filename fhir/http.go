@@ -110,6 +110,12 @@ func httpKeysHeader(s *slip.Scope, depth int, base slip.List, args slip.List, re
 			}
 		}
 	}
+	// Overrides
+	req.Header.Set("Content-Type", "application/fhir+json")
+	req.Header.Set("Accept", "application/fhir+json")
+	req.Header.Add("Accept", "application/json+fhir")
+	req.Header.Add("Accept", "application/json")
+
 	// TBD set Content-Type overriding any other value
 }
 
