@@ -3,15 +3,14 @@
 package fhir
 
 import (
-	"context"
-	"io"
 	"net/http"
+	"time"
 
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
-	"github.com/ohler55/ojg/oj"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
+	"github.com/ohler55/slip/pkg/cl"
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
@@ -26,17 +25,17 @@ func initHTTPEach() {
 			Name: "http-each",
 			Args: []*slip.DocArg{
 				{
+					Name: "function",
+					Type: "function",
+					Text: `Function to call with each resource in the bundle returned and subsequent
+linked page's bundles.`,
+				},
+				{
 					Name: "base",
 					Type: "string|property-list",
 					Text: `Identifies the FHIR server to connect to. It may also include default
 or base values if a property list. Any of the _&key_ arguments can be included in the property
 list and will serve as a base or defaults for the _&key_ arguments.`,
-				},
-				{
-					Name: "function",
-					Type: "function",
-					Text: `Function to call with each resource in the bundle returned and subsequent
-linked page's bundles.`,
 				},
 				{Name: "&key"},
 				{
@@ -79,27 +78,29 @@ values in the request URL query. Multiple values with the same key are allowed.`
 Request Timeout code in the response.`,
 				},
 				{
+					Name: "limit",
+					Type: "fixnum",
+					Text: `The limit of the number of resources fetched when paging.`,
+				},
+				{
 					Name: "fhir-package",
 					Type: "string|symbol",
 					Text: `The FHIR package to use when creating FHIR types from responses.
 Default: fhir5.`,
 				},
 			},
-			Return: "nil",
-			// TBD update Text
+			Return: "nil|resource|bag",
 			Text: `__http-each__ forms a URL from the provided parameters and sents a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
-_application/fhir+json_ format is currently supported.
+_application/fhir+json_ format is currently supported. The __http-each__ function is generally
+used for processing multiple returns in a FHIR Bundle and then continuing to load pages until
+the _limit_ is reached or until no more resource are pending processing.
 
 
-The return value should include a resource of either the expected resource, nil, an OperationOutcome,
-or if an _ elements_ parameter is specified, a __bag__. The return value from the call will be a
-list of three members. The first is the HTTP status as a __fixnum__. The second is the resource
-retrieved, nil, __bag__, or OperationOutcome. The last element in the list are the headers.
-
-
-For additional information about the FHIR HTTP read refer to https://www.hl7.org/fhir//http.html#read.
+The return value will be __nil__ on success. If an error occurrs then either a FHIR OperationOutcome
+is returned or a __bag__ with what ever the JSON content of the last response was. This does not
+match any specific FHIR HTTP request but can be used for any FHIR GET request.
 `,
 		}, &Pkg)
 }
@@ -111,74 +112,78 @@ type HTTPEach struct {
 
 // Call the the function with the arguments provided.
 func (f *HTTPEach) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 2, 16)
+	slip.CheckArgCount(s, depth, f, args, 2, 18)
+	d2 := depth + 1
+	caller := cl.ResolveToCaller(s, args[0], d2)
+	uu, data, fhirPkg, res, timeout := httpData(s, args[1:], depth)
 
-	var base slip.List
-	switch ta := args[0].(type) {
-	case slip.String:
-		base = slip.List{slip.Symbol(":url"), ta}
-	case slip.List:
-		base = ta
-	default:
-		slip.TypePanic(s, depth, "base", ta, "string", "property-list")
-	}
-	args = args[1:]
+	resType := alt.String(jp.C("resourceType").First(data))
 
-	fhirPkg := "fhir5"
-	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":fhir-package")); has {
-		fhirPkg = slip.MustBeString(v, ":fhir-package")
-	}
-	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":fhir-package")); has {
-		fhirPkg = slip.MustBeString(v, ":fhir-package")
-	}
-
-	uu := httpKeysParser(s, depth, base, args)
-	ctx := context.Background()
-	if timeout := timeoutFromArgs(base, args); 0 < timeout {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, timeout)
-		defer cancel()
-	}
-	var (
-		data any
-		res  *http.Response
-	)
-	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil); err == nil {
-		httpKeysHeader(s, depth, base, args, req)
-
-		if res, err = (&http.Client{}).Do(req); err != nil {
-			panic(err)
+	switch resType {
+	case "":
+		// No content so an error with no OperationOutcome.
+		return nil
+	case "Bundle":
+		args = args[2:]
+		limit := -1
+		if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":limit")); has {
+			if num, ok := v.(slip.Fixnum); ok {
+				limit = int(num)
+			} else {
+				slip.TypePanic(s, depth, ":limit", v, "fixnum")
+			}
 		}
-		var body []byte
-		if body, err = io.ReadAll(res.Body); err == nil {
-			data = oj.MustParse(body)
-		}
+		return eachInBundle(s, data, caller, fhirPkg, limit, d2, res, timeout)
 	}
 	var resource slip.Object
-
-	// TBD expect a bundle but handle any other resource with a one and done
-
 	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
 		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
 		bg.Any = data
 		resource = bg
 	} else {
-		resType := alt.String(jp.C("resourceType").First(data))
-		if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
-			if inst, ok := class.MakeInstance().(*Instance); ok {
-				inst.data, _ = data.(map[string]any)
-				resource = inst
+		resource = makeAnyResource(data, fhirPkg)
+	}
+	_ = caller.Call(s, slip.List{resource}, d2)
+
+	return nil
+}
+
+var linkNextPath = jp.MustParseString("link[?@.relation == 'next'].url")
+
+func eachInBundle(
+	s *slip.Scope,
+	data any,
+	caller slip.Caller,
+	fhirPkg string,
+	limit, d2 int,
+	res *http.Response,
+	timeout time.Duration) slip.Object {
+
+	result := slip.List{slip.Fixnum(200), nil, respHeaders(res)}
+
+	for data != nil {
+		for _, dv := range jp.C("entry").W().C("resource").Get(data) {
+			resource := makeAnyResource(dv, fhirPkg)
+			_ = caller.Call(s, slip.List{resource}, d2)
+			if 0 < limit {
+				limit--
+				if limit == 0 {
+					return result
+				}
 			}
 		}
-		if resource == nil {
-			bg := bag.Flavor().MakeInstance().(*flavors.Instance)
-			bg.Any = data
-			resource = bg
+		if limit != 0 { // covers negative and remaining
+			next := alt.String(linkNextPath.First(data))
+			data = nil
+			if 0 < len(next) {
+				data, res = loadPage(next, timeout)
+				if res.StatusCode != 200 {
+					return makeAnyResource(data, fhirPkg)
+				}
+			}
+		} else {
+			data = nil
 		}
 	}
-	return slip.List{
-		slip.Fixnum(res.StatusCode),
-		resource,
-		respHeaders(res),
-	}
+	return nil
 }

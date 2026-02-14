@@ -3,13 +3,6 @@
 package fhir
 
 import (
-	"context"
-	"io"
-	"net/http"
-
-	"github.com/ohler55/ojg/alt"
-	"github.com/ohler55/ojg/jp"
-	"github.com/ohler55/ojg/oj"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
@@ -107,47 +100,8 @@ type HTTPRead struct {
 func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 15)
 
-	var base slip.List
-	switch ta := args[0].(type) {
-	case slip.String:
-		base = slip.List{slip.Symbol(":url"), ta}
-	case slip.List:
-		base = ta
-	default:
-		slip.TypePanic(s, depth, "base", ta, "string", "property-list")
-	}
-	args = args[1:]
+	uu, data, fhirPkg, res, _ := httpData(s, args, depth)
 
-	fhirPkg := "fhir5"
-	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":fhir-package")); has {
-		fhirPkg = slip.MustBeString(v, ":fhir-package")
-	}
-	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":fhir-package")); has {
-		fhirPkg = slip.MustBeString(v, ":fhir-package")
-	}
-
-	uu := httpKeysParser(s, depth, base, args)
-	ctx := context.Background()
-	if timeout := timeoutFromArgs(base, args); 0 < timeout {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, timeout)
-		defer cancel()
-	}
-	var (
-		data any
-		res  *http.Response
-	)
-	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil); err == nil {
-		httpKeysHeader(s, depth, base, args, req)
-
-		if res, err = (&http.Client{}).Do(req); err != nil {
-			panic(err)
-		}
-		var body []byte
-		if body, err = io.ReadAll(res.Body); err == nil {
-			data = oj.MustParse(body)
-		}
-	}
 	var resource slip.Object
 
 	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
@@ -155,18 +109,7 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		bg.Any = data
 		resource = bg
 	} else {
-		resType := alt.String(jp.C("resourceType").First(data))
-		if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
-			if inst, ok := class.MakeInstance().(*Instance); ok {
-				inst.data, _ = data.(map[string]any)
-				resource = inst
-			}
-		}
-		if resource == nil {
-			bg := bag.Flavor().MakeInstance().(*flavors.Instance)
-			bg.Any = data
-			resource = bg
-		}
+		resource = makeAnyResource(data, fhirPkg)
 	}
 	return slip.List{
 		slip.Fixnum(res.StatusCode),

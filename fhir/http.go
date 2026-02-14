@@ -3,12 +3,19 @@
 package fhir
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/ohler55/ojg/alt"
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/oj"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/bag"
+	"github.com/ohler55/slip/pkg/flavors"
 )
 
 var httpURLKeys = []slip.Symbol{
@@ -17,6 +24,51 @@ var httpURLKeys = []slip.Symbol{
 	slip.Symbol(":version"),
 	slip.Symbol(":history"),
 	slip.Symbol(":search"),
+}
+
+func httpData(
+	s *slip.Scope,
+	args slip.List,
+	depth int) (uu *url.URL, data any, fhirPkg string, res *http.Response, timeout time.Duration) {
+	var base slip.List
+	switch ta := args[0].(type) {
+	case slip.String:
+		base = slip.List{slip.Symbol(":url"), ta}
+	case slip.List:
+		base = ta
+	default:
+		slip.TypePanic(s, depth, "base", ta, "string", "property-list")
+	}
+	args = args[1:]
+
+	fhirPkg = "fhir5"
+	if v, has := slip.GetArgsKeyValue(base, slip.Symbol(":fhir-package")); has {
+		fhirPkg = slip.MustBeString(v, ":fhir-package")
+	}
+	if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":fhir-package")); has {
+		fhirPkg = slip.MustBeString(v, ":fhir-package")
+	}
+
+	uu = httpKeysParser(s, depth, base, args)
+	ctx := context.Background()
+	if timeout = timeoutFromArgs(base, args); 0 < timeout {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil); err == nil {
+		httpKeysHeader(s, depth, base, args, req)
+
+		if res, err = (&http.Client{}).Do(req); err != nil {
+			panic(err)
+		}
+		var body []byte
+		if body, err = io.ReadAll(res.Body); err == nil {
+			_ = res.Body.Close()
+			data = oj.MustParse(body)
+		}
+	}
+	return
 }
 
 func httpKeysParser(s *slip.Scope, depth int, base, args slip.List) *url.URL {
@@ -123,11 +175,8 @@ func httpKeysHeader(s *slip.Scope, depth int, base slip.List, args slip.List, re
 	}
 	// Overrides
 	req.Header.Set("Content-Type", "application/fhir+json")
-	req.Header.Set("Accept", "application/fhir+json")
-	req.Header.Add("Accept", "application/json+fhir")
-	req.Header.Add("Accept", "application/json")
-
-	// TBD set Content-Type overriding any other value
+	// Ideally an Accept field should be included but some servers don't
+	// understand that header field and return a warning.
 }
 
 func respHeaders(res *http.Response) slip.List {
@@ -157,4 +206,39 @@ func timeoutFromArgs(base, args slip.List) time.Duration {
 		}
 	}
 	return timeout
+}
+
+func makeAnyResource(data any, fhirPkg string) (resource slip.Object) {
+	resType := alt.String(jp.C("resourceType").First(data))
+	if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
+		if inst, ok := class.MakeInstance().(*Instance); ok {
+			inst.data, _ = data.(map[string]any)
+			resource = inst
+		}
+	} else {
+		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+		bg.Any = data
+		resource = bg
+	}
+	return
+}
+
+func loadPage(uu string, timeout time.Duration) (data any, res *http.Response) {
+	ctx := context.Background()
+	if 0 < timeout {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu, nil); err == nil {
+		if res, err = (&http.Client{}).Do(req); err != nil {
+			panic(err)
+		}
+		var body []byte
+		if body, err = io.ReadAll(res.Body); err == nil {
+			_ = res.Body.Close()
+			data = oj.MustParse(body)
+		}
+	}
+	return
 }

@@ -51,7 +51,7 @@ func TestHTTPReadUrlBase(t *testing.T) {
                             :type "Patient"
                             :id "id-123"
                             :version "v3"
-                            :headers '(("ETag" "W/") ("Accept" "application/json" "palin/text"))
+                            :headers '(("ETag" "W/") ("Accept" "application/json" "plain/text"))
                             :params '("_pretty" "true")
                             :timeout 1.5
                             :fhir-package 'fhir5)`,
@@ -68,7 +68,7 @@ func TestHTTPReadUrlBase(t *testing.T) {
 			ex, _ := jp.C("extension").N(0).C("valueString").First(resource.Simplify()).(string)
 			headers := sen.MustParse([]byte(ex))
 			tt.Equal(t,
-				[]any{"application/fhir+json", "application/json+fhir", "application/json"},
+				[]any{"application/json", "plain/text"},
 				jp.C("Accept").First(headers))
 			tt.Equal(t, []any{"application/fhir+json"}, jp.C("Content-Type").First(headers))
 			// Verify headers were received. Check for Content-Type.
