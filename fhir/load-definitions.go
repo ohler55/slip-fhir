@@ -132,6 +132,9 @@ func defineComplexTypes(types []*Type, defs []any, p *slip.Package) []*Type {
 		for _, ps := range jp.C("properties").W().Get(ts) {
 			ft.props = append(ft.props, NewProp(ps))
 		}
+		for _, sp := range jp.C("searchParams").W().Get(ts) {
+			ft.searchParams = append(ft.searchParams, NewSearchParam(sp))
+		}
 		p.RegisterClass(strings.ToLower(ft.name), &ft)
 		types = append(types, &ft)
 	}
