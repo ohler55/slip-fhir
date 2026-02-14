@@ -40,9 +40,40 @@ func TestDescribeTypeFull(t *testing.T) {
 	tt.Equal(t, "/ is a FHIR Resource:/", desc)
 	tt.Equal(t, `/ deceased\[x\] /`, desc)
 	tt.Equal(t, "/ deceasedBoolean /", desc)
-	tt.Equal(t, "/ _gender /", desc)
+	tt.Equal(t, "/_gender /", desc)
 	// Assure the color code is in the output.
 	tt.Equal(t, `/\[0;104m/`, desc)
+}
+
+func TestDescribeTypeTight(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(let ((*print-right-margin* 40)) (describe-type (find-class 'fhir5:patient) out))`,
+		Expect: "nil",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/ is a FHIR Resource:/", desc)
+	tt.Equal(t, `/ deceased\[x\] /`, desc)
+	tt.Equal(t, "/ deceasedBoolean /", desc)
+	tt.Equal(t, false, strings.Contains(desc, "_gender"))
+}
+
+func TestDescribeTypeFullTight(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(let ((*print-right-margin* 40)) (describe-type (find-class 'fhir5:patient) out :full t))`,
+		Expect: "nil",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/ is a FHIR Resource:/", desc)
+	tt.Equal(t, `/ deceased\[x\] /`, desc)
+	tt.Equal(t, "/ deceasedBoolean /", desc)
 }
 
 func TestDescribeTypeOther(t *testing.T) {

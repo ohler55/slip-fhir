@@ -3,6 +3,7 @@
 package fhir
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"regexp"
@@ -51,6 +52,8 @@ type Type struct {
 	// complex types have properties
 	props   []*Property
 	propMap map[string]*Property
+	// resource search parameters
+	searchParams []*SearchParam
 
 	inited bool
 }
@@ -288,6 +291,9 @@ func (t *Type) describe(b []byte, indent, right int, ansi, full bool, bg string)
 	if 0 < len(t.props) {
 		b = t.describeProps(b, indent, right, ansi, full, bg)
 	}
+	if full && 0 < len(t.searchParams) {
+		b = t.describeSearchParams(b, indent, right, ansi, full, bg)
+	}
 	return b
 }
 
@@ -327,6 +333,10 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 		}
 	}
 	docEdge := indent + nameWidth + typeWidth + 14
+	docWidth := right - docEdge
+	if docWidth < 10 {
+		docWidth = 10
+	}
 	b = append(b, indentSpaces[:i2]...)
 	b = append(b, "Properties:\n"...)
 	if ansi {
@@ -336,11 +346,21 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 	if ansi {
 		b = append(b, colorOff...)
 	}
+	var (
+		on  string
+		off string
+	)
 	for i, p := range props {
 		if i%2 == 0 && ansi {
-			b = append(b, bg...)
+			on = bg
+			off = colorOff
+		} else {
+			on = ""
+			off = ""
 		}
-		b = fmt.Appendf(b, "%s%-*s  ", pspace, nameWidth, p.name)
+		docLines := bytes.Split(slip.AppendDoc(nil, p.docs, 0, docWidth, ansi, 0), []byte{'\n'})
+
+		b = fmt.Appendf(b, "%s%s%-*s  ", pspace, on, nameWidth, p.name)
 		if p.required {
 			b = append(b, '1')
 		} else {
@@ -353,13 +373,15 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 			b = append(b, '1')
 		}
 		b = append(b, ' ', ' ')
-		b = fmt.Appendf(b, "%-*s  ", typeWidth, p.typeName)
-		b = slip.AppendDoc(b, p.docs, docEdge, right, ansi, 0)
-		if i%2 == 0 && ansi && 0 < len(bg) {
-			b = append(b, colorOff...)
+		b = fmt.Appendf(b, "%-*s  %-*s%s\n", typeWidth, p.typeName, docWidth, docLines[0], off)
+		for j := 1; j < len(docLines); j++ {
+			var bar string
+			if 0 < len(p.group) {
+				bar = "┃"
+			}
+			b = fmt.Appendf(b, "%s%s%-*s  %-*s        %-*s%s\n",
+				pspace, on, nameWidth, bar, typeWidth, "", docWidth, docLines[j], off)
 		}
-		b = append(b, '\n')
-
 		if 0 < len(p.group) {
 			var group []*Property
 			for _, gp := range p.group {
@@ -372,16 +394,115 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 				if i == len(group)-1 {
 					left = '┗'
 				}
-				b = fmt.Appendf(b, "%s%c %-*s      %-*s", pspace, left, nameWidth, gp.name, typeWidth, gp.typeName)
-				if 0 < len(gp.docs) {
-					b = append(b, ' ', ' ')
-					b = slip.AppendDoc(b, gp.docs, docEdge, right, ansi, 0)
-				}
-				b = append(b, '\n')
+				b = fmt.Appendf(b, "%s%s%c %-*s      %-*s%s\n",
+					pspace, on, left, nameWidth, gp.name, typeWidth+docWidth+2, gp.typeName, off)
 			}
 		}
 	}
 	return b
+}
+
+func (t *Type) describeSearchParams(b []byte, indent, right int, ansi, full bool, bg string) []byte {
+	i2 := indent + 2
+	pspace := indentSpaces[:indent+4]
+	var (
+		nameWidth int
+		typeWidth int
+	)
+	for _, sp := range t.searchParams {
+		if nameWidth < len(sp.name) {
+			nameWidth = len(sp.name)
+		}
+		if typeWidth < len(sp.typeName) {
+			typeWidth = len(sp.typeName)
+		}
+	}
+	remain := right - nameWidth - typeWidth - 8 - indent
+	docWidth := remain*2/3 - 1
+	exprWidth := remain/3 - 1
+	sort.Slice(t.searchParams, func(i, j int) bool {
+		return t.searchParams[i].name < t.searchParams[j].name
+	})
+	if docWidth < 10 {
+		docWidth = 10
+	}
+	if exprWidth < 10 {
+		exprWidth = 10
+	}
+	b = append(b, indentSpaces[:i2]...)
+	b = append(b, "Search Parameters:\n"...)
+	if ansi {
+		b = append(b, bold...)
+	}
+	b = fmt.Appendf(b, "%s%-*s  %-*s  %-*s  %-*s\n",
+		pspace, nameWidth, "Name", typeWidth, "Type", docWidth, "Description", exprWidth, "Expression")
+	if ansi {
+		b = append(b, colorOff...)
+	}
+	var (
+		on  string
+		off string
+	)
+	for j, sp := range t.searchParams {
+		if j%2 == 0 && ansi {
+			on = bg
+			off = colorOff
+		} else {
+			on = ""
+			off = ""
+		}
+		docLines := bytes.Split(slip.AppendDoc(nil, sp.docs, 0, docWidth, ansi, 0), []byte{'\n'})
+		exprLines := splitLongExpr(
+			bytes.Split(slip.AppendDoc(nil, sp.expr, 0, exprWidth, ansi, 0), []byte{'\n'}),
+			exprWidth)
+		b = fmt.Appendf(b, "%s%s%-*s  %-*s  %-*s  %-*s%s\n",
+			pspace, on, nameWidth, sp.name, typeWidth, sp.typeName, docWidth, docLines[0], exprWidth, exprLines[0], off)
+		mx := len(docLines)
+		if mx < len(exprLines) {
+			mx = len(exprLines)
+		}
+		for i := 1; i < mx; i++ {
+			var (
+				doc  []byte
+				expr []byte
+			)
+			if i < len(docLines) {
+				doc = docLines[i]
+			}
+			if i < len(exprLines) {
+				expr = exprLines[i]
+			}
+			b = fmt.Appendf(b, "%s%s%-*s  %-*s  %-*s  %-*s%s\n",
+				pspace, on, nameWidth, "", typeWidth, "", docWidth, doc, exprWidth, expr, off)
+		}
+	}
+	return b
+}
+
+func splitLongExpr(lines [][]byte, w int) [][]byte {
+	var newLines [][]byte
+	for _, line := range lines {
+		if w < len(line) {
+			parts := bytes.Split(line, []byte{'.'})
+			var nl []byte
+			for i, part := range parts {
+				if 0 < len(nl) && w <= len(nl)+len(part)+1 {
+					newLines = append(newLines, nl)
+					nl = nl[:0]
+				}
+				nl = append(nl, part...)
+				if i < len(parts)-1 {
+					nl = append(nl, '.')
+				}
+			}
+			if 0 < len(nl) {
+				newLines = append(newLines, nl)
+			}
+		} else {
+			newLines = append(newLines, line)
+		}
+	}
+	return newLines
 }
 
 // MakeInstance creates a new instance but does not call the :init method.

@@ -361,6 +361,10 @@ func TestInstanceMisc(t *testing.T) {
 		Source:    `(send (make-instance 'fhir5:range) :quux)`,
 		PanicType: slip.InvalidMethodErrorSymbol,
 	}).Test(t)
+	(&sliptest.Function{
+		Source:    `(make-instance 'fhir5:range :data (make-instance 'vanilla-flavor))`,
+		PanicType: slip.TypeErrorSymbol,
+	}).Test(t)
 }
 
 func TestInstanceSlots(t *testing.T) {
@@ -402,7 +406,7 @@ func TestInstanceValidPtrue(t *testing.T) {
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
-		Source: `(send (make-instance 'fhir5:range :data (make-bag "{low:{value:2}}")) :valid-p
+		Source: `(send (make-instance 'fhir5:range :data "{low:{value:2}}") :valid-p
                        (lambda (p v m) nil))`,
 		Expect: "t",
 	}).Test(t)

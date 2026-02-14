@@ -5,7 +5,11 @@
 ;;;;
 ;;;; To generate a fhir5.json file in the fhir directory run the following.
 ;;;;
-;;;; slip -e '(convert-fhir-schema "spec/fhir.schema.json" "fhir/fhir5.json")' scripts/*.lisp
+;;;; slip -e '(convert-fhir-schema "spec/fhir.schema.json" "spec/search-parameters.json" "fhir/fhir5.json")' scripts/*.lisp
+;;;;
+;;;; spec files are from:
+;;;;   https://fhir.hl7.org/fhir/search-parameters.json
+;;;;   https://fhir.hl7.org/fhir/fhir.schema.json.zip
 ;;;;
 
 ;;; The FHIR heirarchy is defined as:
@@ -190,7 +194,39 @@
     (bag-set dt "BackboneType" "parent")
     dt))
 
-(defun form-resource-node (name def)
+(defun refine-param-description (name desc)
+  (cond ((prefixp desc "Multiple Resources:")
+         (let ((pre (join "" "[" name "]")))
+           (dolist (part (split desc "\r\n* "))
+             (when (prefixp part pre)
+               (return (subseq part (+ 2 (position #\: part))))))))
+        (t desc)))
+
+(defun refine-param-expr (name expr)
+  (when expr
+    (let ((pre (join "" name ".")))
+      (dolist (part (split expr " | "))
+        (when (prefixp part pre)
+          (return part))))))
+
+(defun find-search-params (name search-params)
+  "Collects all the search parameters for the resource name and return those as a
+   list of bags with parameter name, type, expression, and description."
+  (let (params)
+    (bag-walk search-params
+              (lambda (sp)
+                (bag-write sp t :pretty t :depth 4)
+                (terpri)
+                (let ((param (make-bag "{}")))
+                  (bag-set param (bag-get sp "name") "name")
+                  (bag-set param (bag-get sp "type") "type")
+                  (bag-set param (refine-param-description name (bag-get sp "description")) "description")
+                  (bag-set param (refine-param-expr name (bag-get sp "expression")) "expr")
+                  (addf params param)))
+              (format nil "entry[?@.resource.base[*] == '~A'].resource" name) t)
+    params))
+
+(defun form-resource-node (name def search-params)
   "Forms a resource node from a schema definition."
   (let ((dt (make-bag "{}"))
         val)
@@ -201,6 +237,10 @@
     (add-properties dt def '("id" "meta" "implicitRules" "_implicitRules"
                              "language" "_language" "text" "_text" "contained" "modifierExtension"))
     (bag-set dt "DomainResource" "parent")
+
+    ;; Add search parameters.
+    (bag-set dt (find-search-params name search-params) "searchParams")
+
     dt))
 
 (defun prop-in-groups-p (prop groups)
@@ -255,6 +295,7 @@
           (let ((gp (make-bag "{}"))
                 (np (get-group-prop group)))
             (bag-set gp (join "" (car group) "[x]") "name")
+            (bag-set gp (bag-get np "description") "description")
             (dolist (p (cdr group))
               (let* ((xpath (format nil "properties[?@.name == '_~A']" (bag-get p "name")))
                      (xp (bag-get type-node xpath t)))
@@ -263,7 +304,6 @@
                   (setq props (remove xp props)))
                 (bag-remove p "description")))
             (bag-set gp (cdr group) "group")
-            (bag-set gp (bag-get np "description") "description")
             (when (bag-get np "array")  (bag-set gp t "array"))
             (when (bag-get np "required")  (bag-set gp t "required"))
 
@@ -301,10 +341,11 @@
               "datatypes[*]" t)
     ))
 
-(defun convert-fhir-schema (input-filename output-filename)
+(defun convert-fhir-schema (schema-filename search-filename output-filename)
   "Convert a fhir.schema.json file to a schema file suitable for loading by this
    package."
-  (let ((fhir-schema (load-bag input-filename))
+  (let ((fhir-schema (load-bag schema-filename))
+        (search-params (load-bag search-filename))
         (resource-schema (load-bag "spec/resource-schema.sen"))
         (domain-resource-schema (load-bag "spec/domainresource-schema.sen"))
         (schema (make-bag "{}")))
@@ -355,7 +396,7 @@
 
                               ;; Resource definition are in the discriminator.mapping element.
                               ((bag-has res-map p)
-                               (setq resources (add resources (form-resource-node p def))))
+                               (setq resources (add resources (form-resource-node p def search-params))))
 
                               ;; Backbone definitions all include an _ character.
                               ((containsp p "_")

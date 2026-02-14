@@ -5,13 +5,12 @@
 - get specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
+
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   - http-read (url &key type id version headers params timeout mime-type)
-   - verify returned patient from fire.ly
-   - test http-read with mock server
-    - return pateint with extension.valueString with url of received/header
-    - header Location whould be request url
+   - test http-read
 
+  - http-each (base function &key...)
   - http-update (url resource &key version condition headers params timeout)
   - http-patch (url patch &key type id condition headers params timeout)
   - http-delete (url &key type id condition headers params timeout)
