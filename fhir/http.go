@@ -11,7 +11,15 @@ import (
 	"github.com/ohler55/slip"
 )
 
-func httpKeysParser(s *slip.Scope, depth int, base, args slip.List, keys []slip.Symbol) *url.URL {
+var httpURLKeys = []slip.Symbol{
+	slip.Symbol(":type"),
+	slip.Symbol(":id"),
+	slip.Symbol(":version"),
+	slip.Symbol(":history"),
+	slip.Symbol(":search"),
+}
+
+func httpKeysParser(s *slip.Scope, depth int, base, args slip.List) *url.URL {
 	uv, _ := slip.GetArgsKeyValue(base, slip.Symbol(":url"))
 	uu, err := url.Parse(slip.MustBeString(uv, ":url"))
 	if err != nil {
@@ -21,7 +29,7 @@ func httpKeysParser(s *slip.Scope, depth int, base, args slip.List, keys []slip.
 	copy(bargs, args)
 	copy(bargs[len(args):], base)
 	pb := []byte(uu.Path)
-	for _, key := range keys {
+	for _, key := range httpURLKeys {
 		if v, has := slip.GetArgsKeyValue(bargs, key); has {
 			if ss, _ := v.(slip.String); 0 < len(ss) {
 				switch key {
@@ -31,8 +39,11 @@ func httpKeysParser(s *slip.Scope, depth int, base, args slip.List, keys []slip.
 				case slip.Symbol(":version"):
 					pb = append(pb, "/_history/"...)
 					pb = append(pb, string(ss)...)
+				case slip.Symbol(":history"):
+					pb = append(pb, "/_history"...)
+				case slip.Symbol(":search"):
+					pb = append(pb, "/_search"...)
 				}
-				// TBD add other keys
 			}
 		}
 	}

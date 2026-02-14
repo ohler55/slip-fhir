@@ -15,15 +15,15 @@ import (
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
-func initHTTPRead() {
+func initHTTPEach() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := HTTPRead{Function: slip.Function{Name: "http-read", Args: args}}
+			f := HTTPEach{Function: slip.Function{Name: "http-each", Args: args}}
 			f.Self = &f
 			return &f
 		},
 		&slip.FuncDoc{
-			Name: "http-read",
+			Name: "http-each",
 			Args: []*slip.DocArg{
 				{
 					Name: "base",
@@ -31,6 +31,12 @@ func initHTTPRead() {
 					Text: `Identifies the FHIR server to connect to. It may also include default
 or base values if a property list. Any of the _&key_ arguments can be included in the property
 list and will serve as a base or defaults for the _&key_ arguments.`,
+				},
+				{
+					Name: "function",
+					Type: "function",
+					Text: `Function to call with each resource in the bundle returned and subsequent
+linked page's bundles.`,
 				},
 				{Name: "&key"},
 				{
@@ -44,10 +50,9 @@ list and will serve as a base or defaults for the _&key_ arguments.`,
 					Text: "The resource id if needed and not already in the _base_.",
 				},
 				{
-					Name: "version",
-					Type: "string",
-					Text: `The resource version if needed and not already in the _base_. If set
-then a vread request is sent.`,
+					Name: "history",
+					Type: "boolean",
+					Text: `If true "_history" is appended to the URL path.`,
 				},
 				{
 					Name: "headers",
@@ -80,8 +85,9 @@ Request Timeout code in the response.`,
 Default: fhir5.`,
 				},
 			},
-			Return: "list",
-			Text: `__http-read__ forms a URL from the provided parameters and sents a GET request to
+			Return: "nil",
+			// TBD update Text
+			Text: `__http-each__ forms a URL from the provided parameters and sents a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
 _application/fhir+json_ format is currently supported.
@@ -98,14 +104,14 @@ For additional information about the FHIR HTTP read refer to https://www.hl7.org
 		}, &Pkg)
 }
 
-// HTTPRead represents the http-read function.
-type HTTPRead struct {
+// HTTPEach represents the http-each function.
+type HTTPEach struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 1, 15)
+func (f *HTTPEach) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+	slip.CheckArgCount(s, depth, f, args, 2, 16)
 
 	var base slip.List
 	switch ta := args[0].(type) {
@@ -149,6 +155,8 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		}
 	}
 	var resource slip.Object
+
+	// TBD expect a bundle but handle any other resource with a one and done
 
 	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
 		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
