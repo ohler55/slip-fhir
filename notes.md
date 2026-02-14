@@ -7,8 +7,8 @@
 - plan
 
  - http-client-functions (https://www.hl7.org/fhir//http.html)
-  + http-read (url &key type id version headers params timeout mime-type)
-  - http-each (base function &key...)
+  + http-read
+  + http-each
   - http-update (url resource &key version condition headers params timeout)
   - http-patch (url patch &key type id condition headers params timeout)
   - http-delete (url &key type id condition headers params timeout)

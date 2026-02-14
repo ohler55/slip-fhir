@@ -9,9 +9,7 @@ import (
 	"github.com/ohler55/ojg/alt"
 	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
-	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/cl"
-	"github.com/ohler55/slip/pkg/flavors"
 )
 
 func initHTTPEach() {
@@ -115,7 +113,7 @@ func (f *HTTPEach) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 2, 18)
 	d2 := depth + 1
 	caller := cl.ResolveToCaller(s, args[0], d2)
-	uu, data, fhirPkg, res, timeout := httpData(s, args[1:], depth)
+	_, data, fhirPkg, res, timeout := httpData(s, args[1:], depth)
 
 	resType := alt.String(jp.C("resourceType").First(data))
 
@@ -135,14 +133,8 @@ func (f *HTTPEach) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		}
 		return eachInBundle(s, data, caller, fhirPkg, limit, d2, res, timeout)
 	}
-	var resource slip.Object
-	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
-		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
-		bg.Any = data
-		resource = bg
-	} else {
-		resource = makeAnyResource(data, fhirPkg)
-	}
+	resource := makeAnyResource(data, fhirPkg)
+
 	_ = caller.Call(s, slip.List{resource}, d2)
 
 	return nil
@@ -181,8 +173,6 @@ func eachInBundle(
 					return makeAnyResource(data, fhirPkg)
 				}
 			}
-		} else {
-			data = nil
 		}
 	}
 	return nil
