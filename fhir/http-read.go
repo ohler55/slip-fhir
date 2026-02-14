@@ -87,7 +87,7 @@ Request Timeout code in the response.`,
 Default: fhir5.`,
 				},
 			},
-			Return: "property-list",
+			Return: "list",
 			Text: `__http-read__ forms a URL from the provided parameters and sents a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
@@ -140,25 +140,21 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		ctx, cancel = context.WithTimeout(ctx, timeout)
 		defer cancel()
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil)
-	if err != nil {
-		panic(err)
-	}
-	httpKeysHeader(s, depth, base, args, req)
-
 	var (
-		client http.Client
-		res    *http.Response
+		data any
+		res  *http.Response
 	)
-	if res, err = client.Do(req); err != nil {
-		panic(err)
-	}
-	var body []byte
-	if body, err = io.ReadAll(res.Body); err != nil {
-		panic(err)
-	}
-	data := oj.MustParse(body)
+	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil); err == nil {
+		httpKeysHeader(s, depth, base, args, req)
 
+		if res, err = (&http.Client{}).Do(req); err != nil {
+			panic(err)
+		}
+		var body []byte
+		if body, err = io.ReadAll(res.Body); err == nil {
+			data = oj.MustParse(body)
+		}
+	}
 	var resource slip.Object
 
 	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
