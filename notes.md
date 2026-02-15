@@ -11,10 +11,7 @@ compartments
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   + http-read
   + http-each
-  - http-capabilities (url &key headers params timeout)
-   - /metadata
-   - mode= full|normative|terminology
-   - also _summary and _elements
+  + http-capabilities
   - http-history (url &key type id headers params timeout)
    - instance, type, all
    - params must of a property list (or an assoc?)

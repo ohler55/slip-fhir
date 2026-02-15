@@ -196,6 +196,7 @@ func init() {
 
 	initHTTPRead()
 	initHTTPEach()
+	initHTTPCapabilities()
 
 	p5 := slip.DefPackage("fhir5", []string{}, "FHIR version 5.0.0")
 	defineTypes(sen.MustParse(fhir5JSON), p5)
