@@ -6,21 +6,29 @@
 
 - plan
 
+compartments
+
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   + http-read
   + http-each
+  - http-capabilities (url &key headers params timeout)
+   - /metadata
+   - mode= full|normative|terminology
+   - also _summary and _elements
+  - http-history (url &key type id headers params timeout)
+   - instance, type, all
+   - params must of a property list (or an assoc?)
+  - http-page (url &key query-id page-id headers params timeout) ?? is this needed
+
+  - http-operation
+
   - http-update (url resource &key version condition headers params timeout)
   - http-patch (url patch &key type id condition headers params timeout)
   - http-delete (url &key type id condition headers params timeout)
   - http-create (url resource &key condition headers params timeout)
   - http-search (url query &key type id headers params timeout)
    - handle type, system, and compartment (same as id as far as the client is concerned?)
-  - http-page (url &key query-id page-id headers params timeout)
-  - http-capabilities (url &key headers params timeout)
   - http-batch (url bundle &key headers params timeout)
-  - http-history (url &key type id headers params timeout)
-   - instance, type, all
-   - params must of a property list (or an assoc?)
   - graphql-query (base &key type id headers timeout post url-query-field)
    - [post is a boolean for a POST vs GET]
    - url-query-field or implied-field?
