@@ -6,37 +6,83 @@
 
 - plan
 
-compartments
+ - is there a way to provide general help for the http APIs?
+  - in pkg docs include mention of http-help
+  - something like https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
+  - in package docs but narrowed to http or other grouping (avoiding more packaging)
+   - or maybe pkg just for docs?
+   - or a function like http-help
+    - display help for different areas
+     - summary - https://www.hl7.org/fhir//http.html#summary
+     - functions - http-xxx in this package
+     - methods - HTTP methods? - maybe redundant with summary
+     - headers
+     - parameters
+     - explore - using describe and describe-type (types, functions, instances)
+      - describe notation
+      - what are search parameters and how to use (refer to example)
+     - examples
+      - example-read
+      - example-each
+     - search
+     - history
+     - compartment
+     - graphql
+     - other
+      - refer to jet-help, mllp-help
+      -
 
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   + http-read
   + http-each
   + http-capabilities
-  - http-history (url &key type id headers params timeout)
-   - instance, type, all
-   - params must of a property list (or an assoc?)
-  - http-page (url &key query-id page-id headers params timeout) ?? is this needed
+
+  - http-create
+   - POST
+   - resource (has :type)
+   - test
+    - add id, meta.versionId, meta.lastUpdated
+    - include headers
+     - Location: [base]/[type]/[id]/_history/[vid]
+     - Last-Modified: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Last-Modified
+     - ETag W/"<vid>"
+    - return status 201 on success
+
+  - http-update
+   - PUT
+   - body of resource (has :type and :id)
+   - header, If-Match
+
+  - http-delete
+   - DELETE
+
+  - http-patch
+   - PATCH
+   - :type, :id
+   - patch in body, how to represent?
+   - header, If-Match
+
+  - http-search
+   - GET - use http-each
+   - POST - add _search to path then same as each
+    - if nil function then return bundle for
+   - handle type, system, and compartment (same as id as far as the client is concerned?)
+
+  - http-batch
+   - POST
 
   - http-operation
+   - GET
+   - POST
 
-  - http-update (url resource &key version condition headers params timeout)
-  - http-patch (url patch &key type id condition headers params timeout)
-  - http-delete (url &key type id condition headers params timeout)
-  - http-create (url resource &key condition headers params timeout)
-  - http-search (url query &key type id headers params timeout)
-   - handle type, system, and compartment (same as id as far as the client is concerned?)
-  - http-batch (url bundle &key headers params timeout)
-  - graphql-query (base &key type id headers timeout post url-query-field)
-   - [post is a boolean for a POST vs GET]
-   - url-query-field or implied-field?
-    - t - Patient/id/$graphql
-    - nil - Patient(id:"xxx")
-   - non-standard approach of partly url and partly query
-   - could also assume patient(id: String!)
-  - graphql-mutation (base &key type id headers timeout post query-encoding)
- - http- prefix leaves the option open for other ways of making requests
- - maybe allow url to be base with url, initial-headers, initial-params, default-timeout
-  - as property list (same as lambda list)
+  - http-compartment
+   - GET
+    - adds either member-type or "*" to path
+   - POST
+    - add _search or member-type/_search
+
+
  - future
   - graphql https://fhir.hl7.org/fhir/graphql.html
    - maybe help building the query response template
@@ -46,9 +92,18 @@ compartments
    - no directives like @flatten or @first are supported in building
    - mutations are supported with the assumption that the server will accept a resource as if it were an inpt type
     - create, update, delete
+   - graphql-query (base &key type id headers timeout post url-query-field)
+    - [post is a boolean for a POST vs GET]
+    - url-query-field or implied-field?
+     - t - Patient/id/$graphql
+     - nil - Patient(id:"xxx")
+    - non-standard approach of partly url and partly query
+    - could also assume patient(id: String!)
+   - graphql-mutation (base &key type id headers timeout post query-encoding)
+
   - message
-   - mllp
-   - jetstream
+   - mllp mllp-read, etc
+   - jetstream jet-read, etc
   - subscriptions
    - just jetstream for now
    - related resources
