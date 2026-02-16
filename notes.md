@@ -6,6 +6,14 @@
 
 - plan
 
+ - server - phoenix
+
+ - allow set to take a json/sen string
+
+ - spec disconnect
+  - Money vs MoneyQuantity
+  - all datatypes inherit from Element on pages yet DataType diagram shows differently
+
  - is there a way to provide general help for the http APIs?
   - in pkg docs include mention of http-help
   - something like https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
@@ -14,6 +22,8 @@
    - or a function like http-help
     - display help for different areas
      - summary - https://www.hl7.org/fhir//http.html#summary
+      - interaction path method conditional response (resource) headers
+      - or maybe just - interaction path method response (resource) headers
      - functions - http-xxx in this package
      - methods - HTTP methods? - maybe redundant with summary
      - headers

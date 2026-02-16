@@ -236,7 +236,7 @@ func (inst *Instance) Describe(b []byte, indent, right int, ansi bool) []byte {
 		b = append(b, inst.class.name...)
 	}
 	b = append(b, ",\n  "...)
-	data := strings.ReplaceAll(pretty.SEN(inst.data), "\n", "  \n")
+	data := strings.ReplaceAll(pretty.SEN(inst.data), "\n", "\n  ")
 	b = append(b, data...)
 
 	return append(b, '\n')

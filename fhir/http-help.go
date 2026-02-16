@@ -85,28 +85,223 @@ Bundle and linked page Bundles.`,
 		`__http-compartment__ TBD`,
 	},
 	"resources": []string{
-		`TBD`,
-	},
-	"datatypes": []string{`TBD`},
-	"backbones": []string{`TBD`},
-	"primitives": []string{
-		`The details of each primitive type can be viewed using the __describe__ function. The primitive
-types that are the classes of the simple values in the FHIR datatypes are:
+		`Resource are the leaves or concrete types of the FHIR inheritance tree. They all inherit from the
+DoaminResource which inherits from Resource. Resources have named properties with each property being of a
+specific type. Each property also has a cardinality which defines a minimum of either 0 or 1 and a maximum
+of 1 or unlimited which is denoted by a * in the descriptions.
+`,
+		`The Resource types are:
 `,
 	},
-	"explore":        []string{`TBD`},
-	"summary":        []string{`TBD`},
-	"headers":        []string{`TBD`},
-	"parameters":     []string{`TBD`},
-	"search":         []string{`TBD`},
-	"history":        []string{`TBD`},
-	"compartment":    []string{`TBD`},
-	"read-example":   []string{`TBD`},
-	"create-example": []string{`TBD`},
-	"update-example": []string{`TBD`},
-	"delete-example": []string{`TBD`},
-	"patch-example":  []string{`TBD`},
-	"batch-example":  []string{`TBD`},
+	"datatypes": []string{
+		`The FHIR specification defines a type hierarchy on https://fhir.hl7.org/fhir/datatypes.html. It also
+describes each types but indicates all DataTypes inherit from just Element. The types in the specification
+also deviate from what is in the schema files used to dynamically build the types for the imported packages.
+As an example, the specifcation identifies a MoneyQuantity but the schema calls that same type, Money. Other
+than minor inconsistencies such as those the schema does match the FHIR specification web pages.
+`,
+		`The DataTypes are:
+`,
+	},
+	"backbones": []string{
+		`Backbone types are embedded in other types as reflected in the name of the type. As an example,
+then Patient_Communication is a backbone type in the Patient resource. The FHIR specification in the framework
+diagram (https://fhir.hl7.org/fhir/types.html#2.1.27.0) shows a BackboneElement and BackboneType. They are
+effectively identical. In the description of a resource the embedded elements are described as BackboneElement
+in most cases but in a few BackboneType is specified. For this, __fhir__ package, BackboneType is used in
+all cases.
+`,
+		`The Backbone types are:
+`,
+	},
+	"primitives": []string{
+		`The details of each primitive type can be viewed using the __describe__ function. The primitive type
+framework is somewhat convoluted possible due to the XML heritage of then FHIR specification. While a primitive
+type represents a single value that single value is also described as having an __id__ and __extension__ field.
+The FHIR specification partially works around this disconnect by providing a mechanism in any container that has
+a property that is a primitive type. Property names that start with an underscore character are considered
+extensions of a property with the same name if the leading underscore is ignored. The specification also assumes
+all primitive types are based on XSD types. In this, __fhir__ package, primitive types are built on base Lisp
+typesof classes such as __fixnum__, __string__, etc.
+`,
+		`The primitive types that are the classes of the simple values in the FHIR datatypes are:
+`,
+	},
+	"explore": []string{
+		`This, __fhir__ package, can be used as an alternative to or an offline version of the FHIR web pages.
+In addition to the __http-help__ topics, the __describe__ and __describe-type__ functions are available for
+types, functions, and instances.
+`,
+		`The type description format is similar to the FHIR web pages and includes property names, cardinality,
+type, and a description. The __describe-type__ has options for a full, expanded display and for alternating
+backgrounds to make property separation more clear. When displaying the full description all inherited properties
+are shown in addition to extentions and a search parameter table.
+`,
+		`An example of the __describe-type__ output but cut off in after a few properties is:
+`,
+		`▶ (describe-type 'fhir5:basic)
+__fhir5:Basic__ is a FHIR Resource:
+  Documentation:
+    Basic is used for handling concepts not yet defined in FHIR, narrative-only
+    resources that don't map to an existing resource, and custom resources not
+    appropriate for inclusion in the FHIR specification.
+  Direct Ancestor: DomainResource
+  Class precedence list: fhir:Basic fhir5:DomainResource fhir5:Resource fhir5:Base t
+  Properties:
+    __Name__          __Card__. __Type__             __Description__
+    resourceType  1..1  code             This is a Basic resource
+    author        0..1  Reference        Indicates who was responsible for
+                                         creating the resource instance.
+    code          1..1  CodeableConcept  Identifies the 'type' of resource -
+                                         equivalent to the resource name for
+                                         other resources.
+    ...
+`,
+		`With the __:full__ option the extensions and search parameters are listed as well.
+`,
+		`    ...
+    _ _text              0..*  Extension        Extensions for text.
+  Search Parameters:
+    Name        Type       Description                         Expression
+    author      reference  Who created                         Basic.author
+    code        token      Kind of Resource                    Basic.code
+    ...
+`,
+		`Inspecting an instance shows the properties set in a Simple Encoding Notation (SEN) format
+as defined at https://github.com/ohler55/ojg/blob/develop/sen.md.
+`,
+		`▶ (describe (make-instance 'fhir5:Patient :data "{resourceType:Patient id:p001 name:[{given:[Quinn] family:Quux}]}"))
+
+__#<fhir5:Patient 488285c08900>__, an instance of __fhir5:Patient__,
+  {
+    id: p001
+    name: [
+      {family: Quux given: [Quinn]}
+    ]
+    resourceType: Patient
+  }
+`,
+	},
+	"summary": []string{
+		`The table that follows is based on https://www.hl7.org/fhir//http.html#summary and is a summary of the
+requests and responses with a FHIR server.
+`,
+		` __Interaction     Function           Path                                 Verb    Response Body__`,
+		`^ read            http-read          /[type]/[id]                         GET     Resource
+ vread           http-read          /[type]/[id]/ history/[vid]          GET     Resource
+ update          http-update        /[type]/[id]                         PUT     Resource
+ patch           http-patch         /[type]/[id]                         PATCH   Resource
+ delete          http-delete        /[type]/[id]                         DELETE
+ create          http-create        /[type]                              POST    Resource
+ search-type     http-read          /[type]?                             GET     Bundle
+                 http-search        /[type]_search                       POST    Bundle
+ search-system   http-read          /?                                   GET     Bundle
+                 http-search        /_search                             POST    Bundle
+ search-         http-read          /[compartment]/[id]/*?               GET     Bundle
+ compartment     http-read          /[compartment]/[id]/[type]?          GET     Bundle
+                 http-search        /[compartment]/[id]/_search?         POST    Bundle
+                 http-search        /[compartment]/[id]/[type]/_search?  POST    Bundle
+ capabilities    http-capabilities  /metadata                            GET     CapabilityStatement
+ transaction     http-batch         /                                    POST    Bundle
+ batch           http-batch         /                                    POST    Bundle
+ history-inst    http-history       /[type]/[id]_history                 GET     Bundle
+ history-type    http-history       /[type]/_history                     GET     Bundle
+ history-system  http-history       /[type]/_history                     GET     Bundle
+ (operation)     http-operation     /$[name]                          GET/POST   Parameters/Resource
+                 http-operation     /[type]/$[name]                   GET/POST   Parameters/Resource
+                 http-operation     /[type]/[id]/$[name]              GET/POST   Parameters/Resource
+`,
+	},
+	"headers": []string{
+		`TBD intro then table`,
+	},
+	"parameters": []string{
+		`TBD intro then table`,
+	},
+	"search": []string{
+		`TBD`,
+	},
+	"history": []string{
+		`TBD`,
+	},
+	"compartment": []string{
+		`TBD`,
+	},
+	"read-example": []string{
+		`Reading from a FHIR server is one of the most common uses of the server. This example covers making a read
+request with the __http-read__ function to access a Patient resource with an id of "P001". __http-read__ requires at
+least one argument, the _base_ which can be either a URL as a string or a property list that includes a URL targeting
+a FHIR server plus default values for the other optional key arguments the function accepts.
+`,
+		`For this example the fictitious FHIR server has at http://fire.fake:8080. For purposes of this example, the
+server expects authorization with a bearer token of "access-token". Instead of having to add that information on every
+call it can be placed in a property list _base_. Other default such as a timeout and the default FHIR package can
+also be included.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))`,
+		`The read request is then send and the response bound to a variable.`,
+		`^
+▶ (defvar resp (http-read fire-base :type "Patient" :id "P001"))
+resp`,
+		`A quick check to verify the request returned a 200 HTTP success status code.`,
+		`^
+▶ (car resp)
+200`,
+		`There are a few useful pieces of information in the returned headers: Location reiterates then URL to the
+returned resource, ETag identifies the version which is also in the resource meta.version field, and Last-Modified
+which is also in the resource meta field as meta.lastUpdated.`,
+		`^
+▶ (cadr (assoc "Location" (nth 2 resp)))
+http://fire.fake:8080/Patient/P001`,
+		`(nth 2 resp) returns the headers. Using the assoc function a list of word "Location" and the value are
+returned. Taking the cadr or that is the value of the location. The same approach can be used to find the ETag and
+Last-Modified if they are present.`,
+		`^
+▶ (cadr (assoc "ETag" (nth 2 resp)))
+W/"v3"
+▶ (cadr (assoc "Last-Modified" (nth 2 resp)))
+"Mon, 05 Jan 2026 22:33:44 GMT"`,
+		`The __describe__ function can be used to see all the properties in the returned resource.`,
+		`^
+▶ (describe (cadr resp))
+#<fhir5:Patient 27fcb054220>, an instance of fhir5:Patient,
+  {
+    birthDate: "1969-01-02"
+    id: P001
+    meta: {
+      lastUpdated: "2026-01-05T22:33:44.123Z"
+      versionId: "v3"
+    }
+    name: [
+      {family: Racoon given: [Rocky]}
+    ]
+    resourceType: Patient
+  }
+`,
+		`Individual element of the returned resource can be accessed with the __instance-get__ function which
+utilizes JSONPath to navigate the resource.`,
+		`^
+▶ (instance-get (cadr resp) "name[*].given[0]")
+"Rocky"`,
+	},
+	"create-example": []string{
+		`TBD`,
+	},
+	"update-example": []string{
+		`TBD`,
+	},
+	"delete-example": []string{
+		`TBD`,
+	},
+	"patch-example": []string{
+		`TBD`,
+	},
+	"batch-example": []string{
+		`TBD`,
+	},
 	// "graphql": []string{`TBD`},
 	// "jet-help": []string{`TBD`},
 	// "mllp-help": []string{`TBD`},
@@ -183,9 +378,12 @@ func appendHelpDoc(b []byte, help []string, right int, ansi bool) []byte {
 		if 0 < i {
 			b = append(b, '\n')
 		}
-		if h[0] == '_' {
+		switch h[0] {
+		case '_':
 			b = slip.AppendDoc(b, h, 4, right, ansi, 2)
-		} else {
+		case '^':
+			b = append(b, h[1:]...)
+		default:
 			b = append(b, '\n')
 			b = slip.AppendDoc(b, h, 0, right, ansi)
 		}
@@ -194,18 +392,51 @@ func appendHelpDoc(b []byte, help []string, right int, ansi bool) []byte {
 }
 
 func helpResourcesExtra(b []byte, right int, ansi bool) []byte {
+	var words []string
 
-	return b
+	for _, p := range slip.AllPackages() {
+		for _, class := range p.AllClasses() {
+			if t, _ := class.(*Type); t != nil {
+				if t.parent == "DomainResource" {
+					name := class.Name()
+					words = append(words, t.pkg.Name+":"+name)
+				}
+			}
+		}
+	}
+	return appendWords(b, words, right)
 }
 
 func helpDatatypesExtra(b []byte, right int, ansi bool) []byte {
+	var words []string
 
-	return b
+	for _, p := range slip.AllPackages() {
+		for _, class := range p.AllClasses() {
+			if t, _ := class.(*Type); t != nil {
+				if t.parent == "Element" {
+					name := class.Name()
+					words = append(words, t.pkg.Name+":"+name)
+				}
+			}
+		}
+	}
+	return appendWords(b, words, right)
 }
 
 func helpBackbonesExtra(b []byte, right int, ansi bool) []byte {
+	var words []string
 
-	return b
+	for _, p := range slip.AllPackages() {
+		for _, class := range p.AllClasses() {
+			if t, _ := class.(*Type); t != nil {
+				if t.parent == "BackboneType" {
+					name := class.Name()
+					words = append(words, t.pkg.Name+":"+name)
+				}
+			}
+		}
+	}
+	return appendWords(b, words, right)
 }
 
 func helpPrimitivesExtra(b []byte, right int, ansi bool) []byte {
@@ -221,10 +452,6 @@ func helpPrimitivesExtra(b []byte, right int, ansi bool) []byte {
 			}
 		}
 	}
-	// b = append(b, bold...)
-	// b = appendWords(b, words, right)
-	// return append(b, colorOff...)
-
 	return appendWords(b, words, right)
 }
 
