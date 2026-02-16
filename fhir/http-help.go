@@ -112,7 +112,7 @@ types that are the classes of the simple values in the FHIR datatypes are:
 	// "mllp-help": []string{`TBD`},
 }
 
-var topicHelpExtras = map[string]func(b []byte, p *slip.Package, right int, ansi bool) []byte{
+var topicHelpExtras = map[string]func(b []byte, right int, ansi bool) []byte{
 	"resources":  helpResourcesExtra,
 	"datatypes":  helpDatatypesExtra,
 	"backbones":  helpBackbonesExtra,
@@ -153,10 +153,8 @@ func (f *HTTPHelp) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	right := int(s.Get("*print-right-margin*").(slip.Fixnum))
 	var (
 		b     []byte
-		extra func(b []byte, fp *slip.Package, right int, ansi bool) []byte
+		extra func(b []byte, right int, ansi bool) []byte
 	)
-	fp := slip.FindPackage("fhir5")
-	// TBD get optional package name
 	help := helpTop
 	if 0 < len(args) {
 		topic := slip.MustBeString(args[0], "topic")
@@ -167,7 +165,7 @@ func (f *HTTPHelp) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	}
 	b = appendHelpDoc(b, help, right, ansi)
 	if extra != nil {
-		b = extra(b, fp, right, ansi)
+		b = extra(b, right, ansi)
 	}
 	b = append(b, '\n')
 
@@ -195,28 +193,32 @@ func appendHelpDoc(b []byte, help []string, right int, ansi bool) []byte {
 	return append(b, '\n')
 }
 
-func helpResourcesExtra(b []byte, p *slip.Package, right int, ansi bool) []byte {
+func helpResourcesExtra(b []byte, right int, ansi bool) []byte {
 
 	return b
 }
 
-func helpDatatypesExtra(b []byte, p *slip.Package, right int, ansi bool) []byte {
+func helpDatatypesExtra(b []byte, right int, ansi bool) []byte {
 
 	return b
 }
 
-func helpBackbonesExtra(b []byte, p *slip.Package, right int, ansi bool) []byte {
+func helpBackbonesExtra(b []byte, right int, ansi bool) []byte {
 
 	return b
 }
 
-func helpPrimitivesExtra(b []byte, p *slip.Package, right int, ansi bool) []byte {
+func helpPrimitivesExtra(b []byte, right int, ansi bool) []byte {
 	var words []string
 
-	for _, class := range p.AllClasses() {
-		name := class.Name()
-		if 'a' <= name[0] && name[0] <= 'z' {
-			words = append(words, name)
+	for _, p := range slip.AllPackages() {
+		for _, class := range p.AllClasses() {
+			if t, _ := class.(*Type); t != nil {
+				name := class.Name()
+				if 'a' <= name[0] && name[0] <= 'z' {
+					words = append(words, t.pkg.Name+":"+name)
+				}
+			}
 		}
 	}
 	// b = append(b, bold...)
