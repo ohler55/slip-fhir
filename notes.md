@@ -26,6 +26,10 @@
       - example-each
      - search
      - history
+     - resources
+     - datatypes
+     - primitives
+     - backbones
      - compartment
      - graphql
      - other
