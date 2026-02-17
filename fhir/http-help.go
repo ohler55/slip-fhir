@@ -213,13 +213,103 @@ requests and responses with a FHIR server.
 `,
 	},
 	"headers": []string{
-		`TBD intro then table`,
+		`FHIR server interactions make use of HTTP headers to convey some information such as conditions to check before
+taking action. Not all servers support all headers. A summary of https://www.hl7.org/fhir//http.html#Http-Headers is:
+
+`,
+		`_Request Headers:_`,
+		`__Accept__ used to request that the server response be of one of the specified mime types.`,
+		`__If-Match__ specifies a condition where the provided ETag formatted value must match the resource being acted on.`,
+		`__If-Modified-Since__ specifies a time based condition for a read. The format of the time must be
+<day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT.`,
+		`__If-None-Exist__ specifies a condition for a create using parameters encoded search url encoding.`,
+		`__If-None-Match__ specifies a condition that compares resources to multiple ETag formatted values`,
+		`__Prefer__ specifies a preference for the return value such as return=minimal.`,
+		`__X-Forwarded-For__ an optional header that identifies the origin of a forwarded request.`,
+		`__X-Forwarded-Host__ an optional header that identifies the host of forwarded request.
+
+`,
+
+		`_Response Headers:_`,
+		`__ETag__ used to relay the resource version as a weak (W/) ETag such as W/"123".`,
+		`__Last-Modified__ used to relay the resource meta.lastUpdates time.`,
+		`__Location__ used to relay the resource location as a URL.`,
+		`__Content-Location__ for async use to indicate the location of the response.
+
+`,
+		`_Optional Bidirectional Headers:_`,
+		`__X-Request-Id__ an id assigned by the client if on a request or by the server if in a response header.`,
+		`__X-Correlation-Id__ is a client assigned id that is passed back in a response.`,
+		`__X-Intermediary__ identifies an intermediary agent that modifies either a request or a response.`,
+		`__X-Forwarded-Proto__ identifies the original protocol used by a client that has connected to an intermediary.`,
+		`__X-Forwarded-Port__ identifies the intermediary port that it accepts connections on.`,
+		`__X-Forwarded-Prefix__ a non-standard header used with a proxy.`,
 	},
 	"parameters": []string{
-		`TBD intro then table`,
+		`General paramters such as _ format_, _ summary_, _ pretty_, and _ elements_ apply to any request. Others are
+can be more restricted. Parameters are:
+
+`,
+		`_ _format supersedes the Accept header. For this package a format of other that application/fhir+json is unsupported.`,
+		`_ _pretty indicates whether the return should be pretty or not. Since the JSON content is parsed into
+a instance on receiving a response the parameter has no visible effect on the response other than to change the
+content length.`,
+		`_ _summary is a request to the server to limit the fields in the response. It can be one of:`,
+		`^    true -  Return a limited subset of elements from the resource. This subset SHOULD
+            consist solely of all supported elements that are marked as "summary" in
+            the base definition of the resource(s) `,
+		`^    text -  Return only the text, id, meta, and top-level mandatory elements (these
+            mandatory elements are included to ensure that the payload is valid FHIR;
+            servers MAY omit elements within these sub-trees as long as they ensure
+            that the payload is valid). Servers MAY return extensions, but clients
+            SHOULD NOT rely on extensions being present and SHOULD use another search
+            mode if data contained in extensions is required.`,
+		`^    data -  Remove the text element.`,
+		`^    count - Search only: just return a count of the matching resources, without
+            returning the actual matches.`,
+		`^    false - Return all parts of the resource(s).`,
+		`_ _at a date(Time), only include resource versions that were current at some point during the time period specified
+in the date time value.`,
+		`_ _content `,
+		`_ _contained `,
+		`_ _containedType `,
+		`_ _count an integer, the maximum number of search results on a page, excluding related resources included
+by _include or _revinclude or OperationOutcomes. The server is not bound to return the number requested, but
+cannot return more `,
+		`_ _elements `,
+		`_ _filter `,
+		`_ _graph `,
+		`_ _has `,
+		`_ _id `,
+		`_ _in `,
+		`_ _include `,
+		`_ _language `,
+		`_ _lastUpdated `,
+		`_ _list a reference, only include resource versions that are referenced in the specified list`,
+		`_ _maxresults `,
+		`_ _profile `,
+		`_ _query `,
+		`_ _revinclude `,
+		`_ _score `,
+		`_ _security `,
+		`_ _since an instant, Only include resource versions that were created at or after the given instant in time.`,
+		`_ _sort_ a string, allowed sort values are limited to:`,
+		`^    -_lastUpdate (default) - sort in descending lastUpdated order.`,
+		`^    _lastUpdate - sort in ascending lastUpdated order.`,
+		`^    none - data will have no defined sort order.`,
+		`_ _source `,
+		`_ _tag `,
+		`_ _text `,
+		`_ _total `,
+		`_ _type `,
+		`^  mode - used with capabilities`,
+
+		`Search parameters follow the general param=value format but with a variety of refinements for both the
+param and value to build more complex queries. A rather extensive description of the search language is
+https://www.hl7.org/fhir//search.html#3.2.1`,
 	},
 	"search": []string{
-		`TBD`,
+		`TBD http-search and summary of search language`,
 	},
 	"history": []string{
 		`TBD`,
@@ -356,7 +446,7 @@ func (f *HTTPHelp) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 		if h := topicHelp[strings.ToLower(topic)]; 0 < len(help) {
 			help = h
 		}
-		extra, _ = topicHelpExtras[topic]
+		extra = topicHelpExtras[topic]
 	}
 	b = appendHelpDoc(b, help, right, ansi)
 	if extra != nil {
