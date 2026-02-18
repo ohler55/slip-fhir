@@ -97,7 +97,11 @@ is specified incorrectly or abstractly with terms like "string"
 instead of "code" as seen on the web pages. Assuming that the FHIR web
 pages are the most accurate source of truth those inaccuracies and
 omissions are corrected manually in the code that creates the JSON
-definitions file.
+definitions file. Some differences between the web pages and the
+schema file were left unchanged. Differences in type names such as
+Money in the schema and MoneyQuantity on the web pages do impact the
+overall structure of Resources so no attempt was made to identify and
+adjust those.
 
 The normalized model definitions are used to dynamically generate the
 FHIR types as psuedo Lisp classes or types. These Lisp types are used

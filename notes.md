@@ -8,52 +8,14 @@
 
  - server - phoenix
 
- - allow set to take a json/sen string
+ - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
 
- - spec disconnect
-  - Money vs MoneyQuantity
-  - all datatypes inherit from Element on pages yet DataType diagram shows differently
-
- - is there a way to provide general help for the http APIs?
-  - in pkg docs include mention of http-help
-  - something like https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
-  - in package docs but narrowed to http or other grouping (avoiding more packaging)
-   - or maybe pkg just for docs?
-   - or a function like http-help
-    - display help for different areas
-     - summary - https://www.hl7.org/fhir//http.html#summary
-      - interaction path method conditional response (resource) headers
-      - or maybe just - interaction path method response (resource) headers
-     - functions - http-xxx in this package
-     - methods - HTTP methods? - maybe redundant with summary
-     - headers
-     - parameters
-     - explore - using describe and describe-type (types, functions, instances)
-      - describe notation
-      - what are search parameters and how to use (refer to example)
-     - examples
-      - example-read
-      - example-each
-     - search
-     - history
-     - resources
-     - datatypes
-     - primitives
-     - backbones
-     - compartment
-     - graphql
-     - other
-      - refer to jet-help, mllp-help
-      -
 
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   + http-read
   + http-each
   + http-capabilities
-
   - http-create
-   - POST
-   - resource (has :type)
    - test
     - add id, meta.versionId, meta.lastUpdated
     - include headers

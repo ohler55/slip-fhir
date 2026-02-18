@@ -57,7 +57,8 @@ func initInstanceSet() {
 				},
 			},
 			Return: "nil",
-			Text:   `__instance-set__ sets the _property_ with _value_ if the _value_ passes validation.`,
+			Text: `__instance-set__ sets the _property_ with _value_ if the _value_ passes validation.
+A JSON or SEN formatted string can be used to set complex properties as can a __bag__.`,
 		}, &Pkg)
 }
 

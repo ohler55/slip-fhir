@@ -392,9 +392,16 @@ func TestInstanceSlots(t *testing.T) {
 	tt.Equal(t, true, ok)
 	q := qt.MakeInstance()
 	q.SetSlotValue(slip.Symbol("value"), slip.Fixnum(5))
+	q.SetSlotValue(slip.Symbol("unit"), slip.String("mg"))
 
 	inst.SetSlotValue(slip.Symbol("low"), q)
-	tt.Equal(t, "{low: {value: 5}}", pretty.SEN(inst.Simplify()))
+	tt.Equal(t, "{low: {unit: mg value: 5}}", pretty.SEN(inst.Simplify()))
+
+	inst.SetSlotValue(slip.Symbol("low"), slip.String("{value: 6}"))
+	tt.Equal(t, "{low: {value: 6}}", pretty.SEN(inst.Simplify()))
+
+	inst.SlotValue(slip.Symbol("low"))
+	tt.Equal(t, "{low: {value: 6}}", pretty.SEN(inst.Simplify()))
 
 	tt.Panic(t, func() { _ = inst.SetSlotValue(slip.Symbol("quux"), q) })
 	tt.Panic(t, func() { _ = inst.SetSlotValue(slip.Symbol("low"), slip.Fixnum(3)) })

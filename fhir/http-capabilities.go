@@ -56,7 +56,7 @@ Default: fhir5.`,
 				},
 			},
 			Return: "list",
-			Text: `__http-capabilities__ forms a URL from the provided parameters and sents a GET request to
+			Text: `__http-capabilities__ forms a URL from the provided parameters and sends a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
 _application/fhir+json_ format is currently supported. If not already at the end of the URL path a
@@ -85,7 +85,7 @@ type HTTPCapabilities struct {
 func (f *HTTPCapabilities) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 1, 9)
 
-	_, data, fhirPkg, res, _ := httpData(s, args, depth)
+	_, data, fhirPkg, res, _ := httpRequest(s, args, depth, nil, nil)
 
 	resource := makeAnyResource(data, fhirPkg)
 
