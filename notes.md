@@ -15,15 +15,7 @@
   + http-read
   + http-each
   + http-capabilities
-  - http-create
-   - test
-    - add id, meta.versionId, meta.lastUpdated
-    - include headers
-     - Location: [base]/[type]/[id]/_history/[vid]
-     - Last-Modified: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
-      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Last-Modified
-     - ETag W/"<vid>"
-    - return status 201 on success
+  + http-create
 
   - http-update
    - PUT

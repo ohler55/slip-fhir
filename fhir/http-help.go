@@ -51,7 +51,7 @@ that are the defaults for the _&key_ arguments. The return values for the functi
 __nil__ are a list of three elements: then HTTP status in the response, a Resource, and the returned headers
 as an association list. A more detailed description is available by calling then __describe__ function like:`,
 		` ▶ (describe 'http-read)`,
-		`The functions in the __fhir__ package are:
+		`The client functions in the __fhir__ package are:
 
 `,
 		`__http-read__ covers the FHIR _read_ and _vread_ interactions but can also be used for any of the other
@@ -339,7 +339,8 @@ also be included.`,
 ▶ (defvar fire-base '(:url "http://fire.fake:8080"
                     :headers ("Authentication" "Bearer access-token")
                     :timeout 5
-                    :fhir-package fhir5))`,
+                    :fhir-package fhir5))
+fire-base`,
 		`The read request is then send and the response bound to a variable.`,
 		`^
 ▶ (defvar resp (http-read fire-base :type "Patient" :id "P001"))
@@ -386,7 +387,54 @@ utilizes JSONPath to navigate the resource.`,
 "Rocky"`,
 	},
 	"create-example": []string{
-		`TBD`,
+		`Creating a new resource starts with building a resource of the correct type. That resource must include the
+resourceType property.`,
+		`^
+▶ (defvar pat (make-instance 'fhir5:patient :data "{resourceType: Patient, name:[{given:[Rocky] family:Racoon}]}"))
+pat`,
+		`It's best to validate the resource before sending a create request to the FHIR server. Instances in the
+__fhir__ package are a Flavor/CLOS belnd referred to as FLOS types. That allows an Instance to be validated
+either using the __valid-p__ function or to send the instance a request to validate itself.`,
+		`^
+▶ (send pat :valid-p)
+t
+▶ (valid-p pat)
+t`,
+		`With confidence that the Instance is a valid Patient a request is sent to the FHIR server to create the
+Instance. Note that any id property will be ignored as will the meta.versionId and meta.lastUpdated properties.
+Like the read-example a fire-base is defined first.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base
+▶ (defvar create-resp (http-read pat fire-base))
+create-resp`,
+		`Following the read-example inspection of a response, the ETag, Last-Modified, and Location headers can be
+viewed and should match the meta.versionId, meta.lastUpdated, and the newly assigned id property.`,
+		`^
+▶ (car resp)
+201
+▶ (cadr (assoc "Location" (nth 2 create-resp)))
+http://fire.fake:8080/Patient/P002/_history/v01
+▶ (cadr (assoc "ETag" (nth 2 create-resp)))
+W/"v01"
+▶ (cadr (assoc "Last-Modified" (nth 2 create-resp)))
+"Mon, 05 Jan 2026 22:33:44 GMT"
+▶ (describe (cadr resp))
+#<fhir5:Patient 27fcb054220>, an instance of fhir5:Patient,
+  {
+    id: P002
+    meta: {
+      lastUpdated: "2026-01-05T22:33:44.123Z"
+      versionId: "v01"
+    }
+    name: [
+      {family: Racoon given: [Rocky]}
+    ]
+    resourceType: Patient
+  }`,
 	},
 	"update-example": []string{
 		`TBD`,

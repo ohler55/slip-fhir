@@ -193,6 +193,13 @@ func respHeaders(res *http.Response) slip.List {
 	var header slip.List
 
 	for k, va := range res.Header {
+		// Go incorrectly changes the capitalization on ETag to Etag. This is
+		// a known issue that will not befixed since receiving clients are
+		// supposed to ignore case. Since not all users will adhere to that
+		// specification, Etag is converted to ETag.
+		if k == "Etag" {
+			k = "ETag"
+		}
 		value := slip.List{slip.String(k)}
 		for _, v := range va {
 			value = append(value, slip.String(v))
