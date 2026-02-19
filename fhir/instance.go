@@ -86,6 +86,10 @@ func (inst *Instance) SlotValue(sym slip.Symbol) (value slip.Object, has bool) {
 
 // SetSlotValue sets the value of an instance variable.
 func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool) {
+	prop := inst.class.propMap[strings.ToLower(string(sym))]
+	if prop == nil {
+		panic(fmt.Sprintf("%s does nat have a %s property.", inst, sym))
+	}
 	var data any
 	switch ta := value.(type) {
 	case *flavors.Instance:
@@ -96,13 +100,16 @@ func (inst *Instance) SetSlotValue(sym slip.Symbol, value slip.Object) (has bool
 		data = ta.Any
 	case *Instance:
 		data = ta.data
+	case slip.String:
+		if 0 < len(prop.ftype.pattern) { // primitive type
+			data = string(ta)
+		} else {
+			data = sen.MustParse([]byte(ta))
+		}
 	default:
 		data = slip.Simplify(ta)
 	}
-	prop := inst.class.propMap[strings.ToLower(string(sym))]
-	if prop == nil {
-		panic(fmt.Sprintf("%s does nat have a %s property.", inst, sym))
-	}
+
 	prop.ftype.Validate(data, func(p jp.Expr, v any, message string) bool {
 		panic(fmt.Sprintf("Value at %s, %s: %s.", p, pretty.SEN(v), message))
 	})
@@ -236,7 +243,7 @@ func (inst *Instance) Describe(b []byte, indent, right int, ansi bool) []byte {
 		b = append(b, inst.class.name...)
 	}
 	b = append(b, ",\n  "...)
-	data := strings.ReplaceAll(pretty.SEN(inst.data), "\n", "  \n")
+	data := strings.ReplaceAll(pretty.SEN(inst.data), "\n", "\n  ")
 	b = append(b, data...)
 
 	return append(b, '\n')

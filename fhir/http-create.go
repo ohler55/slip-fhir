@@ -3,21 +3,34 @@
 package fhir
 
 import (
+	"net/http"
+	"strings"
+
+	"github.com/ohler55/ojg/jp"
+	"github.com/ohler55/ojg/sen"
 	"github.com/ohler55/slip"
 	"github.com/ohler55/slip/pkg/bag"
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
-func initHTTPRead() {
+func initHTTPCreate() {
 	slip.Define(
 		func(args slip.List) slip.Object {
-			f := HTTPRead{Function: slip.Function{Name: "http-read", Args: args}}
+			f := HTTPCreate{Function: slip.Function{Name: "http-create", Args: args}}
 			f.Self = &f
 			return &f
 		},
 		&slip.FuncDoc{
-			Name: "http-read",
+			Name: "http-create",
 			Args: []*slip.DocArg{
+				{
+					Name: "resource",
+					Type: "Resource",
+					Text: `The resource to include as the body of the request which will be used to
+create the new resource. The resource must be a valid resource. The resource can be an instance of
+FHIR type, a __bag__ with a valid structure for the type to create, or a JSON or SEN string that
+can be parsed to a FHIR instance.`,
+				},
 				{
 					Name: "base",
 					Type: "string|property-list",
@@ -26,22 +39,6 @@ or base values if a property list. Any of the _&key_ arguments can be included i
 list and will serve as a base or defaults for the _&key_ arguments.`,
 				},
 				{Name: "&key"},
-				{
-					Name: "type",
-					Type: "string",
-					Text: "The resource type if needed and not already in the _base_ as _:url_.",
-				},
-				{
-					Name: "id",
-					Type: "string",
-					Text: "The resource id if needed and not already in the _base_.",
-				},
-				{
-					Name: "version",
-					Type: "string",
-					Text: `The resource version if needed and not already in the _base_. If set
-then a vread request is sent.`,
-				},
 				{
 					Name: "headers",
 					Type: "assoc-list",
@@ -74,43 +71,61 @@ Default: fhir5.`,
 				},
 			},
 			Return: "list",
-			Text: `__http-read__ forms a URL from the provided parameters and sends a GET request to
+			Text: `__http-create__ forms a URL from the provided parameters and sents a POST request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
 _application/fhir+json_ format is currently supported.
 
 
-The return value should include a resource of either the expected resource, nil, an OperationOutcome,
-or if an _ elements_ parameter is specified, a __bag__. The return value from the call will be a
-list of three members. The first is the HTTP status as a __fixnum__. The second is the resource
-retrieved, nil, __bag__, or OperationOutcome. The last element in the list are the headers.
+The return value should include a resource of the created resource or an OperationOutcome. The return
+value from the call will be a list of three members. The first is the HTTP status as a __fixnum__.
+The second is the resource created or an OperationOutcome. The last element in the list are the headers.
 
 
-For additional information about the FHIR HTTP read refer to https://www.hl7.org/fhir//http.html#read.
+For additional information about the FHIR HTTP create refer to https://www.hl7.org/fhir//http.html#create.
 `,
 		}, &Pkg)
 }
 
-// HTTPRead represents the http-read function.
-type HTTPRead struct {
+// HTTPCreate represents the http-create function.
+type HTTPCreate struct {
 	slip.Function
 }
 
 // Call the the function with the arguments provided.
-func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 1, 15)
+func (f *HTTPCreate) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
+	slip.CheckArgCount(s, depth, f, args, 2, 10)
 
-	uu, data, fhirPkg, res, _ := httpRequest(s, args, depth, nil, nil)
-
-	var resource slip.Object
-
-	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
-		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
-		bg.Any = data
-		resource = bg
-	} else {
-		resource = makeAnyResource(data, fhirPkg)
+	var body any
+	switch ta := args[0].(type) {
+	case *Instance:
+		body = ta.data
+	case *flavors.Instance:
+		if bag.Flavor() == ta.Type {
+			body = ta.Any
+		} else {
+			slip.TypePanic(s, depth, "resource", ta, "bag", "instance", "string")
+		}
+	case slip.String:
+		body = sen.MustParse([]byte(ta))
+	default:
+		slip.TypePanic(s, depth, "resource", ta, "bag", "instance", "string")
 	}
+	resType, _ := jp.C("resourceType").First(body).(string)
+	if len(resType) == 0 {
+		panic("Resource is missing the resourceType field.")
+	}
+	rmod := func(req *http.Request) {
+		req.Method = http.MethodPost
+		suffix := "/" + resType
+		if !strings.HasSuffix(req.URL.Path, suffix) {
+			req.URL.Path = string(append([]byte(req.URL.Path), suffix...))
+		}
+	}
+	_, data, fhirPkg, res, _ := httpRequest(s, args[1:], depth, rmod, body)
+
+	resource := makeAnyResource(data, fhirPkg)
+
 	return slip.List{
 		slip.Fixnum(res.StatusCode),
 		resource,

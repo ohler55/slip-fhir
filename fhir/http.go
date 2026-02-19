@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/ohler55/ojg/alt"
@@ -26,10 +27,13 @@ var httpURLKeys = []slip.Symbol{
 	slip.Symbol(":search"),
 }
 
-func httpData(
+func httpRequest(
 	s *slip.Scope,
 	args slip.List,
-	depth int) (uu *url.URL, data any, fhirPkg string, res *http.Response, timeout time.Duration) {
+	depth int,
+	reqMod func(req *http.Request),
+	body any) (uu *url.URL, data any, fhirPkg string, res *http.Response, timeout time.Duration) {
+
 	var base slip.List
 	switch ta := args[0].(type) {
 	case slip.String:
@@ -56,9 +60,15 @@ func httpData(
 		ctx, cancel = context.WithTimeout(ctx, timeout)
 		defer cancel()
 	}
-	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), nil); err == nil {
+	var bodyReader io.Reader
+	if body != nil {
+		bodyReader = strings.NewReader(oj.JSON(body))
+	}
+	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), bodyReader); err == nil {
 		httpKeysHeader(s, depth, base, args, req)
-
+		if reqMod != nil {
+			reqMod(req)
+		}
 		if res, err = (&http.Client{}).Do(req); err != nil {
 			panic(err)
 		}
@@ -183,6 +193,13 @@ func respHeaders(res *http.Response) slip.List {
 	var header slip.List
 
 	for k, va := range res.Header {
+		// Go incorrectly changes the capitalization on ETag to Etag. This is
+		// a known issue that will not befixed since receiving clients are
+		// supposed to ignore case. Since not all users will adhere to that
+		// specification, Etag is converted to ETag.
+		if k == "Etag" {
+			k = "ETag"
+		}
 		value := slip.List{slip.String(k)}
 		for _, v := range va {
 			value = append(value, slip.String(v))

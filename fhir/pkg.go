@@ -49,7 +49,8 @@ var (
 to a FHIR server and in handling responses. Classes for each of the FHIR resource and
 non-primitive types are defined from a specified FHIR JSON Schema file. Instances of
 the fhir classes can be used to build as well as access fields of FHIR datatypes. The
-fhir package contains the functions and metaclasses for dynamically loaded FHIR types.
+__fhir__ package contains the functions and metaclasses for dynamically loaded FHIR
+types. For more details invoke the __http-help__ funcion.
 
 
 The default FHIR version is v5.0.0 and is in package fhir5.`,
@@ -194,9 +195,11 @@ func init() {
 	initPropertyValidP()
 	initLoadDefinitions()
 
+	initHTTPHelp()
 	initHTTPRead()
 	initHTTPEach()
 	initHTTPCapabilities()
+	initHTTPCreate()
 
 	p5 := slip.DefPackage("fhir5", []string{}, "FHIR version 5.0.0")
 	defineTypes(sen.MustParse(fhir5JSON), p5)

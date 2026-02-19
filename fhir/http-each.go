@@ -113,7 +113,7 @@ func (f *HTTPEach) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	slip.CheckArgCount(s, depth, f, args, 2, 18)
 	d2 := depth + 1
 	caller := cl.ResolveToCaller(s, args[0], d2)
-	_, data, fhirPkg, res, timeout := httpData(s, args[1:], depth)
+	_, data, fhirPkg, res, timeout := httpRequest(s, args[1:], depth, nil, nil)
 
 	resType := alt.String(jp.C("resourceType").First(data))
 
