@@ -16,11 +16,8 @@
   + http-each
   + http-capabilities
   + http-create
-
   - http-update
-   - PUT
-   - body of resource (has :type and :id)
-   - header, If-Match
+   - update-example
 
   - http-delete
    - DELETE
