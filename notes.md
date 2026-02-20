@@ -6,8 +6,6 @@
 
 - plan
 
- - server - phoenix
-
  - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
 
 
@@ -16,11 +14,7 @@
   + http-each
   + http-capabilities
   + http-create
-
-  - http-update
-   - PUT
-   - body of resource (has :type and :id)
-   - header, If-Match
+  + http-update
 
   - http-delete
    - DELETE
