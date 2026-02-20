@@ -100,8 +100,10 @@ func (f *HTTPDelete) Call(s *slip.Scope, args slip.List, depth int) slip.Object 
 	}
 	_, data, fhirPkg, res, _ := httpRequest(s, args, depth, dmod, nil)
 
-	resource := makeAnyResource(data, fhirPkg)
-
+	var resource slip.Object
+	if data != nil {
+		resource = makeAnyResource(data, fhirPkg)
+	}
 	return slip.List{
 		slip.Fixnum(res.StatusCode),
 		resource,
