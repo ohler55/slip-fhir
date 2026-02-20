@@ -6,8 +6,6 @@
 
 - plan
 
- - server - phoenix
-
  - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
 
 
@@ -16,8 +14,7 @@
   + http-each
   + http-capabilities
   + http-create
-  - http-update
-   - update-example
+  + http-update
 
   - http-delete
    - DELETE

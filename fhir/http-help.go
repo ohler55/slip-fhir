@@ -409,12 +409,12 @@ Like the read-example a fire-base is defined first.`,
                     :timeout 5
                     :fhir-package fhir5))
 fire-base
-▶ (defvar create-resp (http-read pat fire-base))
+▶ (defvar create-resp (http-create pat fire-base))
 create-resp`,
 		`Following the read-example inspection of a response, the ETag, Last-Modified, and Location headers can be
 viewed and should match the meta.versionId, meta.lastUpdated, and the newly assigned id property.`,
 		`^
-▶ (car resp)
+▶ (car create-resp)
 201
 ▶ (cadr (assoc "Location" (nth 2 create-resp)))
 http://fire.fake:8080/Patient/P002/_history/v01
@@ -422,7 +422,7 @@ http://fire.fake:8080/Patient/P002/_history/v01
 W/"v01"
 ▶ (cadr (assoc "Last-Modified" (nth 2 create-resp)))
 "Mon, 05 Jan 2026 22:33:44 GMT"
-▶ (describe (cadr resp))
+▶ (describe (cadr create-resp))
 #<fhir5:Patient 27fcb054220>, an instance of fhir5:Patient,
   {
     id: P002
@@ -437,7 +437,52 @@ W/"v01"
   }`,
 	},
 	"update-example": []string{
-		`TBD`,
+		`Updating a resource starts with building or downloading a resource of the correct type. If built from scratch
+the resource must include the resourceType and id properties.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base
+▶ (defvar pat001 (cadr (http-read fire-base :type "Patient" :id "P001")))
+pat001`,
+		`We took a shortcut by not checking the response status and assuming the returned resource was a Patient.
+Next a change is made to the returned resource by setting the active property using the __instance-set__ function.
+An alterenative would be to send the resource a __:set__ method with the name and value similar to the using the
+__instance-set__ function.`,
+		`^
+▶ (instance-set pat001 "active" t)
+nil`,
+		`The __http-update__ function is used to update the P001 Patient.`,
+		`^
+▶ (defvar update-resp (http-update pat fire-base))
+update-resp`,
+		`Following the read-example inspection of a response, the ETag, Last-Modified, and Location headers can be
+viewed and should match the meta.versionId, meta.lastUpdated, and the id property.`,
+		`^
+▶ (car update-resp)
+200
+▶ (cadr (assoc "Location" (nth 2 update-resp)))
+http://fire.fake:8080/Patient/P001/_history/v02
+▶ (cadr (assoc "ETag" (nth 2 update-resp)))
+W/"v02"
+▶ (cadr (assoc "Last-Modified" (nth 2 update-resp)))
+"Mon, 05 Jan 2026 22:33:44 GMT"
+▶ (describe (cadr update-resp))
+#<fhir5:Patient 27fcb054220>, an instance of fhir5:Patient,
+  {
+    active: true
+    id: P001
+    meta: {
+      lastUpdated: "2026-01-05T22:33:44.123Z"
+      versionId: "v02"
+    }
+    name: [
+      {family: Racoon given: [Rocky]}
+    ]
+    resourceType: Patient
+  }`,
 	},
 	"delete-example": []string{
 		`TBD`,
