@@ -8,22 +8,13 @@
 
  - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
 
-
  - http-client-functions (https://www.hl7.org/fhir//http.html)
   + http-read
   + http-each
   + http-capabilities
   + http-create
   + http-update
-
-  - http-delete
-   - DELETE
-
-  - http-patch
-   - PATCH
-   - :type, :id
-   - patch in body, how to represent?
-   - header, If-Match
+  + http-delete
 
   - http-search
    - GET - use http-each
@@ -31,12 +22,26 @@
     - if nil function then return bundle for
    - handle type, system, and compartment (same as id as far as the client is concerned?)
 
-  - http-batch
-   - POST
-
   - http-operation
    - GET
    - POST
+
+  - http-batch
+   - POST
+    - list of
+     - method (or read, update, etc)
+     - keys and params to form url
+     - headers If-None-Match, If-Match, If-Noe-Exist, or If-Modified-Since
+     - resource
+    - need operation also
+    - need search also
+    - patch?? not listed but maybe
+
+  - http-patch
+   - PATCH
+   - :type, :id
+   - patch in body, how to represent?
+   - header, If-Match
 
   - http-compartment
    - GET
