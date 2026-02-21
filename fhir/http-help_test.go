@@ -44,9 +44,9 @@ func TestHTTPHelp(t *testing.T) {
 	// testHTTPHelp(t, "history", "")
 	// testHTTPHelp(t, "compartment", "")
 	testHTTPHelp(t, "read-example", "(defvar resp", `(cadr (assoc "Location" (nth 2 resp)))`)
-	// testHTTPHelp(t, "create-example", "")
-	// testHTTPHelp(t, "update-example", "")
-	// testHTTPHelp(t, "delete-example", "")
+	testHTTPHelp(t, "create-example", "(http-create pat fire-base)")
+	testHTTPHelp(t, "update-example", "(http-update pat fire-base)")
+	testHTTPHelp(t, "delete-example", `(http-delete fire-base :type "Patient" :id "P001")`)
 	// testHTTPHelp(t, "patch-example", "")
 	// testHTTPHelp(t, "batch-example", "")
 }

@@ -485,7 +485,25 @@ W/"v02"
   }`,
 	},
 	"delete-example": []string{
-		`TBD`,
+		`Resource can be removed from a FHIR server using the __http-delete__ function. A standard delete requires a
+resource type and an id. More advanced delete operation can make use of a resource type and a condition. The
+simple delete starts off like all other http operations with the creation of a base.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base
+`,
+		`The __http-delete__ function is then called and the response checked. From the response the status code
+is of interest and is expected to be 204 if there is no content. If content such as an OperationOutcome is
+included then the status on success will be 200.`,
+		`^
+▶ (defvar delete-resp (http-delete fire-base :type "Patient" :id "P001"))
+delete-resp
+▶ (car update-resp)
+204
+`,
 	},
 	"patch-example": []string{
 		`TBD`,
