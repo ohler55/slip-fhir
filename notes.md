@@ -21,6 +21,10 @@
    - POST - add _search to path then same as each
     - if nil function then return bundle for
    - handle type, system, and compartment (same as id as far as the client is concerned?)
+    - adds either member-type or "*" to path
+    - POST
+     - add _search or member-type/_search
+
 
   - http-operation
    - GET
@@ -42,12 +46,6 @@
    - :type, :id
    - patch in body, how to represent?
    - header, If-Match
-
-  - http-compartment
-   - GET
-    - adds either member-type or "*" to path
-   - POST
-    - add _search or member-type/_search
 
 
  - future
