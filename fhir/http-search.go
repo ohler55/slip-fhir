@@ -6,8 +6,12 @@ import (
 	"bytes"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/ohler55/ojg/alt"
+	"github.com/ohler55/ojg/jp"
 	"github.com/ohler55/slip"
+	"github.com/ohler55/slip/pkg/cl"
 )
 
 func initHTTPSearch() {
@@ -20,6 +24,12 @@ func initHTTPSearch() {
 		&slip.FuncDoc{
 			Name: "http-search",
 			Args: []*slip.DocArg{
+				{
+					Name: "function",
+					Type: "function",
+					Text: `Function to call with each resource in the bundle returned and subsequent
+linked page's bundles.`,
+				},
 				{
 					Name: "base",
 					Type: "string|property-list",
@@ -70,13 +80,18 @@ values in the request POST body. Multiple values with the same key are allowed.`
 Request Timeout code in the response.`,
 				},
 				{
+					Name: "limit",
+					Type: "fixnum",
+					Text: `The limit of the number of resources fetched when paging.`,
+				},
+				{
 					Name: "fhir-package",
 					Type: "string|symbol",
 					Text: `The FHIR package to use when creating FHIR types from responses.
 Default: fhir5.`,
 				},
 			},
-			Return: "list",
+			Return: "nil",
 			Text: `__http-search__ forms a URL from the provided parameters and sends a GET request to
 the host and port provided in the _base_ which can either be the _base_ itself if the _base_ is
 a string or if _base_ is a property list then the _:url_ in the property list. Only the
@@ -102,13 +117,17 @@ type HTTPSearch struct {
 
 // Call the the function with the arguments provided.
 func (f *HTTPSearch) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 1, 15)
+	slip.CheckArgCount(s, depth, f, args, 2, 18)
+	d2 := depth + 1
+	caller := cl.ResolveToCaller(s, args[0], d2)
 
 	var (
 		data    any
 		fhirPkg string
 		res     *http.Response
+		timeout time.Duration
 	)
+	args = args[1:]
 	if v, has := slip.GetArgsKeyValue(args[1:], slip.Symbol(":query")); has {
 		if query, ok := v.(slip.List); ok {
 			qb := encodeParams(nil, s, query, depth)
@@ -117,20 +136,39 @@ func (f *HTTPSearch) Call(s *slip.Scope, args slip.List, depth int) slip.Object 
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 				suffix := "/_search"
-				if !strings.HasSuffix(req.URL.Path, suffix) {
+				if !strings.Contains(req.URL.Path, suffix) {
 					req.URL.Path = string(append([]byte(req.URL.Path), suffix...))
 				}
 			}
-			_, data, fhirPkg, res, _ = httpRequest(s, args, depth, smod, bytes.NewReader(qb))
+			_, data, fhirPkg, res, timeout = httpRequest(s, args, depth, smod, bytes.NewReader(qb))
 		} else {
 			slip.TypePanic(s, depth, ":query", v, "list")
 		}
 	} else {
 		_, data, fhirPkg, res, _ = httpRequest(s, args, depth, nil, nil)
 	}
-	return slip.List{
-		slip.Fixnum(res.StatusCode),
-		makeAnyResource(data, fhirPkg),
-		respHeaders(res),
+
+	resType := alt.String(jp.C("resourceType").First(data))
+
+	switch resType {
+	case "":
+		// No content so an error with no OperationOutcome.
+		return nil
+	case "Bundle":
+		args = args[1:]
+		limit := -1
+		if v, has := slip.GetArgsKeyValue(args, slip.Symbol(":limit")); has {
+			if num, ok := v.(slip.Fixnum); ok {
+				limit = int(num)
+			} else {
+				slip.TypePanic(s, depth, ":limit", v, "fixnum")
+			}
+		}
+		return eachInBundle(s, data, caller, fhirPkg, limit, d2, res, timeout)
 	}
+	resource := makeAnyResource(data, fhirPkg)
+
+	_ = caller.Call(s, slip.List{resource}, d2)
+
+	return nil
 }
