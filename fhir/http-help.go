@@ -35,6 +35,7 @@ https://www.hl7.org/fhir//compartmentdefinition.html.`,
 	`__create-example__ provides a walk through of using the __http-create__ function.`,
 	`__update-example__ provides a walk through of using the __http-update__ function.`,
 	`__delete-example__ provides a walk through of using the __http-delete__ function.`,
+	`__search-example__ provides a walk through of using the __http-search__ function.`,
 	`__patch-example__ provides a walk through of using the __http-patch__ function.`,
 	`__batch-example__ provides a walk through of using the __http-batch__ function.`,
 	// `__graphql__ describes the FHIR graphql operations and schemas.`,
@@ -246,15 +247,50 @@ taking action. Not all servers support all headers. A summary of https://www.hl7
 		`__X-Forwarded-Prefix__ a non-standard header used with a proxy.`,
 	},
 	"parameters": []string{
-		`General paramters such as _ format_, _ summary_, _ pretty_, and _ elements_ apply to any request. Others are
-can be more restricted. Parameters are:
+		`General paramters such as _ format_, _ summary_, _ pretty_, and _ elements_ apply to any request. Others
+can be more restrictive. Parameters are:
 
 `,
+		`_ _at [date(Time)] only include resource versions that were current at some point during the time period
+specified in the date time value.`,
+		`_ _contained [true|fales|both] Whether to return resources contained in other resources in the
+search matches.`,
+		`_ _containedType [container|contained] If returning contained resources, whether to return the
+contained or container resources`,
+		`_ _content [string] Text search against the entire resource.`,
+		`_ _count [integer] the maximum number of search results on a page, excluding related resources included
+by _include or _revinclude or OperationOutcomes. The server is not bound to return the number requested, but
+cannot return more `,
+		`_ _elements [string,...] Request that only a specific set of elements be returned for resources.`,
+		`_ _filter [special] Filter search parameter which supports a more sophisticated grammar for
+searching. See https://www.hl7.org/fhir//search_filter.html.`,
 		`_ _format Supersedes the Accept header. For this package a format of other that application/fhir+json
 is unsupported.`,
+		`_ _graph [reference] Include additional resources according to a GraphDefinition.`,
+		`_ _has [special] Provides limited support for reverse chaining.
+See https://www.hl7.org/fhir//search.html#has`,
+		`_ _id [token] Resource id (not a full URL)`,
+		`_ _in [reference] Group, List, or CareTeam membership.`,
+		`_ _include [string] Other resources to include in the search results that search matches point to.`,
+		`_ _language [token] Language of the resource content. (Resource.language)`,
+		`_ _lastUpdated [date] Date last updated. Server has discretion on the boundary precision.
+(Resource.meta.lastUpdated)`,
+		`_ _list [reference] All resources in nominated list (by id, not a full URL).`,
+		`_ _maxresults [number] Hint to a server that only the first 'n' results will ever be processed.`,
 		`_ _pretty [true|false] Indicates whether the return should be pretty or not. Since the JSON content is
 parsed into a instance on receiving a response the parameter has no visible effect on the response other than
 to change the content length.`,
+		`_ _profile [reference] Search for all resources tagged with a profile. (Resource.meta.profile)`,
+		`_ _query [string] Custom named query.`,
+		`_ _revinclude [string] Other resources to include in the search results when they refer to search matches.`,
+		`_ _score [true|false] Request match relevance in results.`,
+		`_ _security [token] Search by a security label. (Resource.meta.security)`,
+		`_ _since [instant] Only include resource versions that were created at or after the given instant in time.`,
+		`_ _sort_ [choice] allowed sort values are limited to:`,
+		`^    -_lastUpdate (default) - sort in descending lastUpdated order.`,
+		`^    _lastUpdate - sort in ascending lastUpdated order.`,
+		`^    none - data will have no defined sort order.`,
+		`_ _source [uri] Search by where the resource comes from. (Resource.meta.source)`,
 		`_ _summary [true|text|data|count|false] A request to the server to limit the fields in the response.
 It can be one of:`,
 		`^    true -  Return a limited subset of elements from the resource. This subset SHOULD
@@ -270,54 +306,92 @@ It can be one of:`,
 		`^    count - Search only: just return a count of the matching resources, without
             returning the actual matches.`,
 		`^    false - Return all parts of the resource(s).`,
-		`_ _at [date(Time)] only include resource versions that were current at some point during the time period
-specified in the date time value.`,
-		`_ _content [string] Text search against the entire resource.`,
-		`_ _contained [true|fales|both] Whether to return resources contained in other resources in the
-search matches.`,
-		`_ _containedType [container|contained] If returning contained resources, whether to return the
-contained or container resources`,
-		`_ _count [integer] the maximum number of search results on a page, excluding related resources included
-by _include or _revinclude or OperationOutcomes. The server is not bound to return the number requested, but
-cannot return more `,
-		`_ _elements [string,...] Request that only a specific set of elements be returned for resources.`,
-		`_ _filter [special] Filter search parameter which supports a more sophisticated grammar for
-searching. See https://www.hl7.org/fhir//search_filter.html.`,
-		`_ _graph [reference] Include additional resources according to a GraphDefinition.`,
-		`_ _has [special] Provides limited support for reverse chaining.
-See https://www.hl7.org/fhir//search.html#has`,
-		`_ _id [token] Resource id (not a full URL)`,
-		`_ _in [reference] Group, List, or CareTeam membership.`,
-		`_ _include [string] Other resources to include in the search results that search matches point to.`,
-		`_ _language [token] Language of the resource content. (Resource.language)`,
-		`_ _lastUpdated [date] Date last updated. Server has discretion on the boundary precision.
-(Resource.meta.lastUpdated)`,
-		`_ _list [reference] All resources in nominated list (by id, not a full URL).`,
-		`_ _maxresults [number] Hint to a server that only the first 'n' results will ever be processed.`,
-		`_ _profile [reference] Search for all resources tagged with a profile. (Resource.meta.profile)`,
-		`_ _query [string] Custom named query.`,
-		`_ _revinclude [string] Other resources to include in the search results when they refer to search matches.`,
-		`_ _score [true|false] Request match relevance in results.`,
-		`_ _security [token] Search by a security label. (Resource.meta.security)`,
-		`_ _since [instant] Only include resource versions that were created at or after the given instant in time.`,
-		`_ _sort_ [choice] allowed sort values are limited to:`,
-		`^    -_lastUpdate (default) - sort in descending lastUpdated order.`,
-		`^    _lastUpdate - sort in ascending lastUpdated order.`,
-		`^    none - data will have no defined sort order.`,
-		`_ _source [uri] Search by where the resource comes from. (Resource.meta.source)`,
 		`_ _tag [token] Search by a resource tag (Resource.meta.tag)`,
 		`_ _text [string] Text search against the narrative.`,
 		`_ _total [none|estimate|accurate] Request a precision of the total number of results for a request.`,
 		`_ _type [token] Is used to allow filtering of types in searches that are performed across multiple
 resource types (e.g., searches across the server root).`,
-		`^  mode [full|normative|terminology] Used with capabilities.`,
 
 		`Search parameters follow the general param=value format but with a variety of refinements for both the
 param and value to build more complex queries. A rather extensive description of the search language is
 https://www.hl7.org/fhir//search.html#3.2.1`,
 	},
 	"search": []string{
-		`TBD http-search and summary of search language`,
+		`Queries for searching are defined by the query parameters in a URL or encoded in a POST request. They
+follow the general param=value format but with a variety of refinements for both the parameter key and value
+to build more complex queries. A rather extensive description of the search language is
+https://www.hl7.org/fhir//search.html`,
+		`While including a complete description of the search facility isn't feasible, summaries of the
+prefixes and modifies are included here.`,
+		` __Prefix
+  Code  Description__`,
+		`^ eq    The resource value is equal to or fully contained by the parameter value.
+ ne    The resource value is not equal to the parameter value.
+ gt    The resource value is greater than the parameter value.
+ lt    The resource value is less than the parameter value.
+ ge    The resource value is greater or equal to the parameter value.
+ le    The resource value is less or equal to the parameter value.
+ sa    The resource value starts after the parameter value.
+ eb    The resource value ends before the parameter value.
+ ap    The resource value is approximately the same to the parameter value.
+       Note that the recommended value for the approximation is 10% of the stated
+       value (or for a date, 10% of the gap between now and the date), but systems
+       may choose other values where appropriate the range of the parameter value
+       overlaps with the range of the resource value`,
+		` __Modifier       Types      Description__`,
+		`^ above          reference  Tests whether the value in a resource is or subsumes
+                token      the supplied parameter value (is-a, or hierarchical
+                uri        relationships).`,
+		`^ below          reference  Tests whether the value in a resource is or is
+                token      subsumed by the supplied parameter value (is-a, or hierarchical
+                uri        relationships).`,
+		`^ code-text      reference  Tests whether the textual display value in a resource
+                token      (e.g., CodeableConcept.text, Coding.display, or
+                           Reference.display) matches the supplied parameter value.`,
+		`^ contains       string     Tests whether the value in a resource includes the
+                uri        supplied parameter value anywhere within the field being searched.`,
+		`^ exact          string     Tests whether the value in a resource exactly matches
+                           the supplied parameter value (the whole string, including casing
+                           and accents).`,
+		`^ identifier     reference  Tests whether the Reference.identifier in a resource
+                           (rather than the Reference.reference) matches the supplied
+                           parameter value.`,
+		`^ in             token      Tests whether the value in a resource is a member of
+                           the supplied parameter ValueSet.`,
+		`^ iterate        n/a (not   The search parameter indicates an inclusion directive
+                allowed    (_include, _revinclude) that is applied to an included
+                anywhere   resource instead of the matching resource.
+                by default)`,
+		`^ missing        date       Tests whether the value in a resource is present
+                number     (when the supplied parameter value is true) or absent (when
+                quantity   the supplied parameter value is false).
+                reference
+                string
+                token
+                uri`,
+		`^ not            token      Tests whether the value in a resource does not match
+                           the specified parameter value. Note that this includes resources
+                           that have no value for the parameter.`,
+		`^ not-in         reference  Tests whether the value in a resource is not a member
+                token      of the supplied parameter ValueSet.`,
+		`^ of-type        token      Tests whether the Identifier value in a resource
+                (only      matches the supplied parameter value.
+                Identifier)`,
+		`^ text           reference  Tests whether the textual value in a resource
+                token      (e.g., CodeableConcept.text, Coding.display, Identifier.type.text,
+                           or Reference.display) matches the supplied parameter value using
+                           basic string matching (begins with or is, case-insensitive).`,
+		`^ text           string     The search parameter value should be processed as input
+                           to a search with advanced text handling.`,
+		`^ text-advanced  reference  Tests whether the value in a resource matches the supplied
+                token      parameter value using advanced text handling that searches text
+                           associated with the code/value - e.g., CodeableConcept.text,
+                           Coding.display, or Identifier.type.text.`,
+
+		`^ [type]         reference  Tests whether the value in a resource points to a resource
+                           of the supplied parameter type. Note: a concrete ResourceType is
+                           specified as the modifier (e.g., not the literal :[type], but a
+                           value such as :Patient).`,
 	},
 	"history": []string{
 		`TBD`,
@@ -503,6 +577,52 @@ included then the status on success will be 200.`,
 delete-resp
 ▶ (car update-resp)
 204
+`,
+	},
+	"search-example": []string{
+		`Searches are done using either a GET or a POST. The difference as far as the __http-search__ function
+is concerned is simply changing from using the _:params_ keyword to _:query_. __http-search__ makes use of
+callbacks. The same approach is used for __http-each__ and __http-history__. The first argument to __http-search__
+is a function that is called for each resource found by the search. Since a FHIR search returns a Bundle
+resource, the entries (entry property) in the Bundle is iterated over with each resource created and passed
+as the sole argument to the callback function. A _:limit_ option will abort the search when the limit is
+reached. If the Bundle has a _next_ property the URL in the _next_ property is used to request the next
+batch. This process continues until either no more results are available or the limit is reached.`,
+		`To get started a _base_ is set up:`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base
+`,
+		`In this example a limit of 2 is set and the callback function prints a description of each resource.`,
+		`^
+▶ (http-search (lambda (r) (send r :describe)) fire-base :type "Patient" :params '("given" "Pete"))
+#<fhir5:Patient 1ceb160a0200>, an instance of fhir5:Patient,
+  {
+    id: "P001"
+    meta: {
+      lastUpdated: "2026-02-23T23:54:59.123Z"
+      versionId: "v02"
+    }
+    name: [
+      {family: Parrot given: [Pete]}
+    ]
+    resourceType: Patient
+  }
+#<fhir5:Patient 1ceb160a0240>, an instance of fhir5:Patient,
+  {
+    id: "P003"
+    meta: {
+      lastUpdated: "2026-02-23T23:54:43.337Z"
+      versionId: "v003"
+    }
+    name: [
+      {family: Porcupine given: [Pete]}
+    ]
+    resourceType: Patient
+  }
 `,
 	},
 	"patch-example": []string{

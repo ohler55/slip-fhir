@@ -164,7 +164,8 @@ func (f *HTTPSearch) Call(s *slip.Scope, args slip.List, depth int) slip.Object 
 				slip.TypePanic(s, depth, ":limit", v, "fixnum")
 			}
 		}
-		return eachInBundle(s, data, caller, fhirPkg, limit, d2, res, timeout)
+		_ = eachInBundle(s, data, caller, fhirPkg, limit, d2, res, timeout)
+		return nil
 	}
 	resource := makeAnyResource(data, fhirPkg)
 
