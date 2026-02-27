@@ -61,7 +61,12 @@ func httpRequest(
 		defer cancel()
 	}
 	var bodyReader io.Reader
-	if body != nil {
+	switch tb := body.(type) {
+	case nil:
+		// no body
+	case io.Reader:
+		bodyReader = tb
+	default:
 		bodyReader = strings.NewReader(oj.JSON(body))
 	}
 	if req, err := http.NewRequestWithContext(ctx, http.MethodGet, uu.String(), bodyReader); err == nil {
@@ -123,7 +128,14 @@ func httpKeysParser(s *slip.Scope, depth int, base, args slip.List) *url.URL {
 			params = append(params, sv...)
 		}
 	}
-	qb := []byte(uu.RawQuery)
+	qb := encodeParams([]byte(uu.RawQuery), s, params, depth)
+
+	uu.RawQuery = string(qb)
+
+	return uu
+}
+
+func encodeParams(qb []byte, s *slip.Scope, params slip.List, depth int) []byte {
 	for pos := 0; pos < len(params); pos += 2 {
 		ks, ok := params[pos].(slip.String)
 		if !ok {
@@ -143,9 +155,7 @@ func httpKeysParser(s *slip.Scope, depth int, base, args slip.List) *url.URL {
 		qb = append(qb, '=')
 		qb = append(qb, url.QueryEscape(string(vs))...)
 	}
-	uu.RawQuery = string(qb)
-
-	return uu
+	return qb
 }
 
 func httpKeysHeader(s *slip.Scope, depth int, base slip.List, args slip.List, req *http.Request) {
