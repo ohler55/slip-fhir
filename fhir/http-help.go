@@ -394,10 +394,26 @@ prefixes and modifies are included here.`,
                            value such as :Patient).`,
 	},
 	"history": []string{
-		`TBD`,
+		`Retrieving the history of a resource, if the resource type supports history, is best done using
+the __http-each__ function. The __http-each__ function iterates over all returned resources and follows
+pages transparently. By including the _:history_ argument to __t__, _ _history is appended to the URL
+used to start fetching previous versions of a resource.`,
+		`Deleted resources may be in the history responses but will show up as __bag__ instances since
+no resourceType is included in the entry for a deleted resource.`,
+		`Parameters that can be used when retrieving history include _ _count, _ _since, _ _at, _ _list,
+and _ _sort. More details regarding history can be found on at https://www.hl7.org/fhir//http.html#history.`,
 	},
 	"compartment": []string{
-		`TBD`,
+		`The __http-each__ or the __http-search__ functions can be used for compartment searches. Providing
+a value for the _:compartment_ keyword option will form one of the compartment URLs. If a type of nil
+is specified or no type is specified then either the pattern ending in "/*?" or "/_search?" is used.
+Compartments are defined at https://www.hl7.org/fhir//compartmentdefinition.html. The patterns for
+compartment searching are:`,
+		`^ GET  /[compartment]/[id]/*?`,
+		`^ GET  /[compartment]/[id]/[type]?`,
+		`^ POST /[compartment]/[id]/_search?`,
+		`^ POST /[compartment]/[id]/[type]/_search?`,
+		`Defined compartments are Patient, Encounter, RelatedPerson, Practitions, and Device.`,
 	},
 	"read-example": []string{
 		`Reading from a FHIR server is one of the most common uses of the server. This example covers making a read

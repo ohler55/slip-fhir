@@ -49,6 +49,11 @@ list and will serve as a base or defaults for the _&key_ arguments.`,
 					Text: "The compartment id. The inclusion of this argument indicates a compartment search.",
 				},
 				{
+					Name: "compartment",
+					Type: "string",
+					Text: "The compartment to use for the request if a compartment query.",
+				},
+				{
 					Name: "headers",
 					Type: "assoc-list",
 					Text: `If present, the values in the association list are merged and supersede any
@@ -117,7 +122,7 @@ type HTTPSearch struct {
 
 // Call the the function with the arguments provided.
 func (f *HTTPSearch) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
-	slip.CheckArgCount(s, depth, f, args, 2, 18)
+	slip.CheckArgCount(s, depth, f, args, 2, 20)
 	d2 := depth + 1
 	caller := cl.ResolveToCaller(s, args[0], d2)
 
