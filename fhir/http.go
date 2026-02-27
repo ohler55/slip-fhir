@@ -19,13 +19,18 @@ import (
 	"github.com/ohler55/slip/pkg/flavors"
 )
 
-var httpURLKeys = []slip.Symbol{
-	slip.Symbol(":type"),
-	slip.Symbol(":id"),
-	slip.Symbol(":version"),
-	slip.Symbol(":history"),
-	slip.Symbol(":search"),
-}
+var (
+	httpURLKeys = []slip.Symbol{
+		slip.Symbol(":type"),
+		slip.Symbol(":id"),
+		slip.Symbol(":version"),
+		slip.Symbol(":history"),
+	}
+	compartmentURLKeys = []slip.Symbol{
+		slip.Symbol(":id"),
+		slip.Symbol(":type"),
+	}
+)
 
 func httpRequest(
 	s *slip.Scope,
@@ -96,22 +101,42 @@ func httpKeysParser(s *slip.Scope, depth int, base, args slip.List) *url.URL {
 	copy(bargs, args)
 	copy(bargs[len(args):], base)
 	pb := []byte(uu.Path)
-	for _, key := range httpURLKeys {
+	keys := httpURLKeys
+	var (
+		isComp  bool
+		hasType bool
+	)
+	if v, has := slip.GetArgsKeyValue(bargs, slip.Symbol(":compartment")); has {
+		pb = append(pb, '/')
+		pb = append(pb, slip.MustBeString(v, ":compartment")...)
+		keys = compartmentURLKeys
+		isComp = true
+	}
+	for _, key := range keys {
 		if v, has := slip.GetArgsKeyValue(bargs, key); has {
-			if ss, _ := v.(slip.String); 0 < len(ss) {
-				switch key {
-				case slip.Symbol(":type"), slip.Symbol(":id"):
-					pb = append(pb, '/')
-					pb = append(pb, string(ss)...)
-				case slip.Symbol(":version"):
-					pb = append(pb, "/_history/"...)
-					pb = append(pb, string(ss)...)
-				case slip.Symbol(":history"):
+			switch key {
+			case slip.Symbol(":type"):
+				pb = append(pb, '/')
+				pb = append(pb, slip.MustBeString(v, string(key))...)
+				hasType = true
+			case slip.Symbol(":id"):
+				pb = append(pb, '/')
+				pb = append(pb, slip.MustBeString(v, string(key))...)
+			case slip.Symbol(":version"):
+				pb = append(pb, "/_history/"...)
+				pb = append(pb, slip.MustBeString(v, string(key))...)
+			case slip.Symbol(":history"):
+				if v != nil {
 					pb = append(pb, "/_history"...)
-				case slip.Symbol(":search"):
-					pb = append(pb, "/_search"...)
 				}
 			}
+		}
+	}
+	if isComp && !hasType {
+		// A search so must end in _search which is handled in http-search. If
+		// not a search then a * is needed at the end.
+		if _, has := slip.GetArgsKeyValue(bargs, slip.Symbol(":query")); !has {
+			pb = append(pb, '/', '*')
 		}
 	}
 	uu.Path = string(pb)

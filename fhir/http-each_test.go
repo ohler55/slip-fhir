@@ -98,6 +98,63 @@ func TestHTTPEachLimit(t *testing.T) {
 	}).Test(t)
 }
 
+func TestHTTPEachCompartment(t *testing.T) {
+	su, hs := startMockServer(eachTestHandler)
+	defer func() { _ = hs.Close() }()
+
+	scope := slip.NewScope()
+	scope.Let("base-url", slip.String(su))
+	(&sliptest.Function{
+		Scope: scope,
+		Source: `(let (resources)
+                   (http-each (lambda (r) (addf resources r))
+                              base-url
+                              :compartment "Patient"
+                              :id "P001"
+                              :limit 2
+                              :fhir-package 'fhir5)
+                   resources)`,
+		Validate: func(t *testing.T, v slip.Object) {
+			resources, _ := v.(slip.List)
+			tt.Equal(t, 2, len(resources))
+			var (
+				hasEncounter      bool
+				hasServiceRequest bool
+			)
+			for _, element := range resources {
+				resource, _ := element.(*fhir.Instance)
+				tt.NotNil(t, resource)
+				switch resource.Class().Name() {
+				case "Encounter":
+					hasEncounter = true
+				case "ServiceRequest":
+					hasServiceRequest = true
+				}
+			}
+			tt.Equal(t, true, hasEncounter && hasServiceRequest)
+		},
+	}).Test(t)
+}
+
+func TestHTTPEachBadNextPage(t *testing.T) {
+	su, hs := startMockServer(eachTestHandler)
+	defer func() { _ = hs.Close() }()
+
+	scope := slip.NewScope()
+	scope.Let("base-url", slip.String(su))
+	(&sliptest.Function{
+		Scope: scope,
+		Source: `(let (resources)
+                   (http-each (lambda (r) (addf resources r))
+                              base-url
+                              :compartment "Patient"
+                              :id "quux"
+                              :fhir-package 'fhir5)
+                   resources)`,
+		PanicType: slip.ErrorSymbol,
+	}).Test(t)
+}
+
 func TestHTTPEachEmpty(t *testing.T) {
 	su, hs := startMockServer(eachTestHandler)
 	defer func() { _ = hs.Close() }()
@@ -164,6 +221,48 @@ func eachTestHandler(w http.ResponseWriter, r *http.Request) {
 				map[string]any{
 					"relation": "next",
 					"url":      fmt.Sprintf("http://%s/next-page", r.Host),
+				},
+			},
+		}
+	case "/Patient/P001/%2A":
+		resp = map[string]any{
+			"resourceType": "Bundle",
+			"entry": []any{
+				map[string]any{
+					"resource": map[string]any{
+						"resourceType": "Encounter",
+						"id":           "e01",
+					},
+				},
+				map[string]any{
+					"resource": map[string]any{
+						"resourceType": "ServiceRequest",
+						"id":           "sr01",
+					},
+				},
+			},
+			"link": []any{
+				map[string]any{
+					"relation": "next",
+					"url":      fmt.Sprintf("http://%s/next-page", r.Host),
+				},
+			},
+		}
+	case "/Patient/quux/%2A":
+		resp = map[string]any{
+			"resourceType": "Bundle",
+			"entry": []any{
+				map[string]any{
+					"resource": map[string]any{
+						"resourceType": "Encounter",
+						"id":           "e01",
+					},
+				},
+			},
+			"link": []any{
+				map[string]any{
+					"relation": "next",
+					"url":      "...",
 				},
 			},
 		}
