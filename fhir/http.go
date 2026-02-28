@@ -261,16 +261,18 @@ func timeoutFromArgs(base, args slip.List) time.Duration {
 }
 
 func makeAnyResource(data any, fhirPkg string) (resource slip.Object) {
-	resType := alt.String(jp.C("resourceType").First(data))
-	if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
-		if inst, ok := class.MakeInstance().(*Instance); ok {
-			inst.data, _ = data.(map[string]any)
-			resource = inst
+	if data != nil {
+		resType := alt.String(jp.C("resourceType").First(data))
+		if class := slip.FindClass(fhirPkg + ":" + resType); class != nil {
+			if inst, ok := class.MakeInstance().(*Instance); ok {
+				inst.data, _ = data.(map[string]any)
+				resource = inst
+			}
+		} else {
+			bg := bag.Flavor().MakeInstance().(*flavors.Instance)
+			bg.Any = data
+			resource = bg
 		}
-	} else {
-		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
-		bg.Any = data
-		resource = bg
 	}
 	return
 }

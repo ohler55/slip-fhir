@@ -121,7 +121,6 @@ func (f *HTTPOperation) Call(s *slip.Scope, args slip.List, depth int) slip.Obje
 	case nil:
 		omod = func(req *http.Request) {
 			req.Method = http.MethodGet
-			// req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			req.URL.Path = fmt.Sprintf("%s/$%s", req.URL.Path, op)
 		}
 	case slip.List:
@@ -129,19 +128,21 @@ func (f *HTTPOperation) Call(s *slip.Scope, args slip.List, depth int) slip.Obje
 			req.Method = http.MethodPost
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			req.URL.Path = fmt.Sprintf("%s/$%s", req.URL.Path, op)
-			qb := encodeParams(nil, s, ta, depth)
-			body = bytes.NewReader(qb)
 		}
+		qb := encodeParams(nil, s, ta, depth)
+		body = bytes.NewReader(qb)
 	case *Instance:
 		omod = func(req *http.Request) {
 			req.Method = http.MethodPost
 			req.Header.Set("Content-Type", "application/fhir+json")
 			req.URL.Path = fmt.Sprintf("%s/$%s", req.URL.Path, op)
-			// TBD check class, must be Parameters
-			body = ta
+			if ta.Class().Name() != "Parameters" {
+				slip.TypePanic(s, depth, "args", ta, "property list", "Parameters", "nil")
+			}
 		}
+		body = ta
 	default:
-		// TBD type error
+		slip.TypePanic(s, depth, "args", ta, "property list", "Parameters", "nil")
 	}
 	_, data, fhirPkg, res, _ := httpRequest(s, args[2:], depth, omod, body)
 
