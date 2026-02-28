@@ -104,7 +104,7 @@ func (f *HTTPRead) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 
 	var resource slip.Object
 
-	if _, has := uu.Query()["_elements"]; has || res.StatusCode != 200 {
+	if _, has := uu.Query()["_elements"]; data != nil && (has || res.StatusCode != 200) {
 		bg := bag.Flavor().MakeInstance().(*flavors.Instance)
 		bg.Any = data
 		resource = bg

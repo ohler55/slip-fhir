@@ -15,20 +15,35 @@
   + http-create
   + http-update
   + http-delete
+  + http-search
+  + :compartment
+  + http-operation
 
-  - http-search
-   - GET - use http-each
-   - POST - add _search to path then same as each
-    - if nil function then return bundle for
-   - handle type, system, and compartment (same as id as far as the client is concerned?)
-    - adds either member-type or "*" to path
-    - POST
-     - add _search or member-type/_search
-
-
-  - http-operation
-   - GET
-   - POST
+  - http-patch (https://www.hl7.org/fhir//fhirpatch.html and https://www.hl7.org/fhir//http.html#patch)
+   - PATCH
+   - :type, :id
+   - patch in body, how to represent?
+   - header, If-Match
+   - operations
+    - add
+    - insert
+    - delete
+    - replace
+    - move
+   - params for each
+    - op
+    - path
+    - name or index
+    - value or value[x]?
+    - source if a move
+    - destination if a move (same as path and name)
+   - formats
+    - https://datatracker.ietf.org/doc/html/rfc6902 (json)
+    - FHIRPath Patch (json of a Parameters)
+   - input
+    - Parameters? (must be an easier way)
+    - **property list?** or rather list of preperty lists
+    - assoc?
 
   - http-batch
    - POST
@@ -41,11 +56,6 @@
     - need search also
     - patch?? not listed but maybe
 
-  - http-patch
-   - PATCH
-   - :type, :id
-   - patch in body, how to represent?
-   - header, If-Match
 
 
  - future
