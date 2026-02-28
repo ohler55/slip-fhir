@@ -15,20 +15,15 @@
   + http-create
   + http-update
   + http-delete
-
-  - http-search
-   - GET - use http-each
-   - POST - add _search to path then same as each
-    - if nil function then return bundle for
-   - handle type, system, and compartment (same as id as far as the client is concerned?)
-    - adds either member-type or "*" to path
-    - POST
-     - add _search or member-type/_search
-
+  + http-search
+  + :compartment
 
   - http-operation
    - GET
    - POST
+    - Parameters or url encoded
+   - $ prefix
+   - can be system, type, or instance
 
   - http-batch
    - POST
