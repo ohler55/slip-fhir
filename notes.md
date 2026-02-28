@@ -39,6 +39,7 @@
     - destination if a move (same as path and name)
    - formats
     - https://datatracker.ietf.org/doc/html/rfc6902 (json)
+     - application/json-patch+json.
     - FHIRPath Patch (json of a Parameters)
    - input
     - Parameters? (must be an easier way)

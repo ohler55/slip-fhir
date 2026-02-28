@@ -44,12 +44,12 @@ list and will serve as a base or defaults for the _&key_ arguments.`,
 				{
 					Name: "type",
 					Type: "string",
-					Text: "The resource type if needed and not aloperationy in the _base_ as _:url_.",
+					Text: "The resource type if needed and not already in the _base_ as _:url_.",
 				},
 				{
 					Name: "id",
 					Type: "string",
-					Text: "The resource id if needed and not aloperationy in the _base_.",
+					Text: "The resource id if needed and not already in the _base_.",
 				},
 				{
 					Name: "headers",
