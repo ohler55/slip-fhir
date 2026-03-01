@@ -1,7 +1,5 @@
 # slip-fhir notes
 
-# slip-fhir notes
-
 - get specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
@@ -19,17 +17,14 @@
   + :compartment
   + http-operation
   + http-patch (https://www.hl7.org/fhir//fhirpatch.html and https://www.hl7.org/fhir//http.html#patch)
+  + http-batch
 
+ - help docs
   - http-batch
-   - POST
-    - list of
-     - method (or read, update, etc)
-     - keys and params to form url
-     - headers If-None-Match, If-Match, If-Noe-Exist, or If-Modified-Since
-     - resource
-    - need operation also
-    - need search also
-    - patch?? not listed but maybe
+  - http-operation
+  - http-compartment
+  - patch-example
+  - batch-example
 
 
 
