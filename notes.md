@@ -18,32 +18,7 @@
   + http-search
   + :compartment
   + http-operation
-
-  - http-patch (https://www.hl7.org/fhir//fhirpatch.html and https://www.hl7.org/fhir//http.html#patch)
-   - PATCH
-   - :type, :id
-   - patch in body, how to represent?
-   - header, If-Match
-   - operations
-    - add
-    - insert
-    - delete
-    - replace
-    - move
-   - params for each
-    - op
-    - path
-    - name or index
-    - value or value[x]?
-    - source if a move
-    - destination if a move (same as path and name)
-   - formats
-    - https://datatracker.ietf.org/doc/html/rfc6902 (json)
-    - FHIRPath Patch (json of a Parameters)
-   - input
-    - Parameters? (must be an easier way)
-    - **property list?** or rather list of preperty lists
-    - assoc?
+  + http-patch (https://www.hl7.org/fhir//fhirpatch.html and https://www.hl7.org/fhir//http.html#patch)
 
   - http-batch
    - POST

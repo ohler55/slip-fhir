@@ -41,7 +41,6 @@ func TestHTTPOperationGET(t *testing.T) {
   issue: {code: success severity: success}
   resourceType: OperationOutcome
 }`, pretty.SEN(resource.Simplify()))
-			// fmt.Printf("*** %s\n", pretty.SEN(resource.Simplify()))
 		},
 	}).Test(t)
 }
