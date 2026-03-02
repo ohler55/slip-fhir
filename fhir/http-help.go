@@ -81,9 +81,8 @@ https://www.hl7.org/fhir//http.html#search. Headers and parameters described can
 function. The GET search interaction can use the __http-read__ function. The __http-search__, like the
 __http-each__ function, expects a callback function that is called for each matching Resource in the returned
 Bundle and linked page Bundles.`,
-		`__http-batch__ TBD`,
-		`__http-operation__ TBD`,
-		`__http-compartment__ TBD`,
+		`__http-batch__ helps to build and submit a Bundle for a batch or transaction.`,
+		`__http-operation__ send a request to invoke an operation either using a GET or POST HTTP request.`,
 	},
 	"resources": []string{
 		`Resource are the leaves or concrete types of the FHIR inheritance tree. They all inherit from the
