@@ -241,7 +241,12 @@ to continue. Of course the option to panic is also available.
 
 ### Shadowing
 
-Some of the FHIR type names collide with Lisp core types. When loading these type do not shadow the built in types but instead a warning message is displayed when loading that those `fhir` package types are shadowned by the common list package. To specify those types the package name must be included. For example to descrine a `fhir:string` this would be the call.
+Some of the FHIR type names collide with Lisp core types. When loading
+these type do not shadow the built in types but instead a warning
+message is displayed when loading that those `fhir` package types are
+shadowned by the common list package. To specify those types the
+package name must be included. For example to descrine a `fhir:string`
+this would be the call.
 
 ```lisp
 ▶ (describe 'fhir:string)
@@ -257,8 +262,35 @@ The shadowed types are:
 
 ## Client
 
-TBD
+Clients are defined by the protocol used for interactions with a FHIR
+server. The initial and the most common, HTTP, has been
+implemented. Future versions may add support for messages and graphql.
+
+## Help
+
+Given the large number of functions and resource types. It was decided
+that on line help was essential. Help is provided with a __http-help__
+function that is a good starting point. It mentions using the
+__describe__ Slip function as well as the __describe-type__ defined by
+this package. The __describe-type__ function provides a summary
+similar to the FHIR web pages with a few display options.
 
 ## Versions
 
-- load different versions as whole package such as fhir4:integer32
+There are a number of FHIR versions and some vary significantly in
+regard to resource properties and types. FHIR servers often support
+just a one or a small number of version. Some servers provide only
+minimal support though common interactions but instead use custom
+operations.
+
+While it might not be possible to cover all variations perfectly one
+approach that looked like it would help was to have a basic __fhir__
+package that included functions and support types and then use
+different packages for each FHIR version. The first package
+implemented as the default is the __fhir5__ package for the FHIR
+v5.0.0 types. This package is loaded from a configuration file derived
+from the FHIR schema files. Additional version can be loaded from
+similar files once they are defined. For example a FHIR 4.0.1 package
+might be named __fhir4__. Both the __fhir4__ and __fhir5__ could be
+resident simultaniously. Having multple versions loaded make migration
+of resources or copying resources possible.

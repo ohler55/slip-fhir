@@ -23,7 +23,7 @@ func TestHTTPPatchRFC6902(t *testing.T) {
 	scope.Let("base-url", slip.String(su))
 	(&sliptest.Function{
 		Scope: scope,
-		Source: `(http-patch '((::op add :path "/birthDate" :value "1956-02-09"))
+		Source: `(http-patch '((:op add :path "/birthDate" :value "1956-02-09"))
                              base-url
                             :type "Patient"
                             :id "id-123"
@@ -39,7 +39,7 @@ func TestHTTPPatchRFC6902(t *testing.T) {
   birthDate: "1956-02-09"
   extension: [
     {
-      valueString: "/Patient/id-123 - [{\":op\": add path: \"/birthDate\" value: \"1956-02-09\"}]"
+      valueString: "/Patient/id-123 - [{op: add path: \"/birthDate\" value: \"1956-02-09\"}]"
     }
   ]
   id: id-123
