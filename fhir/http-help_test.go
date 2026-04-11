@@ -48,8 +48,8 @@ func TestHTTPHelp(t *testing.T) {
 	testHTTPHelp(t, "update-example", "(http-update pat fire-base)")
 	testHTTPHelp(t, "delete-example", `(http-delete fire-base :type "Patient" :id "P001")`)
 	testHTTPHelp(t, "search-example", `(http-search (lambda (r) (send r :describe))`)
-	// testHTTPHelp(t, "patch-example", "")
-	// testHTTPHelp(t, "batch-example", "")
+	testHTTPHelp(t, "patch-example", "(http-patch ")
+	testHTTPHelp(t, "batch-example", "(http-batch ")
 }
 
 func TestHTTPHelpWriteError(t *testing.T) {
@@ -59,5 +59,12 @@ func TestHTTPHelpWriteError(t *testing.T) {
 		Scope:     scope,
 		Source:    `(let ((*standard-output* out)) (http-help))`,
 		PanicType: slip.StreamErrorSymbol,
+	}).Test(t)
+}
+
+func TestHTTPHelpNotTopic(t *testing.T) {
+	(&sliptest.Function{
+		Source:    `(http-help quux)`,
+		PanicType: slip.ErrorSymbol,
 	}).Test(t)
 }

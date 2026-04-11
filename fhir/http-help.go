@@ -4,6 +4,7 @@ package fhir
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"sort"
 	"strings"
@@ -81,9 +82,8 @@ https://www.hl7.org/fhir//http.html#search. Headers and parameters described can
 function. The GET search interaction can use the __http-read__ function. The __http-search__, like the
 __http-each__ function, expects a callback function that is called for each matching Resource in the returned
 Bundle and linked page Bundles.`,
-		`__http-batch__ TBD`,
-		`__http-operation__ TBD`,
-		`__http-compartment__ TBD`,
+		`__http-batch__ helps to build and submit a Bundle for a batch or transaction.`,
+		`__http-operation__ send a request to invoke an operation either using a GET or POST HTTP request.`,
 	},
 	"resources": []string{
 		`Resource are the leaves or concrete types of the FHIR inheritance tree. They all inherit from the
@@ -131,15 +131,12 @@ typesof classes such as __fixnum__, __string__, etc.
 	"explore": []string{
 		`This, __fhir__ package, can be used as an alternative to or an offline version of the FHIR web pages.
 In addition to the __http-help__ topics, the __describe__ and __describe-type__ functions are available for
-types, functions, and instances.
-`,
+types, functions, and instances.`,
 		`The type description format is similar to the FHIR web pages and includes property names, cardinality,
 type, and a description. The __describe-type__ has options for a full, expanded display and for alternating
 backgrounds to make property separation more clear. When displaying the full description all inherited properties
-are shown in addition to extentions and a search parameter table.
-`,
-		`An example of the __describe-type__ output but cut off in after a few properties is:
-`,
+are shown in addition to extentions and a search parameter table.`,
+		`An example of the __describe-type__ output but cut off in after a few properties is:`,
 		`▶ (describe-type 'fhir5:basic)
 __fhir5:Basic__ is a FHIR Resource:
   Documentation:
@@ -158,20 +155,18 @@ __fhir5:Basic__ is a FHIR Resource:
                                          other resources.
     ...
 `,
-		`With the __:full__ option the extensions and search parameters are listed as well.
-`,
+		`With the __:full__ option the extensions and search parameters are listed as well.`,
 		`    ...
-    _ _text              0..*  Extension        Extensions for text.
+    _ _text              0..*  Element        Extensions for text.
   Search Parameters:
     Name        Type       Description                         Expression
     author      reference  Who created                         Basic.author
     code        token      Kind of Resource                    Basic.code
-    ...
-`,
+    ...`,
 		`Inspecting an instance shows the properties set in a Simple Encoding Notation (SEN) format
-as defined at https://github.com/ohler55/ojg/blob/develop/sen.md.
-`,
-		`▶ (describe (make-instance 'fhir5:Patient :data "{resourceType:Patient id:p001 name:[{given:[Quinn] family:Quux}]}"))
+as defined at https://github.com/ohler55/ojg/blob/develop/sen.md.`,
+		`^
+▶ (describe (make-instance 'fhir5:Patient :data "{resourceType:Patient id:p001 name:[{given:[Quinn] family:Quux}]}"))
 
 __#<fhir5:Patient 488285c08900>__, an instance of __fhir5:Patient__,
   {
@@ -180,8 +175,7 @@ __#<fhir5:Patient 488285c08900>__, an instance of __fhir5:Patient__,
       {family: Quux given: [Quinn]}
     ]
     resourceType: Patient
-  }
-`,
+  }`,
 	},
 	"summary": []string{
 		`The table that follows is based on https://www.hl7.org/fhir//http.html#summary and is a summary of the
@@ -419,8 +413,7 @@ compartment searching are:`,
 		`Reading from a FHIR server is one of the most common uses of the server. This example covers making a read
 request with the __http-read__ function to access a Patient resource with an id of "P001". __http-read__ requires at
 least one argument, the _base_ which can be either a URL as a string or a property list that includes a URL targeting
-a FHIR server plus default values for the other optional key arguments the function accepts.
-`,
+a FHIR server plus default values for the other optional key arguments the function accepts.`,
 		`For this example the fictitious FHIR server has at http://fire.fake:8080. For purposes of this example, the
 server expects authorization with a bearer token of "access-token". Instead of having to add that information on every
 call it can be placed in a property list _base_. Other default such as a timeout and the default FHIR package can
@@ -583,8 +576,7 @@ simple delete starts off like all other http operations with the creation of a b
                     :headers ("Authentication" "Bearer access-token")
                     :timeout 5
                     :fhir-package fhir5))
-fire-base
-`,
+fire-base`,
 		`The __http-delete__ function is then called and the response checked. From the response the status code
 is of interest and is expected to be 204 if there is no content. If content such as an OperationOutcome is
 included then the status on success will be 200.`,
@@ -592,8 +584,7 @@ included then the status on success will be 200.`,
 ▶ (defvar delete-resp (http-delete fire-base :type "Patient" :id "P001"))
 delete-resp
 ▶ (car update-resp)
-204
-`,
+204`,
 	},
 	"search-example": []string{
 		`Searches are done using either a GET or a POST. The difference as far as the __http-search__ function
@@ -610,8 +601,7 @@ batch. This process continues until either no more results are available or the 
                     :headers ("Authentication" "Bearer access-token")
                     :timeout 5
                     :fhir-package fhir5))
-fire-base
-`,
+fire-base`,
 		`In this example a limit of 2 is set and the callback function prints a description of each resource.`,
 		`^
 ▶ (http-search (lambda (r) (send r :describe)) fire-base :type "Patient" :params '("given" "Pete"))
@@ -638,14 +628,81 @@ fire-base
       {family: Porcupine given: [Pete]}
     ]
     resourceType: Patient
-  }
-`,
+  }`,
 	},
 	"patch-example": []string{
-		`TBD`,
+		`A FHIR patch is used to modify a existing resource as an alternative to an update. The __http-path__
+function employs an HTTP PATCH request to facilitate a resource patch. Both a resource type and id are needed
+to identify a resource. There are three patch formats, a JSON Patch, XML Patch, and FHIRPath Patch. Each
+differs not only in syntax but in functionality and the verbs used to describe the modifications to employ.`,
+		`As with other examples, first a _base_ is set up.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base`,
+		`For this example, The JSON Patch, defined at https://tools.ietf.org/html/rfc6902, is used for adding
+a birthDate to a Patient resource.`,
+		`^
+▶ (defvar patch-resp (http-patch '((:op add :path "/birthDate" :value "1956-02-09"))
+                                 base-url
+                                 :type "Patient"
+                                 :id "id-123"
+                                 :fhir-package 'fhir5)
+patch-resp`,
+
+		`The FHIR server may return the modified resource. In any care the returned resource will be the second
+element of the returned list of HTTP status, resource, and headers.`,
 	},
 	"batch-example": []string{
-		`TBD`,
+		`A FHIR batch or transaction is used to perform multiple actions with a single HTTP request. A
+Bundle resource is used to encapsulate the actions to be taken. There are a number of restrictions on
+its use that are specified at https://www.hl7.org/fhir//http.html#transaction. In this example three Patient
+resources are fetched.`,
+		`As with other examples, first a _base_ is set up.`,
+		`^
+▶ (defvar fire-base '(:url "http://fire.fake:8080"
+                    :headers ("Authentication" "Bearer access-token")
+                    :timeout 5
+                    :fhir-package fhir5))
+fire-base`,
+		`The __http-batch__ function expects a list of Bundle_Entry elements. Also excepted in place of a
+Bundle_Entry are a JSON or SEN formatted string or a _bag__ suitable for creation of a Bundle_Entry.`,
+		`^
+▶ (defvar batch-resp (http-batch '("{request: {method: GET url: '/Patient/id-001'}}"
+                                   "{request: {method: GET url: '/Patient/id-002'}}"
+                                   "{request: {method: GET url: '/Patient/id-003'}}")
+                                 base-url
+                                :fhir-package 'fhir5)
+batch-resp`,
+		`The resource returned in the list of HTTP status, resource, and headers should be a Bundle with
+responses to each entry in the request such as:`,
+		`^
+{
+  entry: [
+    {
+      extension: [{valueString: "{request: {method: GET url: \"/Patient/id-001\"}}"}]
+      id: id-001
+      resourceType: Patient
+      response: {etag: "W/1" lastModified: "2026-03-01T10:11:01" status: "200"}
+    }
+    {
+      extension: [{valueString: "{request: {method: GET url: \"/Patient/id-002\"}}"}]
+      id: id-002
+      resourceType: Patient
+      response: {etag: "W/1" lastModified: "2026-03-01T10:11:02" status: "200"}
+    }
+    {
+      extension: [{valueString: "{request: {method: GET url: \"/Patient/id-003\"}}"}]
+      id: id-003
+      resourceType: Patient
+      response: {etag: "W/1" lastModified: "2026-03-01T10:11:03" status: "200"}
+    }
+  ]
+  resourceType: Bundle
+  type: batch-response
+}`,
 	},
 	// "graphql": []string{`TBD`},
 	// "jet-help": []string{`TBD`},
@@ -698,8 +755,10 @@ func (f *HTTPHelp) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	help := helpTop
 	if 0 < len(args) {
 		topic := slip.MustBeString(args[0], "topic")
-		if h := topicHelp[strings.ToLower(topic)]; 0 < len(help) {
+		if h := topicHelp[strings.ToLower(topic)]; 0 < len(h) {
 			help = h
+		} else {
+			panic(fmt.Sprintf("%q is not a recognized help topic.", topic))
 		}
 		extra = topicHelpExtras[topic]
 	}

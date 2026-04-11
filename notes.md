@@ -1,32 +1,8 @@
 # slip-fhir notes
 
-- get specs from https://www.hl7.org/fhir//downloads.html
+- specs from https://www.hl7.org/fhir//downloads.html
 
 - plan
-
- - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
-
- - http-client-functions (https://www.hl7.org/fhir//http.html)
-  + http-read
-  + http-each
-  + http-capabilities
-  + http-create
-  + http-update
-  + http-delete
-  + http-search
-  + :compartment
-  + http-operation
-  + http-patch (https://www.hl7.org/fhir//fhirpatch.html and https://www.hl7.org/fhir//http.html#patch)
-  + http-batch
-
- - help docs
-  - http-batch
-  - http-operation
-  - http-compartment
-  - patch-example
-  - batch-example
-
-
 
  - future
   - graphql https://fhir.hl7.org/fhir/graphql.html
@@ -58,6 +34,7 @@
 
 - sample fhir servers
  - https://server.fire.ly (best) https://server.fire.ly/r5
+  - https://fire.ly/wp-content/uploads/2023/11/FHIR-R5_Nov2023.pdf
  - http://hapi.fhir.org/baseR4 (down often and only r4)
  - http://test.fhir.org/r4
  - info https://confluence.hl7.org/spaces/FHIR/pages/35718859/Public+Test+Servers
@@ -82,19 +59,3 @@
   - primitive, replace or edit with normal repl commands
   - complex, add member from pick-list
   - for a list, add {}
-
-
-- navigating type definitions
- - options
-  - fully expand all types
-   - all there for eye navigation
-   - likely too large for most screen bot verical and horizontal
-    - at least 6 levels deep
-  - interactive
-   - move cursor up and down, hit return to switch to child, escape to go back up
-    - similar to tab completion
-    - need slip support (dialog or navigator)
-     - provide lines as (text dig-function)
-     - an back or up function on the line set
-
-- allow call to create a fhir package from a file, don't add it to user explicitly
