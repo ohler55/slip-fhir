@@ -73,7 +73,7 @@
                ((suffixp name "Integer64") "integer64")
                ((suffixp name "Decimal") "decimal")
                (t type)))
-        ((prefixp name "_") "Extension") ;; Element in the file when it should be Extension
+        ((prefixp name "_") "Element")
         (t type)))
 
 (defun determine-type (name pdef prop)
@@ -215,8 +215,6 @@
   (let (params)
     (bag-walk search-params
               (lambda (sp)
-                (bag-write sp t :pretty t :depth 4)
-                (terpri)
                 (let ((param (make-bag "{}")))
                   (bag-set param (bag-get sp "name") "name")
                   (bag-set param (bag-get sp "type") "type")
@@ -418,6 +416,7 @@
                               (t
                                (setq datatypes (add datatypes (form-datatype-node p def))))
                               ))))))
+
       (send schema :set primitives "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.

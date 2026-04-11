@@ -31,7 +31,7 @@ to an implementation guide that defines the special rules along with other profi
     {
       name: _implicitRules
       description: 'Extensions for implicitRules.'
-      type: Extension
+      type: Element
       array: true
     }
     {
@@ -42,7 +42,7 @@ to an implementation guide that defines the special rules along with other profi
     {
       name: _language
       description: 'Extensions for language.'
-      type: Extension
+      type: Element
       array: true
     }
   ]

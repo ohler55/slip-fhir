@@ -11,7 +11,7 @@
     {
       name: _text
       description: 'Extensions for text.'
-      type: Extension
+      type: Element
       array: true
     }
     {

@@ -157,7 +157,7 @@ __fhir5:Basic__ is a FHIR Resource:
 `,
 		`With the __:full__ option the extensions and search parameters are listed as well.`,
 		`    ...
-    _ _text              0..*  Extension        Extensions for text.
+    _ _text              0..*  Element        Extensions for text.
   Search Parameters:
     Name        Type       Description                         Expression
     author      reference  Who created                         Basic.author
