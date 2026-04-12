@@ -2,6 +2,9 @@
 
 - specs from https://www.hl7.org/fhir//downloads.html
 
+
+- article - Playing with FHIR
+
 - plan
 
  - future

@@ -194,6 +194,10 @@ func init() {
 	initPropertyCardinality()
 	initPropertyValidP()
 	initLoadDefinitions()
+	initResources()
+	initDatatypes()
+	initPrimitives()
+	initTypes()
 
 	initHTTPHelp()
 	initHTTPRead()
