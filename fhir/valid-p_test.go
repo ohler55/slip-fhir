@@ -131,7 +131,7 @@ func TestValidPgroup(t *testing.T) {
 	(&sliptest.Function{
 		Source: `(valid-p (make-bag "{resourceType:Patient
                                       deceasedBoolean:false
-                                      _deceasedBoolean:{url:something}}") :type 'fhir5:patient)`,
+                                      _deceasedBoolean:{extension:[{url:something}]}}") :type 'fhir5:patient)`,
 		Expect: "t",
 	}).Test(t)
 	(&sliptest.Function{
