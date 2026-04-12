@@ -99,5 +99,5 @@ with a `)` then press return.
 
 First select a FHIR server to access and get the URL and
 authentication information ready. The help function provides a guide
-for making HTTP requests. Try `(http-help read-exampleb)` to see a
+for making HTTP requests. Try `(http-help read-example)` to see a
 detailed walk through.
