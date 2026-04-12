@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/ohler55/slip"
 )
 
 func availablePort() int {
@@ -41,4 +44,13 @@ func startMockServer(handler func(w http.ResponseWriter, r *http.Request)) (stri
 		}
 	}
 	return su, &hs
+}
+
+func classMemberP(list slip.List, name string) bool {
+	for _, v := range list {
+		if class, _ := v.(slip.Class); class != nil && strings.EqualFold(class.Name(), name) {
+			return true
+		}
+	}
+	return false
 }

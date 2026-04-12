@@ -45,8 +45,9 @@ func (f *Resources) Call(s *slip.Scope, args slip.List, depth int) slip.Object {
 	})
 	var types slip.List
 	resClass := p.FindClass("Resource")
+	domResClass := p.FindClass("DomainResource")
 	for _, class := range classes {
-		if class.Inherits(resClass) {
+		if class.Inherits(resClass) && class != domResClass {
 			types = append(types, class)
 		}
 	}

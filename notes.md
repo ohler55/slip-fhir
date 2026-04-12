@@ -3,12 +3,6 @@
 - specs from https://www.hl7.org/fhir//downloads.html
 
 
-- fhir-resource-types (package)
-- fhir-datatypes (package)
-- fhir-types (package)
-- fhir-primitives (package)
-- unit tests
-
 - article - Playing with FHIR
 
 - plan
