@@ -332,7 +332,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 			typeWidth = w
 		}
 	}
-	docEdge := indent + nameWidth + typeWidth + 14
+	docEdge := indent + nameWidth + typeWidth + 20
 	docWidth := right - docEdge
 	if docWidth < 10 {
 		docWidth = 10
@@ -342,7 +342,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 	if ansi {
 		b = append(b, bold...)
 	}
-	b = fmt.Appendf(b, "%s%-*s  Card. %-*s  Description\n", pspace, nameWidth, "Name", typeWidth, "Type")
+	b = fmt.Appendf(b, "%s%-*s Flags Card. %-*s  Description\n", pspace, nameWidth, "Name", typeWidth, "Type")
 	if ansi {
 		b = append(b, colorOff...)
 	}
@@ -360,7 +360,17 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 		}
 		docLines := bytes.Split(slip.AppendDoc(nil, p.docs, 0, docWidth, ansi, 0), []byte{'\n'})
 
-		b = fmt.Appendf(b, "%s%s%-*s  ", pspace, on, nameWidth, p.name)
+		b = fmt.Appendf(b, "%s%s%-*s ", pspace, on, nameWidth, p.name)
+		var flags []byte
+		if p.modifier {
+			flags = append(flags, '?')
+			flags = append(flags, '!')
+			flags = append(flags, ' ')
+		}
+		if p.summary {
+			flags = append(flags, "Σ"...)
+		}
+		b = fmt.Appendf(b, "%-6s", flags)
 		if p.required {
 			b = append(b, '1')
 		} else {
@@ -379,7 +389,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 			if 0 < len(p.group) {
 				bar = "┃"
 			}
-			b = fmt.Appendf(b, "%s%s%-*s  %-*s        %-*s%s\n",
+			b = fmt.Appendf(b, "%s%s%-*s  %-*s             %-*s%s\n",
 				pspace, on, nameWidth, bar, typeWidth, "", docWidth, docLines[j], off)
 		}
 		if 0 < len(p.group) {
@@ -394,7 +404,7 @@ func (t *Type) describeProps(b []byte, indent, right int, ansi, full bool, bg st
 				if i == len(group)-1 {
 					left = '┗'
 				}
-				b = fmt.Appendf(b, "%s%s%c %-*s      %-*s%s\n",
+				b = fmt.Appendf(b, "%s%s%c %-*s           %-*s%s\n",
 					pspace, on, left, nameWidth, gp.name, typeWidth+docWidth+2, gp.typeName, off)
 			}
 		}

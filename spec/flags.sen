@@ -1,0 +1,3390 @@
+{
+  Account: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Account
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      billingStatus
+      type
+      name
+      subject
+      servicePeriod
+      coverage
+      owner
+      description
+      diagnosis
+      procedure
+    ]
+  }
+  ActivityDefinition: {
+    modifiers: [implicitRules modifierExtension status doNotPerform]
+    required: [resourceType status]
+    resourceType: ActivityDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      effectivePeriod
+      kind
+      code
+      doNotPerform
+      asNeededBoolean
+      asNeededCodeableconcept
+    ]
+  }
+  ActorDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type]
+    resourceType: ActorDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      type
+    ]
+  }
+  AdministrableProductDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status routeOfAdministration]
+    resourceType: AdministrableProductDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      formOf
+      administrableDoseForm
+      unitOfPresentation
+      producedFrom
+      ingredient
+      device
+      property
+      routeOfAdministration
+    ]
+  }
+  AdverseEvent: {
+    modifiers: [implicitRules modifierExtension status actuality]
+    required: [resourceType status actuality subject]
+    resourceType: AdverseEvent
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      actuality
+      category
+      code
+      subject
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+      detected
+      recordedDate
+      resultingEffect
+      location
+      seriousness
+      outcome
+      recorder
+      participant
+      study
+      suspectEntity
+      contributingFactor
+      preventiveAction
+      mitigatingAction
+      supportingInfo
+      note
+    ]
+  }
+  AllergyIntolerance: {
+    modifiers: [implicitRules modifierExtension clinicalStatus verificationStatus]
+    required: [resourceType patient]
+    resourceType: AllergyIntolerance
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      clinicalStatus
+      verificationStatus
+      type
+      category
+      criticality
+      code
+      patient
+      participant
+    ]
+  }
+  Appointment: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status participant]
+    resourceType: Appointment
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      cancellationReason
+      class
+      serviceCategory
+      serviceType
+      specialty
+      appointmentType
+      reason
+      start
+      end
+      subject
+    ]
+  }
+  AppointmentResponse: {
+    modifiers: [implicitRules modifierExtension participantStatus]
+    required: [resourceType appointment participantStatus]
+    resourceType: AppointmentResponse
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      appointment
+      proposedNewTime
+      participantType
+      actor
+      participantStatus
+    ]
+  }
+  ArtifactAssessment: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType "artifact[x]" artifactReference artifactCanonical artifactUri]
+    resourceType: ArtifactAssessment
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      title
+      date
+      lastReviewDate
+      artifactReference
+      artifactCanonical
+      artifactUri
+      workflowStatus
+      disposition
+    ]
+  }
+  AuditEvent: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType code recorded agent source]
+    resourceType: AuditEvent
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      category
+      code
+      action
+      severity
+      recorded
+      outcome
+      authorization
+      agent
+      source
+      entity
+    ]
+  }
+  Basic: {
+    modifiers: [implicitRules modifierExtension code]
+    required: [resourceType code]
+    resourceType: Basic
+    summary: [resourceType id meta implicitRules modifierExtension identifier code subject created author]
+  }
+  Binary: {
+    modifiers: [implicitRules]
+    required: [resourceType contentType]
+    resourceType: Binary
+    summary: [resourceType id meta implicitRules contentType securityContext]
+  }
+  BiologicallyDerivedProduct: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: BiologicallyDerivedProduct
+    summary: [resourceType id meta implicitRules modifierExtension identifier biologicalSourceEvent]
+  }
+  BiologicallyDerivedProductDispense: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType status product patient]
+    resourceType: BiologicallyDerivedProductDispense
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      basedOn
+      partOf
+      status
+      originRelationshipType
+      product
+      patient
+      matchStatus
+      performer
+      location
+      quantity
+      preparedDate
+      whenHandedOver
+      destination
+      note
+      usageInstruction
+    ]
+  }
+  BodyStructure: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType includedStructure patient]
+    resourceType: BodyStructure
+    summary: [resourceType id meta implicitRules modifierExtension identifier active morphology description patient]
+  }
+  Bundle: {
+    modifiers: [implicitRules]
+    required: [resourceType type]
+    resourceType: Bundle
+    summary: [resourceType id meta implicitRules identifier type timestamp total link entry signature issues]
+  }
+  CanonicalResource: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: CanonicalResource
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+    ]
+  }
+  CapabilityStatement: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status date kind fhirVersion format]
+    resourceType: CapabilityStatement
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      kind
+      instantiates
+      imports
+      software
+      implementation
+      fhirVersion
+      format
+      patchFormat
+      acceptLanguage
+      implementationGuide
+      rest
+      messaging
+      document
+    ]
+  }
+  CarePlan: {
+    modifiers: [implicitRules modifierExtension status intent]
+    required: [resourceType status intent subject]
+    resourceType: CarePlan
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      replaces
+      partOf
+      status
+      intent
+      category
+      title
+      description
+      subject
+      encounter
+      period
+      created
+      custodian
+      addresses
+    ]
+  }
+  CareTeam: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: CareTeam
+    summary: [resourceType id meta implicitRules modifierExtension identifier status category name subject period managingOrganization]
+  }
+  ChargeItem: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code subject]
+    resourceType: ChargeItem
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      code
+      subject
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+      quantity
+      bodysite
+      enterer
+      enteredDate
+      account
+    ]
+  }
+  ChargeItemDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: ChargeItemDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      derivedFromUri
+      partOf
+      replaces
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      code
+    ]
+  }
+  Citation: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Citation
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+    ]
+  }
+  Claim: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type use patient created]
+    resourceType: Claim
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      status
+      type
+      use
+      patient
+      billablePeriod
+      created
+      insurer
+      provider
+      priority
+      insurance
+    ]
+  }
+  ClaimResponse: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type use patient created outcome]
+    resourceType: ClaimResponse
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      status
+      type
+      use
+      patient
+      created
+      insurer
+      request
+      outcome
+      decision
+      total
+    ]
+  }
+  ClinicalImpression: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject]
+    resourceType: ClinicalImpression
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      description
+      subject
+      encounter
+      effectiveDatetime
+      effectivePeriod
+      date
+      performer
+      problem
+    ]
+  }
+  ClinicalUseDefinition: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType type]
+    resourceType: ClinicalUseDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      type
+      category
+      subject
+      status
+      contraindication
+      indication
+      interaction
+      population
+      library
+      undesirableEffect
+      warning
+    ]
+  }
+  CodeSystem: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status content]
+    resourceType: CodeSystem
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+      caseSensitive
+      valueSet
+      hierarchyMeaning
+      compositional
+      versionNeeded
+      content
+      supplements
+      count
+      filter
+      property
+    ]
+  }
+  Communication: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Communication
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      partOf
+      status
+      statusReason
+      priority
+      subject
+      encounter
+      reason
+    ]
+  }
+  CommunicationRequest: {
+    modifiers: [implicitRules modifierExtension status intent doNotPerform]
+    required: [resourceType status intent]
+    resourceType: CommunicationRequest
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      basedOn
+      replaces
+      groupIdentifier
+      status
+      intent
+      priority
+      doNotPerform
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      authoredOn
+      requester
+      informationProvider
+      reason
+    ]
+  }
+  CompartmentDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url name status code search]
+    resourceType: CompartmentDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      code
+      search
+      resource
+    ]
+  }
+  Composition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type date author title]
+    resourceType: Composition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      status
+      type
+      category
+      subject
+      encounter
+      date
+      useContext
+      author
+      name
+      title
+      custodian
+      event
+    ]
+  }
+  ConceptMap: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: ConceptMap
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+      property
+      additionalAttribute
+      sourceScopeUri
+      sourceScopeCanonical
+      targetScopeUri
+      targetScopeCanonical
+    ]
+  }
+  Condition: {
+    modifiers: [implicitRules modifierExtension clinicalStatus verificationStatus]
+    required: [resourceType clinicalStatus subject]
+    resourceType: Condition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      clinicalStatus
+      verificationStatus
+      code
+      bodySite
+      subject
+      encounter
+      onsetDatetime
+      onsetAge
+      onsetPeriod
+      onsetRange
+      onsetString
+      recordedDate
+      participant
+      evidence
+    ]
+  }
+  ConditionDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code]
+    resourceType: ConditionDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      code
+      severity
+      bodySite
+      stage
+    ]
+  }
+  Consent: {
+    modifiers: [implicitRules modifierExtension status decision]
+    required: [resourceType status]
+    resourceType: Consent
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      category
+      subject
+      date
+      period
+      grantor
+      grantee
+      verification
+      decision
+      provision
+    ]
+  }
+  Contract: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: Contract
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      version
+      status
+      issued
+      applies
+      subject
+      name
+      title
+      type
+      subType
+    ]
+  }
+  Coverage: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status kind beneficiary]
+    resourceType: Coverage
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      kind
+      type
+      policyHolder
+      subscriber
+      subscriberId
+      beneficiary
+      dependent
+      period
+      insurer
+      order
+      network
+    ]
+  }
+  CoverageEligibilityRequest: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status purpose patient created insurer]
+    resourceType: CoverageEligibilityRequest
+    summary: [resourceType id meta implicitRules modifierExtension status purpose patient created insurer]
+  }
+  CoverageEligibilityResponse: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status purpose patient created request outcome insurer]
+    resourceType: CoverageEligibilityResponse
+    summary: [resourceType id meta implicitRules modifierExtension status purpose patient created request outcome insurer]
+  }
+  DetectedIssue: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: DetectedIssue
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      code
+      severity
+      subject
+      encounter
+      identifiedDatetime
+      identifiedPeriod
+      author
+      implicated
+    ]
+  }
+  Device: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: Device
+    summary: [resourceType id meta implicitRules modifierExtension udiCarrier status safety]
+  }
+  DeviceAssociation: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType device status]
+    resourceType: DeviceAssociation
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      device
+      category
+      status
+      statusReason
+      subject
+      bodyStructure
+      period
+      operation
+    ]
+  }
+  DeviceDefinition: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: DeviceDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      manufacturer
+      deviceName
+      modelNumber
+      classification
+      conformsTo
+      hasPart
+      safety
+    ]
+  }
+  DeviceDispense: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status device subject]
+    resourceType: DeviceDispense
+    summary: [resourceType id meta implicitRules modifierExtension identifier status device subject preparedDate]
+  }
+  DeviceMetric: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType type device category]
+    resourceType: DeviceMetric
+    summary: [resourceType id meta implicitRules modifierExtension identifier type unit device operationalStatus category]
+  }
+  DeviceRequest: {
+    modifiers: [implicitRules modifierExtension status intent doNotPerform]
+    required: [resourceType intent code subject]
+    resourceType: DeviceRequest
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      replaces
+      groupIdentifier
+      status
+      intent
+      priority
+      doNotPerform
+      code
+      subject
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+      authoredOn
+      requester
+      performer
+      reason
+    ]
+  }
+  DeviceUsage: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status patient device]
+    resourceType: DeviceUsage
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      basedOn
+      status
+      patient
+      derivedFrom
+      context
+      timingTiming
+      timingPeriod
+      timingDatetime
+      dateAsserted
+      informationSource
+      device
+      reason
+      bodySite
+    ]
+  }
+  DiagnosticReport: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code]
+    resourceType: DiagnosticReport
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      category
+      code
+      subject
+      encounter
+      effectiveDatetime
+      effectivePeriod
+      issued
+      performer
+      resultsInterpreter
+      media
+    ]
+  }
+  DocumentReference: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status content]
+    resourceType: DocumentReference
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      version
+      status
+      docStatus
+      modality
+      type
+      category
+      subject
+      bodySite
+      period
+      date
+      author
+      relatesTo
+      description
+      securityLabel
+      content
+    ]
+  }
+  DomainResource: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: DomainResource
+    summary: [resourceType id meta implicitRules modifierExtension]
+  }
+  Encounter: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Encounter
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      class
+      type
+      serviceType
+      subject
+      episodeOfCare
+      participant
+      appointment
+      reason
+      diagnosis
+    ]
+  }
+  EncounterHistory: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status class]
+    resourceType: EncounterHistory
+    summary: [resourceType id meta implicitRules modifierExtension identifier status class type serviceType subject]
+  }
+  Endpoint: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status connectionType address]
+    resourceType: Endpoint
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      connectionType
+      name
+      description
+      environmentType
+      managingOrganization
+      period
+      address
+    ]
+  }
+  EnrollmentRequest: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: EnrollmentRequest
+    summary: [resourceType id meta implicitRules modifierExtension status]
+  }
+  EnrollmentResponse: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: EnrollmentResponse
+    summary: [resourceType id meta implicitRules modifierExtension status]
+  }
+  EpisodeOfCare: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status patient]
+    resourceType: EpisodeOfCare
+    summary: [resourceType id meta implicitRules modifierExtension status type reason diagnosis patient managingOrganization period]
+  }
+  EventDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status trigger]
+    resourceType: EventDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      approvalDate
+      lastReviewDate
+      effectivePeriod
+      trigger
+    ]
+  }
+  Evidence: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status variableDefinition]
+    resourceType: Evidence
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      title
+      status
+      date
+      publisher
+      contact
+      author
+      endorser
+      useContext
+    ]
+  }
+  EvidenceReport: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject]
+    resourceType: EvidenceReport
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      status
+      useContext
+      identifier
+      relatedIdentifier
+      subject
+      publisher
+      contact
+      author
+      endorser
+    ]
+  }
+  EvidenceVariable: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: EvidenceVariable
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      shortTitle
+      status
+      date
+      publisher
+      contact
+      description
+      useContext
+      characteristic
+    ]
+  }
+  ExampleScenario: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: ExampleScenario
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+    ]
+  }
+  ExplanationOfBenefit: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type use patient created outcome]
+    resourceType: ExplanationOfBenefit
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      status
+      type
+      use
+      patient
+      billablePeriod
+      created
+      insurer
+      provider
+      outcome
+      decision
+      insurance
+      total
+    ]
+  }
+  FamilyMemberHistory: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status patient relationship]
+    resourceType: FamilyMemberHistory
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      status
+      dataAbsentReason
+      patient
+      date
+      participant
+      name
+      relationship
+      sex
+      ageAge
+      ageRange
+      ageString
+      estimatedAge
+      deceasedBoolean
+      deceasedAge
+      deceasedRange
+      deceasedDate
+      deceasedString
+      reason
+    ]
+  }
+  Flag: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code subject]
+    resourceType: Flag
+    summary: [resourceType id meta implicitRules modifierExtension identifier status category code subject period encounter author]
+  }
+  FormularyItem: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: FormularyItem
+    summary: [resourceType id meta implicitRules modifierExtension identifier code status]
+  }
+  GenomicStudy: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject]
+    resourceType: GenomicStudy
+    summary: [resourceType id meta implicitRules modifierExtension identifier status type subject encounter]
+  }
+  Goal: {
+    modifiers: [implicitRules modifierExtension lifecycleStatus]
+    required: [resourceType lifecycleStatus description subject]
+    resourceType: Goal
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      lifecycleStatus
+      achievementStatus
+      category
+      priority
+      description
+      subject
+      startDate
+      startCodeableconcept
+      statusDate
+      source
+    ]
+  }
+  GraphDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType name status]
+    resourceType: GraphDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+    ]
+  }
+  Group: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType type membership]
+    resourceType: Group
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      type
+      membership
+      code
+      name
+      quantity
+      managingEntity
+      characteristic
+    ]
+  }
+  GuidanceResponse: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType "module[x]" moduleUri moduleCanonical moduleCodeableconcept status]
+    resourceType: GuidanceResponse
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      requestIdentifier
+      identifier
+      moduleUri
+      moduleCanonical
+      moduleCodeableconcept
+      status
+    ]
+  }
+  HealthcareService: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType]
+    resourceType: HealthcareService
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      providedBy
+      category
+      type
+      specialty
+      location
+      name
+      comment
+      photo
+    ]
+  }
+  ImagingSelection: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code]
+    resourceType: ImagingSelection
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      subject
+      issued
+      performer
+      basedOn
+      category
+      code
+      studyUid
+      derivedFrom
+      endpoint
+      seriesUid
+      seriesNumber
+      frameOfReferenceUid
+      bodySite
+      focus
+      instance
+    ]
+  }
+  ImagingStudy: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject]
+    resourceType: ImagingStudy
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      modality
+      subject
+      encounter
+      started
+      basedOn
+      partOf
+      referrer
+      endpoint
+      numberOfSeries
+      numberOfInstances
+      procedure
+      location
+      reason
+      note
+      description
+      series
+    ]
+  }
+  Immunization: {
+    modifiers: [implicitRules modifierExtension status isSubpotent]
+    required: [resourceType status vaccineCode patient "occurrence[x]" occurrenceDatetime occurrenceString]
+    resourceType: Immunization
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      basedOn
+      status
+      vaccineCode
+      patient
+      occurrenceDatetime
+      occurrenceString
+      primarySource
+      performer
+      note
+      isSubpotent
+    ]
+  }
+  ImmunizationEvaluation: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status patient targetDisease immunizationEvent doseStatus]
+    resourceType: ImmunizationEvaluation
+    summary: [resourceType id meta implicitRules modifierExtension status patient targetDisease immunizationEvent doseStatus]
+  }
+  ImmunizationRecommendation: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType patient date recommendation]
+    resourceType: ImmunizationRecommendation
+    summary: [resourceType id meta implicitRules modifierExtension identifier patient date recommendation]
+  }
+  ImplementationGuide: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url name status packageId fhirVersion]
+    resourceType: ImplementationGuide
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      packageId
+      license
+      fhirVersion
+      dependsOn
+      global
+    ]
+  }
+  Ingredient: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status role substance]
+    resourceType: Ingredient
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      for
+      role
+      function
+      group
+      allergenicIndicator
+      manufacturer
+      substance
+    ]
+  }
+  InsurancePlan: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: InsurancePlan
+    summary: [resourceType id meta implicitRules modifierExtension identifier status type name ownedBy administeredBy coverageArea]
+  }
+  InventoryItem: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType status]
+    resourceType: InventoryItem
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      category
+      code
+      name
+      inventoryStatus
+      baseUnit
+      netContent
+    ]
+  }
+  InventoryReport: {
+    modifiers: [implicitRules modifierExtension status countType]
+    required: [resourceType status countType reportedDateTime]
+    resourceType: InventoryReport
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      countType
+      operationType
+      operationTypeReason
+      reportedDateTime
+      inventoryListing
+    ]
+  }
+  Invoice: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Invoice
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      type
+      subject
+      recipient
+      creation
+      periodDate
+      periodPeriod
+      totalNet
+      totalGross
+    ]
+  }
+  Library: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status type]
+    resourceType: Library
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      type
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      effectivePeriod
+      content
+    ]
+  }
+  Linkage: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType item]
+    resourceType: Linkage
+    summary: [resourceType id meta implicitRules modifierExtension active author item]
+  }
+  List: {
+    modifiers: [implicitRules modifierExtension status mode]
+    required: [resourceType status mode]
+    resourceType: List
+    summary: [resourceType id meta implicitRules modifierExtension status mode title code subject date source]
+  }
+  Location: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: Location
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      operationalStatus
+      name
+      description
+      mode
+      type
+      form
+      managingOrganization
+    ]
+  }
+  ManufacturedItemDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status manufacturedDoseForm]
+    resourceType: ManufacturedItemDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      name
+      manufacturedDoseForm
+      unitOfPresentation
+      manufacturer
+      marketingStatus
+      ingredient
+      property
+      component
+    ]
+  }
+  Measure: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Measure
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      basis
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      effectivePeriod
+      disclaimer
+      scoring
+      scoringUnit
+      compositeScoring
+      type
+      riskAdjustment
+      rateAggregation
+      rationale
+      clinicalRecommendationStatement
+      improvementNotation
+      guidance
+    ]
+  }
+  MeasureReport: {
+    modifiers: [implicitRules modifierExtension status dataUpdateType scoring improvementNotation]
+    required: [resourceType status type period]
+    resourceType: MeasureReport
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      type
+      dataUpdateType
+      measure
+      subject
+      date
+      reporter
+      period
+      scoring
+      improvementNotation
+    ]
+  }
+  Medication: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: Medication
+    summary: [resourceType id meta implicitRules modifierExtension identifier code status marketingAuthorizationHolder totalVolume]
+  }
+  MedicationAdministration: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status medication subject "occurence[x]" occurenceDatetime occurencePeriod occurenceTiming]
+    resourceType: MedicationAdministration
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      partOf
+      status
+      medication
+      subject
+      occurenceDatetime
+      occurencePeriod
+      occurenceTiming
+      recorded
+      performer
+    ]
+  }
+  MedicationDispense: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status medication subject]
+    resourceType: MedicationDispense
+    summary: [resourceType id meta implicitRules modifierExtension status medication subject whenPrepared]
+  }
+  MedicationKnowledge: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: MedicationKnowledge
+    summary: [resourceType id meta implicitRules modifierExtension identifier code status name monitoringProgram]
+  }
+  MedicationRequest: {
+    modifiers: [implicitRules modifierExtension status intent doNotPerform]
+    required: [resourceType status intent medication subject]
+    resourceType: MedicationRequest
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      basedOn
+      groupIdentifier
+      status
+      intent
+      priority
+      doNotPerform
+      medication
+      subject
+      authoredOn
+      requester
+      reported
+      performerType
+    ]
+  }
+  MedicationStatement: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status medication subject]
+    resourceType: MedicationStatement
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      category
+      medication
+      subject
+      encounter
+      effectiveDatetime
+      effectivePeriod
+      effectiveTiming
+      dateAsserted
+      adherence
+    ]
+  }
+  MedicinalProductDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType name]
+    resourceType: MedicinalProductDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      type
+      domain
+      version
+      status
+      statusDate
+      description
+      combinedPharmaceuticalDoseForm
+      route
+      indication
+      legalStatusOfSupply
+      additionalMonitoringIndicator
+      specialMeasures
+      pediatricUseIndicator
+      classification
+      marketingStatus
+      packagedMedicinalProduct
+      comprisedOf
+      ingredient
+      impurity
+      attachedDocument
+      masterFile
+      contact
+      clinicalTrial
+      code
+      name
+      crossReference
+      operation
+      characteristic
+    ]
+  }
+  MessageDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status date "event[x]" eventCoding eventUri]
+    resourceType: MessageDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      replaces
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      purpose
+      base
+      parent
+      eventCoding
+      eventUri
+      category
+      focus
+    ]
+  }
+  MessageHeader: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType "event[x]" eventCoding eventCanonical source]
+    resourceType: MessageHeader
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      eventCoding
+      eventCanonical
+      destination
+      sender
+      author
+      source
+      responsible
+      reason
+      response
+      focus
+      definition
+    ]
+  }
+  MetadataResource: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: MetadataResource
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+    ]
+  }
+  MolecularSequence: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: MolecularSequence
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      type
+      subject
+      focus
+      specimen
+      device
+      performer
+      literal
+      formatted
+      relative
+    ]
+  }
+  NamingSystem: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType name status kind date uniqueId]
+    resourceType: NamingSystem
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      kind
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+      uniqueId
+    ]
+  }
+  NutritionIntake: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject consumedItem]
+    resourceType: NutritionIntake
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      basedOn
+      partOf
+      status
+      code
+      subject
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      recorded
+    ]
+  }
+  NutritionOrder: {
+    modifiers: [implicitRules modifierExtension status intent]
+    required: [resourceType status intent subject dateTime]
+    resourceType: NutritionOrder
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      instantiatesCanonical
+      instantiatesUri
+      groupIdentifier
+      status
+      intent
+      subject
+      dateTime
+      orderer
+    ]
+  }
+  NutritionProduct: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: NutritionProduct
+    summary: [resourceType id meta implicitRules modifierExtension code status category manufacturer nutrient]
+  }
+  Observation: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code]
+    resourceType: Observation
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesReference
+      basedOn
+      partOf
+      status
+      code
+      subject
+      focus
+      encounter
+      effectiveDatetime
+      effectivePeriod
+      effectiveTiming
+      effectiveInstant
+      issued
+      performer
+      valueQuantity
+      valueCodeableconcept
+      valueString
+      valueBoolean
+      valueInteger
+      valueRange
+      valueRatio
+      valueSampleddata
+      valueTime
+      valueDatetime
+      valuePeriod
+      valueAttachment
+      valueReference
+      hasMember
+      derivedFrom
+      component
+    ]
+  }
+  ObservationDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status code]
+    resourceType: ObservationDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+      derivedFromCanonical
+      derivedFromUri
+      subject
+      performerType
+      category
+      code
+    ]
+  }
+  OperationDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType name status kind code system type instance]
+    resourceType: OperationDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      kind
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      affectsState
+      code
+      base
+      resource
+      system
+      type
+      instance
+    ]
+  }
+  OperationOutcome: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType issue]
+    resourceType: OperationOutcome
+    summary: [resourceType id meta implicitRules modifierExtension issue]
+  }
+  Organization: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType]
+    resourceType: Organization
+    summary: [resourceType id meta implicitRules modifierExtension identifier active type name description partOf]
+  }
+  OrganizationAffiliation: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: OrganizationAffiliation
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      period
+      organization
+      participatingOrganization
+      network
+      code
+      specialty
+      location
+    ]
+  }
+  PackagedProductDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: PackagedProductDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      name
+      type
+      packageFor
+      status
+      statusDate
+      containedItemQuantity
+      description
+      legalStatusOfSupply
+      marketingStatus
+      copackagedIndicator
+      manufacturer
+      attachedDocument
+      packaging
+      characteristic
+    ]
+  }
+  Parameters: {
+    modifiers: [implicitRules]
+    required: [resourceType]
+    resourceType: Parameters
+    summary: [resourceType id meta implicitRules parameter]
+  }
+  Patient: {
+    modifiers: [implicitRules modifierExtension active deceasedBoolean deceasedDatetime link]
+    required: [resourceType]
+    resourceType: Patient
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      name
+      telecom
+      gender
+      birthDate
+      deceasedBoolean
+      deceasedDatetime
+      address
+      managingOrganization
+      link
+    ]
+  }
+  PaymentNotice: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status created recipient amount]
+    resourceType: PaymentNotice
+    summary: [resourceType id meta implicitRules modifierExtension status created payment recipient amount]
+  }
+  PaymentReconciliation: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType type status created date amount]
+    resourceType: PaymentReconciliation
+    summary: [resourceType id meta implicitRules modifierExtension type status period created paymentIssuer date amount]
+  }
+  Permission: {
+    modifiers: [implicitRules modifierExtension combining]
+    required: [resourceType status combining]
+    resourceType: Permission
+    summary: [resourceType id meta implicitRules modifierExtension status asserter date validity justification combining rule]
+  }
+  Person: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType]
+    resourceType: Person
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      name
+      telecom
+      gender
+      birthDate
+      deceasedBoolean
+      deceasedDatetime
+      address
+      managingOrganization
+    ]
+  }
+  PlanDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: PlanDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      type
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      effectivePeriod
+      asNeededBoolean
+      asNeededCodeableconcept
+    ]
+  }
+  Practitioner: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType]
+    resourceType: Practitioner
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      name
+      telecom
+      gender
+      birthDate
+      deceasedBoolean
+      deceasedDatetime
+      address
+    ]
+  }
+  PractitionerRole: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: PractitionerRole
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      period
+      practitioner
+      organization
+      code
+      specialty
+      location
+    ]
+  }
+  Procedure: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status subject]
+    resourceType: Procedure
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      partOf
+      status
+      statusReason
+      category
+      code
+      subject
+      focus
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceString
+      occurrenceAge
+      occurrenceRange
+      occurrenceTiming
+      recorded
+      recorder
+      reportedBoolean
+      reportedReference
+      performer
+      location
+      reason
+      bodySite
+      outcome
+    ]
+  }
+  Provenance: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType target agent]
+    resourceType: Provenance
+    summary: [resourceType id meta implicitRules modifierExtension target recorded agent entity]
+  }
+  Questionnaire: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Questionnaire
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      derivedFrom
+      status
+      experimental
+      subjectType
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      effectivePeriod
+      code
+    ]
+  }
+  QuestionnaireResponse: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType questionnaire status]
+    resourceType: QuestionnaireResponse
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      basedOn
+      partOf
+      questionnaire
+      status
+      subject
+      encounter
+      authored
+      author
+      source
+    ]
+  }
+  RegulatedAuthorization: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: RegulatedAuthorization
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      subject
+      type
+      description
+      region
+      status
+      statusDate
+      validityPeriod
+      indication
+      intendedUse
+      basis
+      holder
+      regulator
+      attachedDocument
+      case
+    ]
+  }
+  RelatedPerson: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType patient]
+    resourceType: RelatedPerson
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      patient
+      relationship
+      name
+      telecom
+      gender
+      birthDate
+      address
+    ]
+  }
+  RequestOrchestration: {
+    modifiers: [implicitRules modifierExtension status intent]
+    required: [resourceType status intent]
+    resourceType: RequestOrchestration
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      groupIdentifier
+      status
+      intent
+      priority
+      code
+    ]
+  }
+  Requirements: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: Requirements
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      derivedFrom
+    ]
+  }
+  ResearchStudy: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: ResearchStudy
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      title
+      protocol
+      partOf
+      status
+      primaryPurposeType
+      phase
+      studyDesign
+      condition
+      keyword
+      region
+      period
+      site
+      whyStopped
+      recruitment
+      result
+    ]
+  }
+  ResearchSubject: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status study subject]
+    resourceType: ResearchSubject
+    summary: [resourceType id meta implicitRules modifierExtension identifier status period study subject]
+  }
+  Resource: {modifiers: [implicitRules] required: [resourceType] resourceType: Resource summary: [resourceType id meta implicitRules]}
+  RiskAssessment: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType status subject]
+    resourceType: RiskAssessment
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      method
+      code
+      subject
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      condition
+      performer
+    ]
+  }
+  Schedule: {
+    modifiers: [implicitRules modifierExtension active]
+    required: [resourceType actor]
+    resourceType: Schedule
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      active
+      serviceCategory
+      serviceType
+      specialty
+      name
+      actor
+      planningHorizon
+    ]
+  }
+  SearchParameter: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url name status description code base type]
+    resourceType: SearchParameter
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      description
+      useContext
+      jurisdiction
+      code
+      base
+      type
+    ]
+  }
+  ServiceRequest: {
+    modifiers: [implicitRules modifierExtension status intent doNotPerform]
+    required: [resourceType status intent subject]
+    resourceType: ServiceRequest
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      replaces
+      requisition
+      status
+      intent
+      category
+      priority
+      doNotPerform
+      code
+      orderDetail
+      quantityQuantity
+      quantityRatio
+      quantityRange
+      subject
+      focus
+      encounter
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+      asNeededBoolean
+      asNeededCodeableconcept
+      authoredOn
+      requester
+      performerType
+      performer
+      location
+      reason
+      specimen
+      bodySite
+      bodyStructure
+    ]
+  }
+  Slot: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType schedule status start end]
+    resourceType: Slot
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      serviceCategory
+      serviceType
+      specialty
+      appointmentType
+      schedule
+      status
+      start
+      end
+    ]
+  }
+  Specimen: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: Specimen
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      accessionIdentifier
+      status
+      type
+      subject
+      receivedTime
+      combined
+      condition
+    ]
+  }
+  SpecimenDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: SpecimenDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      derivedFromCanonical
+      derivedFromUri
+      status
+      experimental
+      subjectCodeableconcept
+      subjectReference
+      date
+      publisher
+      contact
+      jurisdiction
+      effectivePeriod
+      typeCollected
+      patientPreparation
+      timeAspect
+      collection
+    ]
+  }
+  StructureDefinition: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url name status kind abstract type]
+    resourceType: StructureDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      keyword
+      fhirVersion
+      kind
+      abstract
+      context
+      contextInvariant
+      type
+      baseDefinition
+      derivation
+    ]
+  }
+  StructureMap: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url name status group]
+    resourceType: StructureMap
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      structure
+      import
+      const
+      group
+    ]
+  }
+  Subscription: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status topic channelType]
+    resourceType: Subscription
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      name
+      status
+      topic
+      contact
+      end
+      managingEntity
+      reason
+      filterBy
+      channelType
+      endpoint
+      heartbeatPeriod
+      timeout
+      contentType
+      content
+      maxCount
+    ]
+  }
+  SubscriptionStatus: {
+    modifiers: [implicitRules modifierExtension type]
+    required: [resourceType type subscription]
+    resourceType: SubscriptionStatus
+    summary: [resourceType id meta implicitRules modifierExtension status type eventsSinceSubscriptionStart subscription topic error]
+  }
+  SubscriptionTopic: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType url status]
+    resourceType: SubscriptionTopic
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      derivedFrom
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      effectivePeriod
+      resourceTrigger
+      eventTrigger
+      canFilterBy
+      notificationShape
+    ]
+  }
+  Substance: {
+    modifiers: [implicitRules modifierExtension instance status]
+    required: [resourceType instance code]
+    resourceType: Substance
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      instance
+      status
+      category
+      code
+      description
+      expiry
+      quantity
+      ingredient
+    ]
+  }
+  SubstanceDefinition: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstanceDefinition
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      version
+      status
+      classification
+      domain
+      grade
+      description
+      informationSource
+      note
+      manufacturer
+      supplier
+      moiety
+      characterization
+      property
+      referenceInformation
+      molecularWeight
+      structure
+      code
+      name
+      relationship
+      nucleicAcid
+      polymer
+      protein
+      sourceMaterial
+    ]
+  }
+  SubstanceNucleicAcid: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstanceNucleicAcid
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      sequenceType
+      numberOfSubunits
+      areaOfHybridisation
+      oligoNucleotideType
+      subunit
+    ]
+  }
+  SubstancePolymer: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstancePolymer
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      class
+      geometry
+      copolymerConnectivity
+      modification
+      monomerSet
+      repeat
+    ]
+  }
+  SubstanceProtein: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstanceProtein
+    summary: [resourceType id meta implicitRules modifierExtension sequenceType numberOfSubunits disulfideLinkage subunit]
+  }
+  SubstanceReferenceInformation: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstanceReferenceInformation
+    summary: [resourceType id meta implicitRules modifierExtension comment gene geneElement target]
+  }
+  SubstanceSourceMaterial: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType]
+    resourceType: SubstanceSourceMaterial
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      sourceMaterialClass
+      sourceMaterialType
+      sourceMaterialState
+      organismId
+      organismName
+      parentSubstanceId
+      parentSubstanceName
+      countryOfOrigin
+      geographicalLocation
+      developmentStage
+      fractionDescription
+      organism
+      partDescription
+    ]
+  }
+  SupplyDelivery: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType]
+    resourceType: SupplyDelivery
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      basedOn
+      partOf
+      status
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+    ]
+  }
+  SupplyRequest: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType item quantity]
+    resourceType: SupplyRequest
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      identifier
+      status
+      basedOn
+      category
+      priority
+      item
+      quantity
+      occurrenceDatetime
+      occurrencePeriod
+      occurrenceTiming
+      authoredOn
+      requester
+      supplier
+    ]
+  }
+  Task: {
+    modifiers: [implicitRules modifierExtension status doNotPerform]
+    required: [resourceType status intent]
+    resourceType: Task
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      groupIdentifier
+      partOf
+      status
+      statusReason
+      businessStatus
+      intent
+      doNotPerform
+      code
+      description
+      focus
+      for
+      encounter
+      requestedPeriod
+      executionPeriod
+      lastModified
+      requester
+      owner
+      performer
+      location
+    ]
+  }
+  TerminologyCapabilities: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status date kind]
+    resourceType: TerminologyCapabilities
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      copyright
+      kind
+      software
+      implementation
+      lockedDate
+    ]
+  }
+  TestPlan: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: TestPlan
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+    ]
+  }
+  TestReport: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status testScript result]
+    resourceType: TestReport
+    summary: [resourceType id meta implicitRules modifierExtension identifier name status testScript result score tester issued]
+  }
+  TestScript: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType name status]
+    resourceType: TestScript
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+    ]
+  }
+  Transport: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType intent requestedLocation currentLocation]
+    resourceType: Transport
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      instantiatesCanonical
+      instantiatesUri
+      basedOn
+      groupIdentifier
+      partOf
+      status
+      statusReason
+      intent
+      code
+      description
+      focus
+      for
+      encounter
+      completionTime
+      lastModified
+      requester
+      owner
+      location
+      requestedLocation
+      currentLocation
+    ]
+  }
+  ValueSet: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status]
+    resourceType: ValueSet
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      url
+      identifier
+      version
+      versionAlgorithmString
+      versionAlgorithmCoding
+      name
+      title
+      status
+      experimental
+      date
+      publisher
+      contact
+      useContext
+      jurisdiction
+      immutable
+      effectivePeriod
+    ]
+  }
+  VerificationResult: {
+    modifiers: [implicitRules modifierExtension]
+    required: [resourceType status]
+    resourceType: VerificationResult
+    summary: [
+      resourceType
+      id
+      meta
+      implicitRules
+      modifierExtension
+      target
+      targetLocation
+      need
+      status
+      statusDate
+      validationType
+      validationProcess
+      failureAction
+    ]
+  }
+  VisionPrescription: {
+    modifiers: [implicitRules modifierExtension status]
+    required: [resourceType status created patient dateWritten prescriber lensSpecification]
+    resourceType: VisionPrescription
+    summary: [resourceType id meta implicitRules modifierExtension status created patient dateWritten prescriber lensSpecification]
+  }
+}

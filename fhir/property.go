@@ -44,9 +44,11 @@ type Property struct {
 	ftype    *Type
 	enum     []string
 	group    []*Property
+	pkg      *slip.Package
 	required bool
 	array    bool
-	pkg      *slip.Package
+	summary  bool
+	modifier bool
 }
 
 // NewProp creates a new Prop from a simple map (JSON).
@@ -57,6 +59,8 @@ func NewProp(simple any) *Property {
 		typeName: alt.String(jp.C("type").First(simple)),
 		required: alt.Bool(jp.C("required").First(simple)),
 		array:    alt.Bool(jp.C("array").First(simple)),
+		summary:  alt.Bool(jp.C("summary").First(simple)),
+		modifier: alt.Bool(jp.C("modifier").First(simple)),
 	}
 	for _, e := range jp.C("enum").W().Get(simple) {
 		p.enum = append(p.enum, alt.String(e))
@@ -98,6 +102,8 @@ func (p *Property) Simplify() any {
 		"required":    p.required,
 		"array":       p.array,
 		"enum":        p.enum,
+		"summary":     p.summary,
+		"modifier":    p.modifier,
 	}
 	if 0 < len(p.group) {
 		group := make([]any, len(p.group))
@@ -237,6 +243,13 @@ func (p *Property) Describe(b []byte, indent, right int, ansi bool) []byte {
 	b = append(b, "Type: "...)
 	b = append(b, p.typeName...)
 	b = append(b, '\n')
+	b = append(b, indentSpaces[:i2]...)
+	if p.modifier {
+		b = append(b, "Modifier: true\n"...)
+	}
+	if p.summary {
+		b = append(b, "Summary: true\n"...)
+	}
 	b = append(b, indentSpaces[:i2]...)
 	b = append(b, "Cardinality: "...)
 	if p.required {

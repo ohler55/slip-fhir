@@ -285,18 +285,22 @@ func TestTypeSimplifyComplex(t *testing.T) {
   properties: [
     {
       array: false
-      description: "The low limit. The boundary is inclusive."
+      description: "The high limit. The boundary is inclusive."
       enum: []
-      name: low
+      modifier: false
+      name: high
       required: false
+      summary: false
       type: Quantity
     }
     {
       array: false
-      description: "The high limit. The boundary is inclusive."
+      description: "The low limit. The boundary is inclusive."
       enum: []
-      name: high
+      modifier: false
+      name: low
       required: false
+      summary: false
       type: Quantity
     }
   ]

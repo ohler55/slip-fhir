@@ -27,6 +27,19 @@ func TestDescribeTypeMinimum(t *testing.T) {
 	tt.Equal(t, false, strings.Contains(desc, "_gender"))
 }
 
+func TestDescribeTypeFlags(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(describe-type (find-class 'fhir5:account) out)`,
+		Expect: "nil",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, `/ ?! Σ/`, desc)
+}
+
 func TestDescribeTypeFull(t *testing.T) {
 	var out strings.Builder
 	scope := slip.NewScope()

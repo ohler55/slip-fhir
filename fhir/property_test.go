@@ -284,6 +284,20 @@ func TestPropertyDescribePlain(t *testing.T) {
 	tt.Equal(t, "/deceasedDateTime/", desc)
 }
 
+func TestPropertyDescribeFlags(t *testing.T) {
+	var out strings.Builder
+	scope := slip.NewScope()
+	scope.Let("out", &slip.OutputStream{Writer: &out})
+	(&sliptest.Function{
+		Scope:  scope,
+		Source: `(let ((*print-ansi* nil)) (describe (type-property 'fhir5:patient "active") out))`,
+		Expect: "",
+	}).Test(t)
+	desc := out.String()
+	tt.Equal(t, "/Summary: true/", desc)
+	tt.Equal(t, "/Modifier: true/", desc)
+}
+
 func TestPropertyDescribeCardinalityArray(t *testing.T) {
 	var out strings.Builder
 	scope := slip.NewScope()

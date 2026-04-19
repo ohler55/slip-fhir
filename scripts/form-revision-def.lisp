@@ -3,13 +3,16 @@
 ;;;; into the slip-fhir package. Some modifications to type names are made
 ;;;; during the conversion to avoid name clashes with built in class names.
 ;;;;
-;;;; To generate a fhir5.json file in the fhir directory run the following.
+;;;; Several files are expected in the specification directory. They are:
+;;;;   fhir.schema.json - https://fhir.hl7.org/fhir/fhir.schema.json.zip
+;;;;   search-parameters.json - https://fhir.hl7.org/fhir/search-parameters.json
+;;;;   resource-schema.sen
+;;;;   domainresource-schema.sen
+;;;;   spec/r5/flags.sen - generated using capture-the-flag.lisp
 ;;;;
-;;;; slip -e '(convert-fhir-schema "spec/fhir.schema.json" "spec/search-parameters.json" "fhir/fhir5.json")' scripts/*.lisp
+;;;; To generate a revision JSON file run the following.
 ;;;;
-;;;; spec files are from:
-;;;;   https://fhir.hl7.org/fhir/search-parameters.json
-;;;;   https://fhir.hl7.org/fhir/fhir.schema.json.zip
+;;;; slip -e '(form-revision-def "spec/r5" "def/r5/fhir5.json")' scripts/*.lisp
 ;;;;
 
 ;;; The FHIR heirarchy is defined as:
@@ -117,7 +120,7 @@
       ;; explain
       (dolist (enum *enum-map*)
         (when (regex-match nrx (car enum))
-          (setq found (add found enum))))
+          (addf found enum)))
       (cond ((null found) nil)
             ((= 1 (length found)) (bag-set prop (cdar found) "enum"))
             ;; more than one candidate enum found
@@ -166,9 +169,11 @@
                     (setq p (subseq p 2))
                     (unless (or (containsp p ".") (containsp p "[")) ;; only top level nodes
                       (unless (member p ignore)
-                        (setq props (add props (form-property (bag-get rb "name") p def (member p reqs)))))))))
+                        (addf props (form-property (bag-get rb "name") p def (member p reqs))))))))
 
-    (when props (bag-set rb props "properties"))))
+    (when props
+      (sort props 'string< :key (lambda (p) (bag-get p "name")))
+      (bag-set rb props "properties"))))
 
 (defun form-datatype-node (name def)
   "Forms a DataType node from the provided definition."
@@ -282,12 +287,12 @@
              (prefix (subseq key 0  (- (length key) 2)))
              (group (nth (1+ (* 2 i)) matches)))
         (when (and (< 1 (length group)) (not (prefixp prefix "_")))
-          (setq groups (add groups (cons prefix (append (getf matches (join "" "_" prefix)) group)))))))
+          (addf groups (cons prefix (append (getf matches (join "" "_" prefix)) group))))))
     (when (< 0 (length groups))
       (let (props)
         (bag-walk type-node (lambda (p)
                               (unless (prop-in-groups-p p groups)
-                                (setq props (add props p))))
+                                (addf props p)))
                   "properties[*]" t)
         (dolist (group groups)
           (let ((gp (make-bag "{}"))
@@ -298,14 +303,14 @@
               (let* ((xpath (format nil "properties[?@.name == '_~A']" (bag-get p "name")))
                      (xp (bag-get type-node xpath t)))
                 (when xp
-                  (setq group (add group xp))
+                  (addf group xp)
                   (setq props (remove xp props)))
                 (bag-remove p "description")))
-            (bag-set gp (cdr group) "group")
+            (bag-set gp (sort (cdr group) 'string< :key (lambda (x) (bag-get x "name"))) "group")
             (when (bag-get np "array")  (bag-set gp t "array"))
             (when (bag-get np "required")  (bag-set gp t "required"))
 
-            (setq props (add props gp))))
+            (addf props gp)))
         (bag-set type-node props "properties")))))
 
 (defun discover-groups (schema)
@@ -318,12 +323,10 @@
     ;; Build a set of regex patterns to use when checking candidates for
     ;; grouping.
     (bag-walk schema (lambda (name)
-                       (setq patterns
-                             (add patterns
-                                  (format nil ".+~A$" (string-upcase name :start 0 :end 1)))))
+                       (addf patterns (format nil ".+~A$" (string-upcase name :start 0 :end 1))))
               "primitives[*].name")
     (bag-walk schema (lambda (name)
-                       (setq patterns (add patterns (format nil ".+~A$" name))))
+                       (addf patterns (format nil ".+~A$" name)))
               "datatypes[*].name")
 
     ;; Armed with a set of patterns check each non-primitive type for groups
@@ -339,13 +342,41 @@
               "datatypes[*]" t)
     ))
 
-(defun convert-fhir-schema (schema-filename search-filename output-filename)
+(defun sort-types (types)
+  (sort types 'string< :key (lambda (type) (bag-get type "name"))))
+
+(defun update-requires-flags (resources flags)
+  (bag-walk resources
+            (lambda (res)
+              (let ((res-flags (bag-get flags (bag-get res "name") t)))
+                (dolist (pname (bag-get res-flags "required"))
+                  (let ((prop (bag-get res (format nil "properties[?@.name == '~A']" pname) t)))
+                    (when (and prop (not (bag-get prop "required")))
+                      (bag-set prop t "required"))))
+                (dolist (pname (bag-get res-flags "summary"))
+                  (let ((prop (bag-get res (format nil "properties[?@.name == '~A']" pname) t)))
+                    (when prop (bag-set prop t "summary"))))
+                (dolist (pname (bag-get res-flags "modifiers"))
+                  (let ((prop (bag-get res (format nil "properties[?@.name == '~A']" pname) t)))
+                    (when prop (bag-set prop t "modifier"))))))
+            "*" t))
+
+(defun add-summary (resources flags)
+  (bag-walk resources
+            (lambda (res)
+              (let ((res-flags (bag-get flags (bag-get res "name") t)))
+                (bag-set res (bag-get res-flags "summary") "summary")
+                (bag-set res (bag-get res-flags "modifiers") "modifiers")))
+            "*" t))
+
+(defun form-revision-def (spec-dir output-filename)
   "Convert a fhir.schema.json file to a schema file suitable for loading by this
    package."
-  (let ((fhir-schema (load-bag schema-filename))
-        (search-params (load-bag search-filename))
-        (resource-schema (load-bag "spec/resource-schema.sen"))
-        (domain-resource-schema (load-bag "spec/domainresource-schema.sen"))
+  (let ((fhir-schema (load-bag (filepath-join spec-dir "fhir.schema.json")))
+        (search-params (load-bag (filepath-join spec-dir "search-parameters.json")))
+        (resource-schema (load-bag (filepath-join spec-dir "resource-schema.sen")))
+        (domain-resource-schema (load-bag (filepath-join spec-dir "domainresource-schema.sen")))
+        (flags (load-bag (filepath-join spec-dir "flags.sen")))
         (schema (make-bag "{}")))
 
     (send schema :set (car (last (split (send fhir-schema :get "id") "/"))) "version")
@@ -390,15 +421,15 @@
                                    ((or "id" "code" "markdown") (send pb :set "string" "parent"))
                                    (t (send pb :set "string" "parent")))
 
-                                 (setq primitives (add primitives pb))))
+                                 (addf primitives pb)))
 
                               ;; Resource definition are in the discriminator.mapping element.
                               ((bag-has res-map p)
-                               (setq resources (add resources (form-resource-node p def search-params))))
+                               (addf resources (form-resource-node p def search-params)))
 
                               ;; Backbone definitions all include an _ character.
                               ((containsp p "_")
-                               (setq backbones (add backbones (form-backbone-node p def))))
+                               (addf backbones (form-backbone-node p def)))
 
                               ;; BackboneElement is not used and is the same as BackboneType.
                               ((string= "BackboneElement" p) nil)
@@ -410,29 +441,35 @@
                                            "Element"
                                            "DataType"
                                            "BackboneType"))
-                               (setq hierarchy (add hierarchy (form-hierarchy-node p def))))
+                               (addf hierarchy (form-hierarchy-node p def)))
 
                               ;; Everything else is a FHIR DataType.
                               (t
-                               (setq datatypes (add datatypes (form-datatype-node p def))))
+                               (addf datatypes (form-datatype-node p def)))
                               ))))))
 
-      (send schema :set primitives "primitives")
+      (send schema :set (sort-types primitives) "primitives")
 
       ;; The language enum are not listed in the schema file so they are added here.
       (bag-set resource-schema language-codes "properties[?@.name == 'language'].enum")
       ;; (bag-set resource-schema (cdr (assoc "languages" *enum-map*)) "properties[?@.name == 'language'].enum")
-      (setq hierarchy (add hierarchy resource-schema domain-resource-schema))
+      (addf hierarchy resource-schema domain-resource-schema)
 
       ;; Add each type list to the new schema being constructed.
-      (send schema :set hierarchy "hierarchy")
-      (send schema :set datatypes "datatypes")
-      (send schema :set backbones "backbones")
-      (send schema :set resources "resources")
+      (send schema :set (sort-types hierarchy) "hierarchy")
+      (send schema :set (sort-types datatypes) "datatypes")
+      (send schema :set (sort-types backbones) "backbones")
+
+      (send schema :set (sort-types resources) "resources")
 
       ;; There are no indicators for groups in the schema file so discover
       ;; them and update the new schema.
       (discover-groups schema)
+
+      ;; Add required if needed since the fhir.schema file has a number of omisions.
+      (update-requires-flags (bag-get schema "resources" t) flags)
+
+      (add-summary (bag-get schema "resources" t) flags)
 
       (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
         (send schema :write f :pretty t :json t :depth 1)))))
