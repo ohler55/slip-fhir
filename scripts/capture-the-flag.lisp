@@ -20,7 +20,11 @@
   (setq prefix (subseq prefix 0 (- (length prefix) 3)))
   (let (xa)
     (dolist (suffix (bag-get-list prop "type[*].code"))
-      (addf xa (join "" prefix (string-capitalize suffix))))
+      (let ((cap (string-capitalize suffix)))
+        (cond ((string= "Datetime" cap) (setq cap "DateTime"))
+              ((string= "Codeableconcept" cap) (setq cap "CodeableConcept"))
+              ((string= "Sampleddate" cap) (setq cap "SampledDate")))
+      (addf xa (join "" prefix cap)))
     xa))
 
 (defun capture-the-flag (src out)

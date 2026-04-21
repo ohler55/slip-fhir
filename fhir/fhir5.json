@@ -34355,6 +34355,10 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "The parties ultimately responsible for balancing the Account",
@@ -34927,6 +34931,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "What resource is being referenced",
@@ -35093,7 +35101,7 @@
         "code",
         "doNotPerform",
         "asNeededBoolean",
-        "asNeededCodeableconcept"
+        "asNeededCodeableConcept"
       ]
     },
     {
@@ -35346,6 +35354,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the Actor Definition",
@@ -35571,6 +35584,11 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "routeOfAdministration"
       ],
       "searchParams": [
         {
@@ -35880,6 +35898,12 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "actuality",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business identifier for the event",
@@ -35979,7 +36003,7 @@
         "code",
         "subject",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming",
         "detected",
@@ -36176,6 +36200,10 @@
           ],
           "name": "onset[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "patient"
       ],
       "searchParams": [
         {
@@ -36550,6 +36578,11 @@
           "type": "VirtualServiceDetail"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "participant"
+      ],
       "searchParams": [
         {
           "description": "An Identifier of the Appointment",
@@ -36836,6 +36869,11 @@
           "type": "instant"
         }
       ],
+      "required": [
+        "resourceType",
+        "appointment",
+        "participantStatus"
+      ],
       "searchParams": [
         {
           "description": "An Identifier in this appointment response",
@@ -37069,6 +37107,13 @@
           "name": "citeAs[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "artifact[x]",
+        "artifactReference",
+        "artifactCanonical",
+        "artifactUri"
+      ],
       "searchParams": [
         {
           "description": "The artifact assessment publication date",
@@ -37243,6 +37288,13 @@
           ],
           "name": "occurred[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "code",
+        "recorded",
+        "agent",
+        "source"
       ],
       "searchParams": [
         {
@@ -37419,6 +37471,10 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "code"
+      ],
       "searchParams": [
         {
           "description": "Business identifier",
@@ -37516,6 +37572,10 @@
           "summary": true,
           "type": "Reference"
         }
+      ],
+      "required": [
+        "resourceType",
+        "contentType"
       ],
       "searchParams": null,
       "summary": [
@@ -37634,6 +37694,9 @@
           "name": "storageTempRequirements",
           "type": "Range"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -37855,6 +37918,12 @@
           "type": "dateTime"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "product",
+        "patient"
+      ],
       "searchParams": [
         {
           "description": "The identifier of the dispense",
@@ -38000,6 +38069,11 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "includedStructure",
+        "patient"
+      ],
       "searchParams": [
         {
           "description": "Bodystructure identifier",
@@ -38141,6 +38215,10 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "type"
       ],
       "searchParams": [
         {
@@ -38521,6 +38599,14 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "date",
+        "kind",
+        "fhirVersion",
+        "format"
       ],
       "searchParams": [
         {
@@ -38916,6 +39002,12 @@
           "name": "instantiates[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "External Ids for this plan",
@@ -39157,6 +39249,9 @@
           "name": "telecom",
           "type": "ContactPoint"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -39454,6 +39549,12 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business Identifier for item",
@@ -39575,7 +39676,7 @@
         "code",
         "subject",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming",
         "quantity",
@@ -39902,6 +40003,10 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -40324,6 +40429,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the citation",
@@ -40697,6 +40806,14 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type",
+        "use",
+        "patient",
+        "created"
+      ],
       "searchParams": [
         {
           "description": "The primary identifier of the financial resource",
@@ -41065,6 +41182,15 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type",
+        "use",
+        "patient",
+        "created",
+        "outcome"
+      ],
       "searchParams": [
         {
           "description": "The identity of the ClaimResponse",
@@ -41337,6 +41463,11 @@
           "name": "prognosis[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business identifier",
@@ -41422,7 +41553,7 @@
         "description",
         "subject",
         "encounter",
-        "effectiveDatetime",
+        "effectiveDateTime",
         "effectivePeriod",
         "date",
         "performer",
@@ -41537,6 +41668,10 @@
           "summary": true,
           "type": "ClinicalUseDefinition_Warning"
         }
+      ],
+      "required": [
+        "resourceType",
+        "type"
       ],
       "searchParams": [
         {
@@ -42003,6 +42138,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "content"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the code system",
@@ -42380,6 +42520,10 @@
           "name": "instantiates[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Unique identifier",
@@ -42710,6 +42854,11 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent"
+      ],
       "searchParams": [
         {
           "description": "Unique identifier",
@@ -42823,7 +42972,7 @@
         "priority",
         "doNotPerform",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "authoredOn",
         "requester",
@@ -43066,6 +43215,14 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "url",
+        "name",
+        "status",
+        "code",
+        "search"
       ],
       "searchParams": [
         {
@@ -43368,6 +43525,14 @@
           "summary": true,
           "type": "string"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "type",
+        "date",
+        "author",
+        "title"
       ],
       "searchParams": [
         {
@@ -43855,6 +44020,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the concept map",
@@ -44258,6 +44427,11 @@
           "name": "onset[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "clinicalStatus",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "A unique identifier of the condition record",
@@ -44405,7 +44579,7 @@
         "bodySite",
         "subject",
         "encounter",
-        "onsetDatetime",
+        "onsetDateTime",
         "onsetAge",
         "onsetPeriod",
         "onsetRange",
@@ -44794,6 +44968,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the condition definition",
@@ -45081,6 +45260,10 @@
           ],
           "name": "source[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -45513,6 +45696,9 @@
           "name": "topic[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "The identity of the contract",
@@ -45778,6 +45964,12 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "kind",
+        "beneficiary"
+      ],
       "searchParams": [
         {
           "description": "The primary identifier of the insured and the coverage",
@@ -46028,6 +46220,14 @@
           "name": "serviced[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "purpose",
+        "patient",
+        "created",
+        "insurer"
+      ],
       "searchParams": [
         {
           "description": "The business identifier of the Eligibility",
@@ -46257,6 +46457,16 @@
           "name": "serviced[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "purpose",
+        "patient",
+        "created",
+        "request",
+        "outcome",
+        "insurer"
+      ],
       "searchParams": [
         {
           "description": "The business identifier",
@@ -46482,6 +46692,10 @@
           "name": "identified[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Unique id for the detected issue",
@@ -46550,7 +46764,7 @@
         "severity",
         "subject",
         "encounter",
-        "identifiedDatetime",
+        "identifiedDateTime",
         "identifiedPeriod",
         "author",
         "implicated"
@@ -46815,6 +47029,9 @@
           "type": "Device_Version"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "The biological source for the device",
@@ -47051,6 +47268,11 @@
           "summary": true,
           "type": "Reference"
         }
+      ],
+      "required": [
+        "resourceType",
+        "device",
+        "status"
       ],
       "searchParams": [
         {
@@ -47311,6 +47533,9 @@
           "type": "DeviceDefinition_Version"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A server defined search that may match any of the string fields in DeviceDefinition.name or DeviceDefinition.classification.type - the latter to search for 'generic' devices.",
@@ -47551,6 +47776,12 @@
           "type": "dateTime"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "device",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Search for devices that match this code",
@@ -47692,6 +47923,12 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType",
+        "type",
+        "device",
+        "category"
       ],
       "searchParams": [
         {
@@ -47994,6 +48231,12 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "intent",
+        "code",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business identifier for request/order",
@@ -48129,7 +48372,7 @@
         "code",
         "subject",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming",
         "authoredOn",
@@ -48309,6 +48552,12 @@
           "name": "timing[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "patient",
+        "device"
+      ],
       "searchParams": [
         {
           "description": "Search by identifier",
@@ -48349,7 +48598,7 @@
         "context",
         "timingTiming",
         "timingPeriod",
-        "timingDatetime",
+        "timingDateTime",
         "dateAsserted",
         "informationSource",
         "device",
@@ -48544,6 +48793,11 @@
           "name": "effective[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code"
+      ],
       "searchParams": [
         {
           "description": "An identifier for the report",
@@ -48660,7 +48914,7 @@
         "code",
         "subject",
         "encounter",
-        "effectiveDatetime",
+        "effectiveDateTime",
         "effectivePeriod",
         "issued",
         "performer",
@@ -48865,6 +49119,11 @@
           "summary": true,
           "type": "string"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "content"
       ],
       "searchParams": [
         {
@@ -49319,6 +49578,10 @@
           "type": "VirtualServiceDetail"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Identifier(s) by which this encounter is known",
@@ -49628,6 +49891,11 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "class"
+      ],
       "searchParams": [
         {
           "description": "The Encounter associated with this set of history values",
@@ -49813,6 +50081,12 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "connectionType",
+        "address"
+      ],
       "searchParams": [
         {
           "description": "Protocol/Profile/Standard to be used with this endpoint connection",
@@ -49943,6 +50217,9 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "The business identifier of the Enrollment",
@@ -50067,6 +50344,9 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -50211,6 +50491,11 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "patient"
       ],
       "searchParams": [
         {
@@ -50611,6 +50896,11 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "trigger"
       ],
       "searchParams": [
         {
@@ -51102,6 +51392,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "variableDefinition"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the evidence",
@@ -51521,6 +51816,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the evidence report",
@@ -51916,6 +52216,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "What resource is being referenced",
@@ -52284,6 +52588,10 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -52739,6 +53047,15 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type",
+        "use",
+        "patient",
+        "created",
+        "outcome"
+      ],
       "searchParams": [
         {
           "description": "The business identifier of the Explanation of Benefit",
@@ -53119,6 +53436,12 @@
           "name": "instantiates[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "patient",
+        "relationship"
+      ],
       "searchParams": [
         {
           "description": "A search by a record identifier",
@@ -53295,6 +53618,12 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business identifier",
@@ -53417,6 +53746,9 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -53590,6 +53922,11 @@
           ],
           "name": "instantiates[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
       ],
       "searchParams": [
         {
@@ -53795,6 +54132,12 @@
           "name": "start[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "lifecycleStatus",
+        "description",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "External Ids for this goal",
@@ -53876,7 +54219,7 @@
         "description",
         "subject",
         "startDate",
-        "startCodeableconcept",
+        "startCodeableConcept",
         "statusDate",
         "source"
       ]
@@ -54108,6 +54451,11 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "name",
+        "status"
       ],
       "searchParams": [
         {
@@ -54362,6 +54710,11 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "type",
+        "membership"
+      ],
       "searchParams": [
         {
           "description": "Kind of characteristic",
@@ -54594,6 +54947,14 @@
           "required": true
         }
       ],
+      "required": [
+        "resourceType",
+        "module[x]",
+        "moduleUri",
+        "moduleCanonical",
+        "moduleCodeableConcept",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "The identifier of the guidance response",
@@ -54636,7 +54997,7 @@
         "identifier",
         "moduleUri",
         "moduleCanonical",
-        "moduleCodeableconcept",
+        "moduleCodeableConcept",
         "status"
       ]
     },
@@ -54833,6 +55194,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -55119,6 +55483,11 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code"
+      ],
       "searchParams": [
         {
           "description": "Identifiers for the imaging selection",
@@ -55390,6 +55759,11 @@
           "summary": true,
           "type": "Reference"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
       ],
       "searchParams": [
         {
@@ -55758,6 +56132,15 @@
           "required": true
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "vaccineCode",
+        "patient",
+        "occurrence[x]",
+        "occurrenceDateTime",
+        "occurrenceString"
+      ],
       "searchParams": [
         {
           "description": "Business identifier",
@@ -55866,7 +56249,7 @@
         "status",
         "vaccineCode",
         "patient",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrenceString",
         "primarySource",
         "performer",
@@ -56009,6 +56392,14 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "patient",
+        "targetDisease",
+        "immunizationEvent",
+        "doseStatus"
+      ],
       "searchParams": [
         {
           "description": "ID of the evaluation",
@@ -56130,6 +56521,12 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "patient",
+        "date",
+        "recommendation"
       ],
       "searchParams": [
         {
@@ -56809,6 +57206,14 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "url",
+        "name",
+        "status",
+        "packageId",
+        "fhirVersion"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the implementation guide",
@@ -57060,6 +57465,12 @@
           "type": "Ingredient_Substance"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "role",
+        "substance"
+      ],
       "searchParams": [
         {
           "description": "The product which this ingredient is a constituent part of",
@@ -57287,6 +57698,9 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text",
@@ -57512,6 +57926,10 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Search for products that match this code",
@@ -57667,6 +58085,12 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "countType",
+        "reportedDateTime"
       ],
       "searchParams": [
         {
@@ -57886,6 +58310,10 @@
           ],
           "name": "period[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -58313,6 +58741,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type"
+      ],
       "searchParams": [
         {
           "description": "What resource is being referenced",
@@ -58536,6 +58969,10 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "item"
+      ],
       "searchParams": [
         {
           "description": "Author of the Linkage",
@@ -58704,6 +59141,11 @@
           "summary": true,
           "type": "string"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "mode"
       ],
       "searchParams": [
         {
@@ -58964,6 +59406,9 @@
           "type": "VirtualServiceDetail"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A (part of the) address of the location",
@@ -59190,6 +59635,11 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "manufacturedDoseForm"
       ],
       "searchParams": [
         {
@@ -59675,6 +60125,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "What resource is being referenced",
@@ -60002,6 +60456,12 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "type",
+        "period"
+      ],
       "searchParams": [
         {
           "description": "External identifier of the measure report to be returned",
@@ -60172,6 +60632,9 @@
           "summary": true,
           "type": "Quantity"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -60436,6 +60899,16 @@
           "required": true
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "medication",
+        "subject",
+        "occurence[x]",
+        "occurenceDateTime",
+        "occurencePeriod",
+        "occurenceTiming"
+      ],
       "searchParams": [
         {
           "description": "Return administrations with this external identifier",
@@ -60538,7 +61011,7 @@
         "status",
         "medication",
         "subject",
-        "occurenceDatetime",
+        "occurenceDateTime",
         "occurencePeriod",
         "occurenceTiming",
         "recorded",
@@ -60766,6 +61239,12 @@
           "summary": true,
           "type": "dateTime"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "medication",
+        "subject"
       ],
       "searchParams": [
         {
@@ -61245,6 +61724,9 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "Business identifier for this medication",
@@ -61641,6 +62123,13 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent",
+        "medication",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Return prescriptions with this external identifier",
@@ -61931,6 +62420,12 @@
           "name": "effective[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "medication",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Return statements with this external identifier",
@@ -62011,7 +62506,7 @@
         "medication",
         "subject",
         "encounter",
-        "effectiveDatetime",
+        "effectiveDateTime",
         "effectivePeriod",
         "effectiveTiming",
         "dateAsserted",
@@ -62258,6 +62753,10 @@
           "summary": true,
           "type": "string"
         }
+      ],
+      "required": [
+        "resourceType",
+        "name"
       ],
       "searchParams": [
         {
@@ -62657,6 +63156,14 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "date",
+        "event[x]",
+        "eventCoding",
+        "eventUri"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the message definition",
@@ -62907,6 +63414,13 @@
           "required": true
         }
       ],
+      "required": [
+        "resourceType",
+        "event[x]",
+        "eventCoding",
+        "eventCanonical",
+        "source"
+      ],
       "searchParams": [
         {
           "description": "The source of the decision",
@@ -63093,6 +63607,9 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -63457,6 +63974,14 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "name",
+        "status",
+        "kind",
+        "date",
+        "uniqueId"
       ],
       "searchParams": [
         {
@@ -63841,6 +64366,12 @@
           "name": "reported[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject",
+        "consumedItem"
+      ],
       "searchParams": [
         {
           "description": "Return statements with this external identifier",
@@ -63910,7 +64441,7 @@
         "code",
         "subject",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "recorded"
       ]
@@ -64130,6 +64661,13 @@
           "name": "instantiates[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent",
+        "subject",
+        "dateTime"
+      ],
       "searchParams": [
         {
           "description": "Return nutrition orders with this external identifier",
@@ -64321,6 +64859,10 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -64697,6 +65239,11 @@
           "name": "value[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "code"
+      ],
       "searchParams": [
         {
           "description": "The unique id for a particular observation",
@@ -64967,22 +65514,22 @@
         "subject",
         "focus",
         "encounter",
-        "effectiveDatetime",
+        "effectiveDateTime",
         "effectivePeriod",
         "effectiveTiming",
         "effectiveInstant",
         "issued",
         "performer",
         "valueQuantity",
-        "valueCodeableconcept",
+        "valueCodeableConcept",
         "valueString",
         "valueBoolean",
         "valueInteger",
         "valueRange",
         "valueRatio",
-        "valueSampleddata",
+        "valueSampledData",
         "valueTime",
-        "valueDatetime",
+        "valueDateTime",
         "valuePeriod",
         "valueAttachment",
         "valueReference",
@@ -65384,6 +65931,11 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "code"
       ],
       "searchParams": [
         {
@@ -65792,6 +66344,16 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "name",
+        "status",
+        "kind",
+        "code",
+        "system",
+        "type",
+        "instance"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the operation definition",
@@ -65996,6 +66558,10 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType",
+        "issue"
+      ],
       "searchParams": null,
       "summary": [
         "resourceType",
@@ -66116,6 +66682,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -66318,6 +66887,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -66568,6 +67140,9 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A biologically derived product within this packaged product",
@@ -66685,6 +67260,9 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": null,
       "summary": [
         "resourceType",
@@ -66701,7 +67279,7 @@
         "modifierExtension",
         "active",
         "deceasedBoolean",
-        "deceasedDatetime",
+        "deceasedDateTime",
         "link"
       ],
       "name": "Patient",
@@ -66883,6 +67461,9 @@
           "name": "multipleBirth[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "Whether the patient record is active",
@@ -67036,7 +67617,7 @@
         "gender",
         "birthDate",
         "deceasedBoolean",
-        "deceasedDatetime",
+        "deceasedDateTime",
         "address",
         "managingOrganization",
         "link"
@@ -67154,6 +67735,13 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "created",
+        "recipient",
+        "amount"
       ],
       "searchParams": [
         {
@@ -67455,6 +68043,14 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "type",
+        "status",
+        "created",
+        "date",
+        "amount"
+      ],
       "searchParams": [
         {
           "description": "The account to which payment or adjustment was applied.",
@@ -67636,6 +68232,11 @@
           "type": "Period"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "combining"
+      ],
       "searchParams": [
         {
           "description": "active | entered-in-error | draft | rejected",
@@ -67807,6 +68408,9 @@
           "name": "deceased[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A person Identifier",
@@ -67960,7 +68564,7 @@
         "gender",
         "birthDate",
         "deceasedBoolean",
-        "deceasedDatetime",
+        "deceasedDateTime",
         "address",
         "managingOrganization"
       ]
@@ -68325,6 +68929,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "What resource is being referenced\r\n",
@@ -68495,7 +69103,7 @@
         "jurisdiction",
         "effectivePeriod",
         "asNeededBoolean",
-        "asNeededCodeableconcept"
+        "asNeededCodeableConcept"
       ]
     },
     {
@@ -68635,6 +69243,9 @@
           "name": "deceased[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text",
@@ -68770,7 +69381,7 @@
         "gender",
         "birthDate",
         "deceasedBoolean",
-        "deceasedDatetime",
+        "deceasedDateTime",
         "address"
       ]
     },
@@ -68892,6 +69503,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -69275,6 +69889,11 @@
           "name": "reported[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "A unique identifier for a procedure",
@@ -69397,7 +70016,7 @@
         "subject",
         "focus",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceString",
         "occurrenceAge",
@@ -69542,6 +70161,11 @@
           ],
           "name": "occurred[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "target",
+        "agent"
       ],
       "searchParams": [
         {
@@ -69936,6 +70560,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the questionnaire",
@@ -70200,6 +70828,11 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "questionnaire",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "The unique identifier for the questionnaire response",
@@ -70424,6 +71057,9 @@
           "type": "Period"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "The case or procedure number",
@@ -70616,6 +71252,10 @@
           "summary": true,
           "type": "ContactPoint"
         }
+      ],
+      "required": [
+        "resourceType",
+        "patient"
       ],
       "searchParams": [
         {
@@ -70929,6 +71569,11 @@
           ],
           "name": "instantiates[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent"
       ],
       "searchParams": [
         {
@@ -71273,6 +71918,10 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status"
       ],
       "searchParams": [
         {
@@ -71665,6 +72314,10 @@
           "type": "CodeableConcept"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Classification for the study",
@@ -71940,6 +72593,12 @@
           "type": "Reference"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "study",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Business Identifier for research subject in a study",
@@ -72142,6 +72801,11 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Unique identifier for the assessment",
@@ -72216,7 +72880,7 @@
         "code",
         "subject",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "condition",
         "performer"
@@ -72323,6 +72987,10 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType",
+        "actor"
       ],
       "searchParams": [
         {
@@ -72751,6 +73419,16 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "url",
+        "name",
+        "status",
+        "description",
+        "code",
+        "base",
+        "type"
       ],
       "searchParams": [
         {
@@ -73228,6 +73906,12 @@
           "name": "quantity[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent",
+        "subject"
+      ],
       "searchParams": [
         {
           "description": "Identifiers assigned to this order",
@@ -73393,11 +74077,11 @@
         "subject",
         "focus",
         "encounter",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming",
         "asNeededBoolean",
-        "asNeededCodeableconcept",
+        "asNeededCodeableConcept",
         "authoredOn",
         "requester",
         "performerType",
@@ -73532,6 +74216,13 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "schedule",
+        "status",
+        "start",
+        "end"
       ],
       "searchParams": [
         {
@@ -73755,6 +74446,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": [
         {
@@ -74185,6 +74879,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "The unique identifier associated with the SpecimenDefinition",
@@ -74258,7 +74956,7 @@
         "derivedFromUri",
         "status",
         "experimental",
-        "subjectCodeableconcept",
+        "subjectCodeableConcept",
         "subjectReference",
         "date",
         "publisher",
@@ -74584,6 +75282,15 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "url",
+        "name",
+        "status",
+        "kind",
+        "abstract",
+        "type"
       ],
       "searchParams": [
         {
@@ -75022,6 +75729,13 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "url",
+        "name",
+        "status",
+        "group"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the structure map",
@@ -75338,6 +76052,12 @@
           "type": "canonical"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "topic",
+        "channelType"
+      ],
       "searchParams": [
         {
           "description": "Contact details for the subscription",
@@ -75517,6 +76237,11 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "type",
+        "subscription"
       ],
       "searchParams": null,
       "summary": [
@@ -75800,6 +76525,11 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "url",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Date status first applied",
@@ -76009,6 +76739,11 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "instance",
+        "code"
       ],
       "searchParams": [
         {
@@ -76271,6 +77006,9 @@
           "type": "string"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "High or low level categorization, e.g. polymer vs. nucleic acid or linear vs. branch chain",
@@ -76402,6 +77140,9 @@
           "type": "SubstanceNucleicAcid_Subunit"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": null,
       "summary": [
         "resourceType",
@@ -76492,6 +77233,9 @@
           "type": "code"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": null,
       "summary": [
         "resourceType",
@@ -76571,6 +77315,9 @@
           "type": "SubstanceProtein_Subunit"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": null,
       "summary": [
         "resourceType",
@@ -76641,6 +77388,9 @@
           "summary": true,
           "type": "SubstanceReferenceInformation_Target"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": null,
       "summary": [
@@ -76781,6 +77531,9 @@
           "summary": true,
           "type": "CodeableConcept"
         }
+      ],
+      "required": [
+        "resourceType"
       ],
       "searchParams": null,
       "summary": [
@@ -76924,6 +77677,9 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType"
+      ],
       "searchParams": [
         {
           "description": "External identifier",
@@ -76965,7 +77721,7 @@
         "basedOn",
         "partOf",
         "status",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming"
       ]
@@ -77143,6 +77899,11 @@
           "name": "occurrence[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "item",
+        "quantity"
+      ],
       "searchParams": [
         {
           "description": "Business Identifier for SupplyRequest",
@@ -77206,7 +77967,7 @@
         "priority",
         "item",
         "quantity",
-        "occurrenceDatetime",
+        "occurrenceDateTime",
         "occurrencePeriod",
         "occurrenceTiming",
         "authoredOn",
@@ -77508,6 +78269,11 @@
           ],
           "name": "instantiates[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "intent"
       ],
       "searchParams": [
         {
@@ -77951,6 +78717,12 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status",
+        "date",
+        "kind"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the terminology capabilities",
@@ -78318,6 +79090,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "An identifier for the test plan",
@@ -78495,6 +79271,12 @@
           "summary": true,
           "type": "string"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "testScript",
+        "result"
       ],
       "searchParams": [
         {
@@ -78818,6 +79600,11 @@
           ],
           "name": "versionAlgorithm[x]"
         }
+      ],
+      "required": [
+        "resourceType",
+        "name",
+        "status"
       ],
       "searchParams": [
         {
@@ -79236,6 +80023,12 @@
           "name": "instantiates[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "intent",
+        "requestedLocation",
+        "currentLocation"
+      ],
       "searchParams": [
         {
           "description": "External identifier",
@@ -79571,6 +80364,10 @@
           "name": "versionAlgorithm[x]"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "A use context assigned to the value set\r\n",
@@ -79874,6 +80671,10 @@
           "type": "VerificationResult_Validator"
         }
       ],
+      "required": [
+        "resourceType",
+        "status"
+      ],
       "searchParams": [
         {
           "description": "Select validation information for data that was attested to using the specified method",
@@ -80048,6 +80849,15 @@
           "summary": true,
           "type": "code"
         }
+      ],
+      "required": [
+        "resourceType",
+        "status",
+        "created",
+        "patient",
+        "dateWritten",
+        "prescriber",
+        "lensSpecification"
       ],
       "searchParams": [
         {

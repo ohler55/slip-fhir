@@ -12,7 +12,7 @@
 ;;;;
 ;;;; To generate a revision JSON file run the following.
 ;;;;
-;;;; slip -e '(form-revision-def "spec/r5" "def/r5/fhir5.json")' scripts/*.lisp
+;;;; slip -e '(form-revision-def "spec/r5" "def/r5.json")' scripts/*.lisp
 ;;;;
 
 ;;; The FHIR heirarchy is defined as:
@@ -366,6 +366,7 @@
             (lambda (res)
               (let ((res-flags (bag-get flags (bag-get res "name") t)))
                 (bag-set res (bag-get res-flags "summary") "summary")
+                (bag-set res (bag-get res-flags "required") "required")
                 (bag-set res (bag-get res-flags "modifiers") "modifiers")))
             "*" t))
 
