@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Release tags mostly follow the Slip release tags.
 
-## [1.4.1] - unreleased
+## [1.4.1] - 2026-04-26
 ### Added
 - Added slap-fhir application.
 
