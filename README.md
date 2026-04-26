@@ -31,7 +31,7 @@ slip-fhir plugins already imported making for a simplier way to get
 the environment up and running.
 
 ```
-> go install slip-fhir@latest
+> go install slip-fhir/cmd/slap-fhir@latest
 ```
 
 A third option is to checkout the
