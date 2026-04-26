@@ -10,6 +10,7 @@ lint:
 build:
 	go mod tidy
 	go build -buildmode=plugin -o fhir.so *.go
+	make -C cmd
 
 test: lint
 	make -C fhir test

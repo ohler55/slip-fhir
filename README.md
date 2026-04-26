@@ -25,12 +25,18 @@ this plugin are in the [design document](design.md).
 
 Slip-FHIR is a plugin for the [Slip](https://github.com/ohler55/slip)
 Lisp environment. It can be imported with the Lisp `require` function
-or as an alternative the [slap](https://github.com/ohler55/slap)
-application can be used. The slap application is a standalone version
-of Slip with various plugins already imported making for a simplier
-way to get the environment up and running.
+or as an alternative the slap-fhir application can be built. The
+slap-fhir application is a standalone version of Slip with the
+slip-fhir plugins already imported making for a simplier way to get
+the environment up and running.
 
-First checkout the [slap](https://github.com/ohler55/slap) repository. From the master branch type:
+```
+> go install slip-fhir/cmd/slap-fhir@latest
+```
+
+A third option is to checkout the
+[slap](https://github.com/ohler55/slap) repository and build from the
+master branch by typing:
 
 ```
 > make
@@ -44,7 +50,7 @@ copied your choice of a `bin` directory.
 Just run the slap application.
 
 ```
-> slap
+> slap-fhir
 ```
 
 The Slip REPL will start and be ready for commands.
