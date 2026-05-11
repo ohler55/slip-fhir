@@ -53,7 +53,7 @@
       code
       doNotPerform
       asNeededBoolean
-      asNeededCodeableconcept
+      asNeededCodeableConcept
     ]
   }
   ActorDefinition: {
@@ -122,7 +122,7 @@
       code
       subject
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
       detected
@@ -421,7 +421,7 @@
       code
       subject
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
       quantity
@@ -548,7 +548,7 @@
       description
       subject
       encounter
-      effectiveDatetime
+      effectiveDateTime
       effectivePeriod
       date
       performer
@@ -658,7 +658,7 @@
       priority
       doNotPerform
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       authoredOn
       requester
@@ -770,7 +770,7 @@
       bodySite
       subject
       encounter
-      onsetDatetime
+      onsetDateTime
       onsetAge
       onsetPeriod
       onsetRange
@@ -908,7 +908,7 @@
       severity
       subject
       encounter
-      identifiedDatetime
+      identifiedDateTime
       identifiedPeriod
       author
       implicated
@@ -996,7 +996,7 @@
       code
       subject
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
       authoredOn
@@ -1023,7 +1023,7 @@
       context
       timingTiming
       timingPeriod
-      timingDatetime
+      timingDateTime
       dateAsserted
       informationSource
       device
@@ -1047,7 +1047,7 @@
       code
       subject
       encounter
-      effectiveDatetime
+      effectiveDateTime
       effectivePeriod
       issued
       performer
@@ -1380,7 +1380,7 @@
       description
       subject
       startDate
-      startCodeableconcept
+      startCodeableConcept
       statusDate
       source
     ]
@@ -1434,7 +1434,7 @@
   }
   GuidanceResponse: {
     modifiers: [implicitRules modifierExtension status]
-    required: [resourceType "module[x]" moduleUri moduleCanonical moduleCodeableconcept status]
+    required: [resourceType "module[x]" moduleUri moduleCanonical moduleCodeableConcept status]
     resourceType: GuidanceResponse
     summary: [
       resourceType
@@ -1446,7 +1446,7 @@
       identifier
       moduleUri
       moduleCanonical
-      moduleCodeableconcept
+      moduleCodeableConcept
       status
     ]
   }
@@ -1533,7 +1533,7 @@
   }
   Immunization: {
     modifiers: [implicitRules modifierExtension status isSubpotent]
-    required: [resourceType status vaccineCode patient "occurrence[x]" occurrenceDatetime occurrenceString]
+    required: [resourceType status vaccineCode patient "occurrence[x]" occurrenceDateTime occurrenceString]
     resourceType: Immunization
     summary: [
       resourceType
@@ -1545,7 +1545,7 @@
       status
       vaccineCode
       patient
-      occurrenceDatetime
+      occurrenceDateTime
       occurrenceString
       primarySource
       performer
@@ -1840,7 +1840,7 @@
   }
   MedicationAdministration: {
     modifiers: [implicitRules modifierExtension status]
-    required: [resourceType status medication subject "occurence[x]" occurenceDatetime occurencePeriod occurenceTiming]
+    required: [resourceType status medication subject "occurence[x]" occurenceDateTime occurencePeriod occurenceTiming]
     resourceType: MedicationAdministration
     summary: [
       resourceType
@@ -1852,7 +1852,7 @@
       status
       medication
       subject
-      occurenceDatetime
+      occurenceDateTime
       occurencePeriod
       occurenceTiming
       recorded
@@ -1911,7 +1911,7 @@
       medication
       subject
       encounter
-      effectiveDatetime
+      effectiveDateTime
       effectivePeriod
       effectiveTiming
       dateAsserted
@@ -2112,7 +2112,7 @@
       code
       subject
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       recorded
     ]
@@ -2163,22 +2163,22 @@
       subject
       focus
       encounter
-      effectiveDatetime
+      effectiveDateTime
       effectivePeriod
       effectiveTiming
       effectiveInstant
       issued
       performer
       valueQuantity
-      valueCodeableconcept
+      valueCodeableConcept
       valueString
       valueBoolean
       valueInteger
       valueRange
       valueRatio
-      valueSampleddata
+      valueSampledData
       valueTime
-      valueDatetime
+      valueDateTime
       valuePeriod
       valueAttachment
       valueReference
@@ -2321,7 +2321,7 @@
     summary: [resourceType id meta implicitRules parameter]
   }
   Patient: {
-    modifiers: [implicitRules modifierExtension active deceasedBoolean deceasedDatetime link]
+    modifiers: [implicitRules modifierExtension active deceasedBoolean deceasedDateTime link]
     required: [resourceType]
     resourceType: Patient
     summary: [
@@ -2337,7 +2337,7 @@
       gender
       birthDate
       deceasedBoolean
-      deceasedDatetime
+      deceasedDateTime
       address
       managingOrganization
       link
@@ -2378,7 +2378,7 @@
       gender
       birthDate
       deceasedBoolean
-      deceasedDatetime
+      deceasedDateTime
       address
       managingOrganization
     ]
@@ -2411,7 +2411,7 @@
       jurisdiction
       effectivePeriod
       asNeededBoolean
-      asNeededCodeableconcept
+      asNeededCodeableConcept
     ]
   }
   Practitioner: {
@@ -2431,7 +2431,7 @@
       gender
       birthDate
       deceasedBoolean
-      deceasedDatetime
+      deceasedDateTime
       address
     ]
   }
@@ -2477,7 +2477,7 @@
       subject
       focus
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceString
       occurrenceAge
@@ -2699,7 +2699,7 @@
       code
       subject
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       condition
       performer
@@ -2784,11 +2784,11 @@
       subject
       focus
       encounter
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
       asNeededBoolean
-      asNeededCodeableconcept
+      asNeededCodeableConcept
       authoredOn
       requester
       performerType
@@ -2862,7 +2862,7 @@
       derivedFromUri
       status
       experimental
-      subjectCodeableconcept
+      subjectCodeableConcept
       subjectReference
       date
       publisher
@@ -3149,7 +3149,7 @@
       basedOn
       partOf
       status
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
     ]
@@ -3171,7 +3171,7 @@
       priority
       item
       quantity
-      occurrenceDatetime
+      occurrenceDateTime
       occurrencePeriod
       occurrenceTiming
       authoredOn

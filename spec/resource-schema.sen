@@ -7,12 +7,14 @@
       name: resourceType
       description: "Discriminator for resources."
       type: code
+      summary: true
     }
     {
       name: id
       description: 'Unique id for the element within a resource (for internal references).
 This may be any string value that does not contain spaces.'
       type: id
+      summary: true
     }
     {
       name: meta
@@ -20,6 +22,7 @@ This may be any string value that does not contain spaces.'
 by the infrastructure. Changes to the content might not always be associated with version changes
 to the resource.'
       type: Meta
+      summary: true
     }
     {
       name: implicitRules
@@ -27,6 +30,8 @@ to the resource.'
 was constructed, and which must be understood when processing the content. Often, this is a reference
 to an implementation guide that defines the special rules along with other profiles etc.'
       type: uri
+      summary: true
+      modifier: true
     }
     {
       name: _implicitRules

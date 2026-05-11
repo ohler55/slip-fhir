@@ -24,7 +24,7 @@
         (cond ((string= "Datetime" cap) (setq cap "DateTime"))
               ((string= "Codeableconcept" cap) (setq cap "CodeableConcept"))
               ((string= "Sampleddate" cap) (setq cap "SampledDate")))
-      (addf xa (join "" prefix cap)))
+        (addf xa (join "" prefix cap))))
     xa))
 
 (defun capture-the-flag (src out)

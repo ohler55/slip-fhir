@@ -12,7 +12,7 @@
 ;;;;
 ;;;; To generate a revision JSON file run the following.
 ;;;;
-;;;; slip -e '(form-revision-def "spec/r5" "def/r5.json")' scripts/*.lisp
+;;;; slip -e '(form-revision-def "spec/r5" "def/r5.json")' scripts/enums.lisp scripts/language.lisp scripts/form-revision-def.lisp
 ;;;;
 
 ;;; The FHIR heirarchy is defined as:
@@ -365,9 +365,11 @@
   (bag-walk resources
             (lambda (res)
               (let ((res-flags (bag-get flags (bag-get res "name") t)))
-                (bag-set res (bag-get res-flags "summary") "summary")
-                (bag-set res (bag-get res-flags "required") "required")
-                (bag-set res (bag-get res-flags "modifiers") "modifiers")))
+                (unless res-flags (format t "*** no flags for ~A~%" (bag-get res "name")))
+                (when res-flags
+                  (bag-set res (bag-get res-flags "summary") "summary")
+                  (bag-set res (bag-get res-flags "required") "required")
+                  (bag-set res (bag-get res-flags "modifiers") "modifiers"))))
             "*" t))
 
 (defun form-revision-def (spec-dir output-filename)
@@ -473,4 +475,5 @@
       (add-summary (bag-get schema "resources" t) flags)
 
       (with-open-file (f output-filename :direction :output :if-exists :supersede :if-does-not-exist :create)
-        (send schema :write f :pretty t :json t :depth 1)))))
+        (send schema :write f :pretty t :json t :depth 1)
+        (terpri f)))))
